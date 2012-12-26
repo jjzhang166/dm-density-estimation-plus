@@ -26,7 +26,11 @@ extern "C"{
 
 /** Function to swap the enddianness of ints.
  * @param x int to swap*/
-inline uint32_t endian_swap(uint32_t* x)
+#if defined(_WIN32) || defined(_WIND64)
+	__inline uint32_t endian_swap(uint32_t* x)
+#else
+	inline uint32_t endian_swap(uint32_t* x)
+#endif
 {
     *x = (*x>>24) | 
         ((*x<<8) & 0x00FF0000) |

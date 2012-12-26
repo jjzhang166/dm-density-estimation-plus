@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+//#include <cstring>
 
 /** \file 
  * GadgetReader library method file*/
@@ -76,7 +77,11 @@ namespace GadgetReader{
         for(int i=1;i<files_expected;i++){
                 f_name c_name=base_filename;
                 char tmp[6];
-                snprintf(tmp,6,".%d",i);
+#if defined( _WIN32 ) || defined( _WIN64 )
+                _snprintf(tmp,6,".%d",i);
+#else
+				snprintf(tmp, 6, ".%d", i);
+#endif
                 c_name+=(std::string(tmp));
                 GSnapFile tmp_map(c_name,debug, BlockNames);
                 if(tmp_map.GetNumBlocks() ==0 || !check_headers(tmp_map.header,file_maps[0].header)){
