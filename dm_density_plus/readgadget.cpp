@@ -38,23 +38,15 @@ GSnap::GSnap(string filename){
 	Npart = header.npart[1];
 	pos = new float[Npart * 3];
 	vel = new float[Npart * 3];
-	ids = new uint64_t[Npart];
+	ids = new uint32_t[Npart];
 
-	//read header
-	file.read((char *) &record0, sizeof(uint32_t));
-	file.read((char *) &header, sizeof(gadget_header));
-	file.read((char *) &record1, sizeof(uint32_t));
-	if(record0 != record1){
-		printf("Record in file not equal!\n");
-		return;
-	}
 
 	//read pos
 	file.read((char *) &record0, sizeof(uint32_t));
 	file.read((char *) pos, sizeof(float) * 3 * Npart);
 	file.read((char *) &record1, sizeof(uint32_t));
 	if(record0 != record1){
-		printf("Record in file not equal!\n");
+		printf("Record in file not equal--pos!\n");
 		return;
 	}
 
@@ -63,21 +55,30 @@ GSnap::GSnap(string filename){
 	file.read((char *) vel, sizeof(float) * 3 * Npart);
 	file.read((char *) &record1, sizeof(uint32_t));
 	if(record0 != record1){
-		printf("Record in file not equal!\n");
+		printf("Record in file not equal--vel!\n");
 		return;
 	}
 
 	//read ids
 	file.read((char *) &record0, sizeof(uint32_t));
-	file.read((char *) ids, sizeof(uint64_t) * Npart);
+	file.read((char *) ids, sizeof(uint32_t) * Npart);
 	file.read((char *) &record1, sizeof(uint32_t));
 	if(record0 != record1){
-		printf("Record in file not equal!\n");
+		printf("Record in file not equal--ids!\n");
 		return;
 	}
 
 	file.close();
 
+	//test
+	/*int i;
+	for(i = 0; i < Npart; i++){
+		printf("%d %f %f %f %f %f %f\n",
+				ids[i], pos[i*3], pos[i*3 + 1], pos[i*3 + 2],
+				vel[i*3], vel[i*3+1], vel[i*3+2]);
+	}
+
+	exit(0);*/
 }
 
 GSnap::~GSnap(){

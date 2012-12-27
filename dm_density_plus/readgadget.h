@@ -14,7 +14,7 @@ public:
 	GSnap(std::string filename);
 	~GSnap();
 	gadget_header header;
-	uint64_t * ids;
+	uint32_t * ids;
 	float * pos;
 	float * vel;
 	uint32_t Npart;
