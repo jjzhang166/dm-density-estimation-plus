@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{f0dad11c-5b35-4c24-892c-59087ddaa5a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{e370572c-cd3a-4e60-9a13-bc72cddda962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gadget">
+      <UniqueIdentifier>{2ee7041a-a1d0-4261-ac78-21b97d22bda3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\gadget\gadgetheader.h">
+      <Filter>gadget</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gadget\gadgetreader.hpp">
+      <Filter>gadget</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gadget\gadgetwriter.hpp">
+      <Filter>gadget</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gadget\read_utils.h">
+      <Filter>gadget</Filter>
+    </ClInclude>
+    <ClInclude Include="src\estimator.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grids.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tetrastream.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tetrahedron.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kernel.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\types.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\gadget\gadgetreader.cpp">
+      <Filter>gadget</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gadget\gadgetwriter.cpp">
+      <Filter>gadget</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gadget\read_utils.c">
+      <Filter>gadget</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tetrastream.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\grids.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\estimator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\tetrahedron.cu">
+      <Filter>src</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\kernel.cu">
+      <Filter>src</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\gadget\gadgetreader.i">
+      <Filter>gadget</Filter>
+    </None>
+  </ItemGroup>
+</Project>

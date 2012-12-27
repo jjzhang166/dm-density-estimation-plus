@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include "tetrahedron.h"
+#include "readgadget.h"
 using namespace std;
 
 class TetraStream{
@@ -44,6 +45,7 @@ private:
 			int i2, int j2, int k2,
 			int i3, int j3, int k3,
 			int i4, int j4, int k4);	// add a tetra to the vector
+	GSnap * gsnap_;
 
 };
 

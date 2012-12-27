@@ -24,7 +24,8 @@
 #include "tetrastream.h"
 #include "estimator.h"
 
-#include "gadget/gadgetreader.hpp"
+//#include "gadget/gadgetreader.hpp"
+#include "readgadget.h"
 
 using namespace std;
 
@@ -89,6 +90,9 @@ int main(int argv, char * args[]){
 	printf("Grid File     = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem  = %d\n", inputmemgrid);
 	printf("*********************************************************************\n");
+
+	//test new reader
+	//GSnap snap(filename);
 
 	TetraStream tetraStream(filename, inputmemgrid);
 	GridManager grid(gridfilename, gridsize, subgridsize);

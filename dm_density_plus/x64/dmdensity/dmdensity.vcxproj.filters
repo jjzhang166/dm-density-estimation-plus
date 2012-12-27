@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="gadget">
-      <UniqueIdentifier>{78a9782c-2598-48a9-8a1b-5a7414fd8ea2}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\estimator.cpp">
@@ -33,14 +30,8 @@
     <ClCompile Include="..\..\tetrastream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\gadget\gadgetreader.cpp">
-      <Filter>gadget</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gadget\gadgetwriter.cpp">
-      <Filter>gadget</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gadget\read_utils.c">
-      <Filter>gadget</Filter>
+    <ClCompile Include="..\..\readgadget.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,22 +47,11 @@
     <ClInclude Include="..\..\tetrastream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gadget\gadgetheader.h">
+    <ClInclude Include="..\..\gadgetheader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gadget\gadgetreader.hpp">
+    <ClInclude Include="..\..\readgadget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gadget\gadgetwriter.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gadget\read_utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\gadget\gadgetreader.i">
-      <Filter>gadget</Filter>
-    </None>
   </ItemGroup>
 </Project>

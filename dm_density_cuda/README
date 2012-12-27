@@ -1,0 +1,9 @@
+ * Framework will be:
+ * tetrahedron.h  			-- the tetrahedron structure
+ * tetrastream.h			-- a stream that provides the tetrahedrons
+ * grids.h					-- a scheme that defines the grids, provides sub-interface to the part of
+ * 								grids structure. For example: change some portion of it. If the structure
+ * 								is too large, then only the required portion is loaded, others are saved
+ * 								in file. After commit, the current on-RAM portion will be also saved to
+ * 								the memory.
+ * estimator.h				-- takes TetraStream and GridManager as input, calculate the grids value
