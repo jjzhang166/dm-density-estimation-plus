@@ -20,7 +20,12 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.macosx.exe.debug.1675115832." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.exe.debug.59310695" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.exe.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.macosx.exe.debug.1397482811" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.exe.debug"/>
-							<builder buildPath="${workspace_loc:/dm_density_plus/Debug}" id="cdt.managedbuild.target.gnu.builder.macosx.exe.debug.1552974365" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.debug"/>
+							<builder buildPath="${workspace_loc:/dm_density_plus/Debug}" id="cdt.managedbuild.target.gnu.builder.macosx.exe.debug.1552974365" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.debug">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
+								</outputEntries>
+							</builder>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug.1529675227" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.2138462399" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
 								<option id="macosx.cpp.link.option.other.1767164559" name="Other options (-Xlinker [option])" superClass="macosx.cpp.link.option.other" valueType="stringList">
@@ -49,7 +54,6 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="gadget" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="gadget"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -98,7 +102,6 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="gadget" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="gadget"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
