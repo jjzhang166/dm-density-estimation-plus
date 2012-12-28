@@ -16,7 +16,7 @@
 #include "readgadget.h"
 using namespace std;
 
-class TetraStream{
+class TetraStream {
 public:
 	TetraStream(std::string filename, int memgridsize);
 	bool hasnext();
@@ -39,15 +39,12 @@ private:
 	int ngrid_;										// particle gridsize
 
 	void readPosition();		// read the index-sorted position data
-	void convertToTetrahedron();// convert the vertex data to tetrahedron
-	void addTetra(int ind1, int ind2, int ind3, int ind4);	// add a tetra to the vector
-	void addTetra(int i1, int j1, int k1,
-			int i2, int j2, int k2,
-			int i3, int j3, int k3,
-			int i4, int j4, int k4);	// add a tetra to the vector
+	void convertToTetrahedron();	// convert the vertex data to tetrahedron
+	void addTetra(int ind1, int ind2, int ind3, int ind4);// add a tetra to the vector
+	void addTetra(int i1, int j1, int k1, int i2, int j2, int k2, int i3,
+			int j3, int k3, int i4, int j4, int k4);// add a tetra to the vector
 	GSnap * gsnap_;
 
 };
-
 
 #endif /* TETRASTREAM_H_ */

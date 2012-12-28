@@ -10,14 +10,14 @@
 #define TETRAHEDRON_H_
 #include <cmath>
 
-class Point{
+class Point {
 public:
 	double x;
 	double y;
 	double z;
 };
 
-class Tetrahedron{
+class Tetrahedron {
 public:
 	Tetrahedron();
 	double computeVolume();
@@ -32,6 +32,7 @@ public:
 
 	double det4d(double m[4][4]);
 	void c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]);
+	Point getCenter();
 
 	double minx();
 	double miny();
@@ -42,6 +43,5 @@ public:
 
 private:
 };
-
 
 #endif /* TETRAHEDRON_H_ */

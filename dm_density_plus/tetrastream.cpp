@@ -11,13 +11,13 @@ using namespace std;
 
 #include "tetrahedron.h"
 #include "tetrastream.h"
-//#include "gadget/gadgetreader.hpp"
 #include "readgadget.h"
 
-TetraStream::TetraStream(string filename, int inputmemgridsize){
+TetraStream::TetraStream(string filename, int inputmemgridsize) {
 	filename_ = filename;
 	mem_grid_size_ = inputmemgridsize;
-	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_) * (mem_grid_size_);
+	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
+			* (mem_grid_size_);
 
 	//TODO read from file
 	total_parts_ = 0;
@@ -41,47 +41,47 @@ TetraStream::TetraStream(string filename, int inputmemgridsize){
 	//}
 }
 
-bool TetraStream::hasnext(){
-	if(tetra_iter_ != tetras_.end()){
+bool TetraStream::hasnext() {
+	if (tetra_iter_ != tetras_.end()) {
 		return true;
-	}else{
+	} else {
 		return false;
 	}
 }
 
-vector<Tetrahedron>::iterator TetraStream::next(){
-	tetra_iter_ ++;
+vector<Tetrahedron>::iterator TetraStream::next() {
+	tetra_iter_++;
 	return tetra_iter_;
 }
 
-bool TetraStream::reset(){
+bool TetraStream::reset() {
 	tetra_iter_ = tetras_.begin();
 	return true;
 }
 
-TetraStream::~TetraStream(){
+TetraStream::~TetraStream() {
 	delete position_;
 	delete gsnap_;
 }
 
-void TetraStream::readPosition(){
+void TetraStream::readPosition() {
 	//GadgetReader::GSnap gsnap(filename_);
 	gsnap_ = new GSnap(filename_);
-	int nparts = gsnap_->Npart;//gsnap.GetNpart(gsnap.GetFormat());
+	int nparts = gsnap_->Npart;	//gsnap.GetNpart(gsnap.GetFormat());
 
-	float * data_array = gsnap_->pos;//new float[nparts * 3];
-	uint32_t * ids = gsnap_->ids;//new int[nparts];
+	float * data_array = gsnap_->pos;	//new float[nparts * 3];
+	uint32_t * ids = gsnap_->ids;	//new int[nparts];
 
 	//gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
 	//gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
 
-	ngrid_ = ceil(pow(nparts, 1.0/3.0));
+	ngrid_ = ceil(pow(nparts, 1.0 / 3.0));
 
 	position_ = new Point[nparts];
 	numParts_ = nparts;
 
 	//sorting
-	for(int i = 0; i < nparts; i++){
+	for (int i = 0; i < nparts; i++) {
 		position_[ids[i]].x = data_array[i * 3];
 		position_[ids[i]].y = data_array[i * 3 + 1];
 		position_[ids[i]].z = data_array[i * 3 + 2];
@@ -89,10 +89,9 @@ void TetraStream::readPosition(){
 
 	//delete data_array;
 
-
 }
 
-void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4){
+void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 	Tetrahedron tetra_;
 	tetra_.v1 = position_[ind1];
 	tetra_.v2 = position_[ind2];
@@ -102,11 +101,8 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4){
 	tetras_.push_back(tetra_);
 }
 
-
-void TetraStream::addTetra(int i1, int j1, int k1,
-		int i2, int j2, int k2,
-		int i3, int j3, int k3,
-		int i4, int j4, int k4){	// add a tetra to the vectot
+void TetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
+		int i3, int j3, int k3, int i4, int j4, int k4) {// add a tetra to the vectot
 	int ind1, ind2, ind3, ind4;
 	ind1 = (i1) + (j1) * ngrid_ + (k1) * ngrid_ * ngrid_;
 	ind2 = (i2) + (j2) * ngrid_ + (k2) * ngrid_ * ngrid_;
@@ -115,48 +111,40 @@ void TetraStream::addTetra(int i1, int j1, int k1,
 	addTetra(ind1, ind2, ind3, ind4);
 }
 
-
-void TetraStream::convertToTetrahedron(){
-
+void TetraStream::convertToTetrahedron() {
 
 	int i, j, k;		//loop variables
 	//printf("----test----Ngrid %d \n", ngrid_);
 
-	for(k = 0; k < ngrid_ - 1; k++){
-		for(j = 0; j < ngrid_ - 1; j++){
-			for(i = 0; i < ngrid_ - 1; i++){
+	for (k = 0; k < ngrid_ - 1; k++) {
+		for (j = 0; j < ngrid_ - 1; j++) {
+			for (i = 0; i < ngrid_ - 1; i++) {
 				//1
-				addTetra(i,   j,   k,
-						 i,   j+1, k,
-						 i,   j,   k+1,
-						 i+1, j,   k+1);
+				addTetra(i, j, k, i, j + 1, k, i, j, k + 1, i + 1, j, k + 1);
 				//2
-				addTetra(i,   j,   k,
-						 i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j,   k);
+				addTetra(i, j, k, i, j + 1, k, i + 1, j, k + 1, i + 1, j, k);
 				//3
-				addTetra(i,   j,   k+1,
-						 i,   j+1, k+1,
-						 i+1, j,   k+1,
-						 i,   j+1, k);
+				addTetra(i, j, k + 1, i, j + 1, k + 1, i + 1, j, k + 1, i,
+						j + 1, k);
 				//4
-				addTetra(i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j+1, k+1,
-						 i,   j+1, k+1);
+				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1, i,
+						j + 1, k + 1);
 				//5
-				addTetra(i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j+1, k+1,
-						 i+1, j+1, k);
+				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1,
+						i + 1, j + 1, k);
 				//6
-				addTetra(i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j+1, k,
-						 i+1, j,   k);
+				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k, i + 1,
+						j, k);
 
 			}
 		}
 	}
+}
+
+Point Tetrahedron::getCenter() {
+	Point retp;
+	retp.x = (v1.x + v2.x + v3.x + v4.x) / 4.0;
+	retp.y = (v1.y + v2.y + v3.y + v4.y) / 4.0;
+	retp.z = (v1.z + v2.z + v3.z + v4.z) / 4.0;
+	return retp;
 }

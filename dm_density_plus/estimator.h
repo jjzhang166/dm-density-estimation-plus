@@ -7,8 +7,9 @@
 
 #ifndef ESTIMATOR_H_
 #define ESTIMATOR_H_
+#include "grids.h"
 
-class Estimater{
+class Estimater {
 public:
 	Estimater(TetraStream * tetrastream, GridManager * gridmanager);
 	void computeDensity();
@@ -19,7 +20,10 @@ private:
 	GridManager * gridmanager_;
 	bool good_;
 	bool finished_;
+	bool testTouch(Tetrahedron * tetra);
+	double box;
+	double ng;
+	double dx2;
 };
-
 
 #endif /* ESTIMATOR_H_ */

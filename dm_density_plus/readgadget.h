@@ -9,7 +9,7 @@
 #define READGADGET_H_
 #include "gadgetheader.h"
 
-class GSnap{
+class GSnap {
 public:
 	GSnap(std::string filename);
 	~GSnap();
@@ -19,6 +19,5 @@ public:
 	float * vel;
 	uint32_t Npart;
 };
-
 
 #endif /* READGADGET_H_ */
