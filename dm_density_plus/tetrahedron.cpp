@@ -122,7 +122,7 @@ bool Tetrahedron::isInTetra(Point p) {
 
 	if (d0 > 0) {
 		return (d1 >= 0) && (d2 >= 0) && (d3 >= 0) && (d4 >= 0);
-	} else if (d0 < 0) {
+	} else if(d0 < 0){
 		return (d1 <= 0) && (d2 <= 0) && (d3 <= 0) && (d4 <= 0);
 	}
 	return false;

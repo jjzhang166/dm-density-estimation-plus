@@ -176,22 +176,30 @@ int main(int argv, char * args[]) {
 	if (estimater.isFinished()) {
 		printf(
 				"================================FINISHED=============================\n");
-		int i, j, k, l;
-		for (l = 0; l < grid.getSubGridNum(); l++) {
-			grid.loadGrid(l);
-			int gs = grid.getSubGridSize();
-			for (i = 0; i < gs; i++) {
-				for (j = 0; j < gs; j++) {
-					for (k = 0; k < gs; k++) {
-						double v = grid.getValue(k, j, i);
-						if (v > 0) {
-							printf("Ind: %d ==> %e\n", k + j * gs + i * gs * gs,
-									v);
-						}
+
+
+	/*int i, j, k, l;
+	for (l = 0; l < grid.getSubGridNum(); l++) {
+		grid.loadGrid(l);
+		int gs = grid.getSubGridSize();
+		int tgs = grid.getGridSize();
+		for (i = 0; i < gs; i++) {
+			for (j = 0; j < gs; j++) {
+				for (k = 0; k < gs; k++) {
+					double v = grid.getValue(k, j, i);
+					if (v > 0) {
+						int ng = grid.getGridSize()/grid.getSubGridSize();
+
+						int k0 = l % ng * grid.getSubGridSize();
+						int j0 = (l / ng) % ng * grid.getSubGridSize();
+						int i0 = (l / ng / ng) % ng * grid.getSubGridSize();
+						printf("Ind: %d ==> %e\n", (k0+k) + (j0+j) * tgs + (i0+i) * tgs * tgs,
+								v);
 					}
 				}
 			}
 		}
+	}*/
 
 		return 0;
 	} else {
