@@ -27,65 +27,29 @@ Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
 
 void Estimater::computeDensity(){
 	int loop_i;
+	printf("=========[---10---20---30---40---50---60---70---80---90--100]========\n");
+	printf("=========[");
+	int res_print_ = gridmanager_->getSubGridNum() / 50;
+	if(res_print_ == 0){
+		res_print_ = 1;
+	}
 	initialCUDA(tetrastream_->getTretras()->size(), gridmanager_->getSubGridSize());
 	for(loop_i = 0; loop_i < gridmanager_->getSubGridNum(); loop_i ++){
-		printf("Subblock number: %d\n", loop_i);
+		if((loop_i + 1) % (res_print_) == 0){
+			printf(">");
+			cout.flush();
+		}
 		tetrastream_->reset();
 		gridmanager_->loadGrid(loop_i);
 		//int count = 0;
 		vector<Tetrahedron> * tetras_v = tetrastream_->getTretras();
 		//Tetrahedron * tetras = &((*tetras_v)[0]);
 		calculateGridWithCuda(tetras_v, gridmanager_);
-		/*while(tetrastream_->hasnext()){
-			int i=0, j=0, k=0;
-			Tetrahedron tetra = *(tetrastream_->next());
-			printf("Tetrahedron number: %d\n", count);
-			count ++;
-			if(tetra.maxx() - tetra.minx() >
-				(gridmanager_->getEndPoint().x -
-						gridmanager_->getStartPoint().x) / 2.0)
-				continue;
-
-			if(tetra.maxy() - tetra.miny() >
-				(gridmanager_->getEndPoint().y -
-						gridmanager_->getStartPoint().y) / 2.0)
-				continue;
-
-			if(tetra.maxz() - tetra.minz() >
-				(gridmanager_->getEndPoint().z -
-						gridmanager_->getStartPoint().z) / 2.0)
-				continue;
-			//printf("Tetra: %f %f %f\n", tetra.v1.x, tetra.v1.y, tetra.v1.z);
-			REAL box = gridmanager_->getEndPoint().x -
-					gridmanager_->getStartPoint().x;
-			REAL ng = this->gridmanager_->getGridSize();
-
-			REAL dx2 = box/ng/2;
-			int sgs = gridmanager_->getSubGridSize();
-			for(i = 0; i < sgs; i++){
-				for(j = 0; j < sgs; j++){
-					for(k = 0; k < sgs; k++){
-						//calculate the actual coordinate
-						Point p = gridmanager_->getPoint(i, j, k);
-						p.x += dx2;
-						p.y += dx2;
-						p.z += dx2;
-						if(tetra.isInTetra(p)){
-							REAL cv = gridmanager_->getValue(i, j, k);
-							gridmanager_ -> setValue(i, j, k, cv + 1/tetra.volume);
-							//hasp = true;
-						}
-					}
-				}
-			}
-
-		}
-		*/
 		gridmanager_->saveGrid();
 	}
 	finished_ = true;
 	finishCUDA();
-
+	printf("]========\n");
 	//printf("Finished\n");
 
 /*	int i, j, k, l;
@@ -103,8 +67,8 @@ void Estimater::computeDensity(){
 				}
 			}
 		}
-	}
-*/
+	}*/
+
 }
 
 bool Estimater::isFinished(){

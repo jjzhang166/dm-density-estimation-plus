@@ -9,10 +9,10 @@
 
 using namespace std;
 
-#include "types.h"
 #include "tetrahedron.h"
 #include "tetrastream.h"
-#include "gadget/gadgetreader.hpp"
+//#include "gadget/gadgetreader.hpp"
+#include "readgadget.h"
 
 TetraStream::TetraStream(string filename, int inputmemgridsize){
 	filename_ = filename;
@@ -61,17 +61,19 @@ bool TetraStream::reset(){
 
 TetraStream::~TetraStream(){
 	delete position_;
+	delete gsnap_;
 }
 
 void TetraStream::readPosition(){
-	GadgetReader::GSnap gsnap(filename_);
-	int nparts = gsnap.GetNpart(gsnap.GetFormat());
+	//GadgetReader::GSnap gsnap(filename_);
+	gsnap_ = new GSnap(filename_);
+	int nparts = gsnap_->Npart;//gsnap.GetNpart(gsnap.GetFormat());
 
-	REAL * data_array = new float[nparts * 3];
-	int * ids = new int[nparts];
+	float * data_array = gsnap_->pos;//new float[nparts * 3];
+	uint32_t * ids = gsnap_->ids;//new int[nparts];
 
-	gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
-	gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
+	//gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
+	//gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
 
 	ngrid_ = ceil(pow(nparts, 1.0/3.0));
 
@@ -85,7 +87,7 @@ void TetraStream::readPosition(){
 		position_[ids[i]].z = data_array[i * 3 + 2];
 	}
 
-	delete data_array;
+	//delete data_array;
 
 
 }
@@ -113,9 +115,6 @@ void TetraStream::addTetra(int i1, int j1, int k1,
 	addTetra(ind1, ind2, ind3, ind4);
 }
 
-vector<Tetrahedron> * TetraStream::getTretras(){
-	return &(this->tetras_);
-}
 
 void TetraStream::convertToTetrahedron(){
 
@@ -160,4 +159,9 @@ void TetraStream::convertToTetrahedron(){
 			}
 		}
 	}
+}
+
+
+vector<Tetrahedron> * TetraStream::getTretras(){
+	return &tetras_;
 }

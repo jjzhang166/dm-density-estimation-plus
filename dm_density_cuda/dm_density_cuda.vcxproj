@@ -12,12 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\estimator.h" />
-    <ClInclude Include="src\gadget\gadgetheader.h" />
-    <ClInclude Include="src\gadget\gadgetreader.hpp" />
-    <ClInclude Include="src\gadget\gadgetwriter.hpp" />
-    <ClInclude Include="src\gadget\read_utils.h" />
+    <ClInclude Include="src\gadgetheader.h" />
     <ClInclude Include="src\grids.h" />
     <ClInclude Include="src\kernel.h" />
+    <ClInclude Include="src\readgadget.h" />
     <ClInclude Include="src\tetrahedron.h" />
     <ClInclude Include="src\tetrastream.h" />
     <ClInclude Include="src\types.h" />
@@ -26,21 +24,16 @@
     <ClCompile Include="src\estimator.cpp">
       <FileType>CppCode</FileType>
     </ClCompile>
-    <ClCompile Include="src\gadget\gadgetreader.cpp" />
-    <ClCompile Include="src\gadget\gadgetwriter.cpp" />
-    <ClCompile Include="src\gadget\read_utils.c" />
     <ClCompile Include="src\grids.cpp" />
     <ClCompile Include="src\main.cpp" />
     <CudaCompile Include="src\tetrahedron.cu">
       <FileType>CppCode</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </CudaCompile>
+    <ClCompile Include="src\readgadget.cpp" />
     <ClCompile Include="src\tetrastream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\gadget\gadgetreader.i">
-      <FileType>Document</FileType>
-    </None>
     <CudaCompile Include="src\kernel.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>

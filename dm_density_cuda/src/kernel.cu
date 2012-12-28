@@ -14,15 +14,20 @@ using namespace std;
 
 #include "tetrahedron.cu"
 
-int grid_size_;
+int sub_grid_size_;
 int num_tetra_;
 
 Tetrahedron * dev_tetras;
 REAL * dev_grids;
+int * dev_tetra_mem;					//each element specifies the total tetras a block have
+int * dev_tetra_select;
 
 
 __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids, 
 	int gsize, int sub_gsize, REAL, REAL , REAL, REAL);
+__global__ void computeTetraMem(Tetrahedron * dtetra){
+}
+
 
 __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids, 
 	int gsize, int sub_gsize, REAL box = 32000, REAL x0 = 0, REAL y0 = 0, REAL z0 = 0){
@@ -31,6 +36,7 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	i = blockIdx.x * blockDim.x + threadIdx.x;
 	j = blockIdx.y * blockDim.y + threadIdx.y;
 	k = blockIdx.z * blockDim.z + threadIdx.z;
+	//ntetra
 	for(loop_i = 0; loop_i < ntetra; loop_i ++){
 		Tetrahedron * tetra = &dtetra[loop_i];
 		if(tetra->maxx() - tetra->minx() > box / 2.0)
@@ -61,14 +67,14 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 
 
 //initialize the CUDA
-cudaError_t initialCUDA(int num_tetra, int grid_size){
+cudaError_t initialCUDA(int num_tetra, int sub_grid_size){
 	cudaError_t cudaStatus;
 	cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
         return cudaStatus;
     }
-	grid_size_ = grid_size;
+	sub_grid_size_ = sub_grid_size;
 	num_tetra_ = num_tetra;
 
 	// Allocate GPU buffers for tetrahedrons    .
@@ -79,7 +85,7 @@ cudaError_t initialCUDA(int num_tetra, int grid_size){
     }
 
 	// Allocate GPU buffers for grids.
-    cudaStatus = cudaMalloc((void**)&dev_grids, grid_size_ * grid_size_ * grid_size_ * sizeof(REAL));
+    cudaStatus = cudaMalloc((void**)&dev_grids, sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(REAL));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed -- allocating grids memory!");
         return cudaSuccess;
@@ -89,7 +95,9 @@ cudaError_t initialCUDA(int num_tetra, int grid_size){
 
 cudaError_t calculateGridWithCuda(std::vector<Tetrahedron> * tetras_v, GridManager * gridmanager){
 	cudaError_t cudaStatus;
-	dim3 size(grid_size_, grid_size_, grid_size_);
+	//dim3 size(sub_grid_size_, sub_grid_size_, sub_grid_size_);
+	dim3 blocksize(8, 8, 8);
+	dim3 gridsize(sub_grid_size_/8, sub_grid_size_/8, sub_grid_size_/8);
 
 	if(num_tetra_ == 0)
 		return cudaErrorUnknown;
@@ -101,21 +109,28 @@ cudaError_t calculateGridWithCuda(std::vector<Tetrahedron> * tetras_v, GridManag
         return cudaStatus;
     }
 
-	cudaStatus = cudaMemcpy(dev_grids, gridmanager->getSubGrid(), grid_size_ * grid_size_ * grid_size_ * sizeof(REAL), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(dev_grids, gridmanager->getSubGrid(), sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(REAL), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
     fprintf(stderr, "cudaMemcpy failed -- copying subgrids!");
         return cudaStatus;
     }
 	//<<<1, size>>>
 	Point p0 = gridmanager->getPoint(0,0,0);
-	tetraSplatter<<<1, size>>>(dev_tetras, num_tetra_, dev_grids, grid_size_, gridmanager->getSubGridSize(),
+	tetraSplatter<<<gridsize, blocksize>>>(dev_tetras, num_tetra_, dev_grids, gridmanager->getGridSize(), gridmanager->getSubGridSize(),
 		 gridmanager->getEndPoint().x - gridmanager->getStartPoint().x, p0.x, p0.y, p0.z);
 
-	cudaStatus = cudaMemcpy(gridmanager->getSubGrid(), dev_grids, grid_size_ * grid_size_ * grid_size_ * sizeof(REAL), cudaMemcpyDeviceToHost);
+	cudaStatus = cudaThreadSynchronize();
+	if( cudaStatus != cudaSuccess){
+		fprintf(stderr,"cudaThreadSynchronize error: %s\n", cudaGetErrorString(cudaStatus));
+		return cudaStatus;
+	}
+
+	cudaStatus = cudaMemcpy(gridmanager->getSubGrid(), dev_grids, sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(REAL), cudaMemcpyDeviceToHost);
     if (cudaStatus != cudaSuccess) {
-    fprintf(stderr, "cudaMemcpy failed -- copying subgrids!");
+		fprintf(stderr, "cudaMemcpy failed -- copying subgrids!");
         return cudaStatus;
     }
+
 
 	return cudaSuccess;
 }

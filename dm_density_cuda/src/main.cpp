@@ -24,14 +24,13 @@
 #include "tetrastream.h"
 #include "estimator.h"
 
-#include "gadget/gadgetreader.hpp"
 
 using namespace std;
 
 int gridsize    = 128;						//total grid size
-int subgridsize = 128;						//how many grid could be stored in the memory
+int subgridsize = 8;						//how many grid could be stored in the memory
 int inputmemgrid = 16;						//the input memory grid size
-string filename = "multires_150";			//the input data filename
+string filename = "E:\\multires_150";			//the input data filename
 string gridfilename = "tetrahegen.grid";	//output filename
 
 void printUsage(string pname){
@@ -172,7 +171,7 @@ int main(int argv, char * args[]){
 
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");
-		int i, j, k, l;
+		/*int i, j, k, l;
 			for(l = 0; l < grid.getSubGridNum(); l ++){
 				grid.loadGrid(l);
 				int gs = grid.getSubGridSize();
@@ -187,7 +186,7 @@ int main(int argv, char * args[]){
 					}
 				}
 			}
-
+			*/
 		return 0;
 	}else{
 		printf("=================================ERROR===============================\n");
