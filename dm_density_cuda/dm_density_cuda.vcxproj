@@ -29,6 +29,7 @@
     <CudaCompile Include="src\tetrahedron.cu">
       <FileType>CppCode</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </CudaCompile>
     <ClCompile Include="src\readgadget.cpp" />
     <ClCompile Include="src\tetrastream.cpp" />

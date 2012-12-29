@@ -1,8 +1,18 @@
 #ifndef __CUDA_LY_DEN_KERNEL__
 #define __CUDA_LY_DEN_KERNEL__
+
+#include "types.h"
+#include "kernel.h"
 #include "tetrahedron.h"
+#include "tetrastream.h"
 #include "grids.h"
-cudaError_t initialCUDA(int num_tetra, int grid_size);
+
+cudaError_t initialCUDA(TetraStream * tetrastream, GridManager * gridmanager);
 void finishCUDA();
-cudaError_t calculateGridWithCuda(std::vector<Tetrahedron> * tetras_v, GridManager * gridmanager);
+
+cudaError_t computeTetraMemWithCuda();
+
+//cudaError_t computeTetraSelectionWithCuda();
+
+cudaError_t calculateGridWithCuda();
 #endif

@@ -27,24 +27,31 @@ Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
 
 void Estimater::computeDensity(){
 	int loop_i;
+	if(initialCUDA(tetrastream_, gridmanager_) != cudaSuccess){
+		exit(1);
+	}
+	if(computeTetraMemWithCuda() != cudaSuccess)
+		exit(1);
+	//computeTetraSelectionWithCuda();
+
+
 	printf("=========[---10---20---30---40---50---60---70---80---90--100]========\n");
 	printf("=========[");
 	int res_print_ = gridmanager_->getSubGridNum() / 50;
 	if(res_print_ == 0){
 		res_print_ = 1;
 	}
-	initialCUDA(tetrastream_->getTretras()->size(), gridmanager_->getSubGridSize());
+
 	for(loop_i = 0; loop_i < gridmanager_->getSubGridNum(); loop_i ++){
 		if((loop_i + 1) % (res_print_) == 0){
-			printf(">");
+			//printf(">");
+			cout<<"<";
 			cout.flush();
 		}
 		tetrastream_->reset();
 		gridmanager_->loadGrid(loop_i);
 		//int count = 0;
-		vector<Tetrahedron> * tetras_v = tetrastream_->getTretras();
-		//Tetrahedron * tetras = &((*tetras_v)[0]);
-		calculateGridWithCuda(tetras_v, gridmanager_);
+		calculateGridWithCuda();
 		gridmanager_->saveGrid();
 	}
 	finished_ = true;

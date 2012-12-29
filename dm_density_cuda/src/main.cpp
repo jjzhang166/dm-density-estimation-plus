@@ -28,18 +28,20 @@
 using namespace std;
 
 int gridsize    = 128;						//total grid size
-int subgridsize = 8;						//how many grid could be stored in the memory
+int subgridsize = 16;						//how many grid could be stored in the memory
 int inputmemgrid = 16;						//the input memory grid size
 string filename = "E:\\multires_150";			//the input data filename
 string gridfilename = "tetrahegen.grid";	//output filename
+bool isoutputres = false;					
 
 void printUsage(string pname){
-	printf("Usage: %s \n %s \n %s \n %s \n %s \n %s \n", pname.c_str()
+	printf("Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n", pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
 			, "[-df <datafilename>]"
 			, "[-of <gridfilename>]"
 			, "[-t <numbers of tetra in memory>]"
+			, "[-o] to output result"
 			);
 }
 
@@ -47,12 +49,13 @@ void readParameters(int argv, char * args[]){
 	int k = 1;
 	if(argv == 1){
 		return;
-	}else if(argv % 2 ==0){
+	}/*else if(argv % 2 ==0){
 		printUsage(args[0]);
 		exit(1);
-	}else{
+	}*/else{
 		while(k < argv){
 			stringstream ss;
+			//printf("fsafasdfa ---- %s\n", args[k]);
 			if(strcmp(args[k], "-g") == 0){
 				ss << args[k + 1];
 				ss >> gridsize;
@@ -68,6 +71,9 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-t") == 0){
 				ss << args[k + 1];
 				ss >> inputmemgrid;
+			}else if(strcmp(args[k], "-o") == 0){
+				isoutputres = true;
+				k = k -1;
 			}else{
 				printUsage(args[0]);
 				exit(1);
@@ -78,7 +84,7 @@ void readParameters(int argv, char * args[]){
 }
 
 int main(int argv, char * args[]){
-	int loop_i;
+	//int loop_i;
 	readParameters(argv, args);
 	printf("\n=========================DENSITY ESTIMATION==========================\n");
 	printf("*****************************PARAMETERES*****************************\n");
@@ -171,22 +177,29 @@ int main(int argv, char * args[]){
 
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");
-		/*int i, j, k, l;
-			for(l = 0; l < grid.getSubGridNum(); l ++){
-				grid.loadGrid(l);
-				int gs = grid.getSubGridSize();
-				for(i = 0; i < gs; i++){
-					for(j = 0; j < gs; j++){
-						for(k = 0; k < gs; k++){
-							REAL v = grid.getValue(k, j, i);
-							if(v > 0){
-								printf("Ind: %d ==> %e\n", k + j * gs + i * gs * gs, v);
-							}
+		int i, j, k, l;
+		for (l = 0; l < grid.getSubGridNum() && isoutputres; l++) {
+			grid.loadGrid(l);
+			int gs = grid.getSubGridSize();
+			int tgs = grid.getGridSize();
+			for (i = 0; i < gs; i++) {
+				for (j = 0; j < gs; j++) {
+					for (k = 0; k < gs; k++) {
+						double v = grid.getValue(k, j, i);
+						if (v > 0) {
+							int ng = grid.getGridSize()/grid.getSubGridSize();
+
+							int k0 = l % ng * grid.getSubGridSize();
+							int j0 = (l / ng) % ng * grid.getSubGridSize();
+							int i0 = (l / ng / ng) % ng * grid.getSubGridSize();
+							printf("Ind: %d ==> %e\n", (k0+k) + (j0+j) * tgs + (i0+i) * tgs * tgs,
+									v);
 						}
 					}
 				}
 			}
-			*/
+		}
+			
 		return 0;
 	}else{
 		printf("=================================ERROR===============================\n");
