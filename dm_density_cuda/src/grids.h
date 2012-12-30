@@ -9,7 +9,12 @@
 #ifndef GRIDS_H_
 #define GRIDS_H_
 #include <string>
+#include <vector>
+
+using namespace std;
+
 #include "tetrahedron.h"
+#include "types.h"
 
 class GridManager{
 public:
@@ -30,7 +35,10 @@ public:
 											// if the point is already in current block, do nothing
 											// otherwise reload without saving
 
+	//deprecated
 	void saveGrid();						// save the current grid into the file on the harddrive
+	void saveToFile();						// save the whole grid into file
+
 	int getGridSize();
 	int getSubGridSize();
 	int getSubGridNum();					// get total subgrids in the main grids
@@ -62,12 +70,14 @@ public:
 	~GridManager();
 private:
 	std::string filename_;
+	vector<REAL *> grid_lists;
 	int gridsize_;
 	int subgridsize_;
 	int subgrid_num;
 	int current_block_ind;					// the current block index
 	int convertToIndex(int i, int j, int k);// convert the i-j-k index of the sub grid to a index
 	int convertToIndexByActualCoor(int i, int j, int k);// convert the i-j-k index of the sub grid to a index
+
 
 	std::string getSubGridFileName(int ind);// get the filename of the subgrid
 											// file format: index subgridsize gridsize [data block]

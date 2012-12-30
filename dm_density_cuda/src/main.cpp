@@ -31,7 +31,7 @@ int gridsize    = 128;						//total grid size
 int subgridsize = 16;						//how many grid could be stored in the memory
 int inputmemgrid = 16;						//the input memory grid size
 string filename = "E:\\multires_150";			//the input data filename
-string gridfilename = "tetrahegen.grid";	//output filename
+string gridfilename = "tetrahedron.grid";	//output filename
 bool isoutputres = false;					
 
 void printUsage(string pname){
@@ -174,31 +174,26 @@ int main(int argv, char * args[]){
 	printf("*****************************COMPUTING ...***************************\n");
 
 	estimater.computeDensity();
+	grid.saveToFile();
 
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");
-		int i, j, k, l;
-		for (l = 0; l < grid.getSubGridNum() && isoutputres; l++) {
-			grid.loadGrid(l);
-			int gs = grid.getSubGridSize();
+		int i, j, k;
+		if (isoutputres) {
+			//grid.loadGrid(l);
 			int tgs = grid.getGridSize();
-			for (i = 0; i < gs; i++) {
-				for (j = 0; j < gs; j++) {
-					for (k = 0; k < gs; k++) {
-						double v = grid.getValue(k, j, i);
+			for (i = 0; i < tgs; i++) {
+				for (j = 0; j < tgs; j++) {
+					for (k = 0; k < tgs; k++) {
+						double v = grid.getValueByActualCoor(k, j, i);
 						if (v > 0) {
-							int ng = grid.getGridSize()/grid.getSubGridSize();
-
-							int k0 = l % ng * grid.getSubGridSize();
-							int j0 = (l / ng) % ng * grid.getSubGridSize();
-							int i0 = (l / ng / ng) % ng * grid.getSubGridSize();
-							printf("Ind: %d ==> %e\n", (k0+k) + (j0+j) * tgs + (i0+i) * tgs * tgs,
-									v);
+							printf("Ind: %d ==> %e\n", (k) + (j) * tgs + (i) * tgs * tgs, v);
 						}
 					}
 				}
 			}
 		}
+
 			
 		return 0;
 	}else{

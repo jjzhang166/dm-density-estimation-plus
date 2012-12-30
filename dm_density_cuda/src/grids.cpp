@@ -25,15 +25,20 @@ GridManager::GridManager(string filename, int gridsize, int subgridsize){
 	}
 	subgrid_num = gridsize / subgridsize;// + 1;
 	subgrid_num = subgrid_num * subgrid_num * subgrid_num;
-	grid_ = new REAL[subgridsize_ * subgridsize_ * subgridsize_];
-	int loop_i;
-	//clear
-	for(loop_i = 0; loop_i < subgridsize_ * subgridsize_ * subgridsize_; loop_i ++){
-		grid_[loop_i] = 0;
-	}
-	for(loop_i = 0; loop_i < subgrid_num; loop_i ++){
-		current_block_ind = loop_i;
-		saveGrid();
+	int loop_j;
+	for(loop_j = 0; loop_j < subgrid_num; loop_j ++){
+		grid_ = new REAL[subgridsize_ * subgridsize_ * subgridsize_];
+
+		int loop_i;
+		//clear
+		for(loop_i = 0; loop_i < subgridsize_ * subgridsize_ * subgridsize_; loop_i ++){
+			grid_[loop_i] = 0;
+		}
+		grid_lists.push_back(grid_);
+		//for(loop_i = 0; loop_i < subgrid_num; loop_i ++){
+		//	current_block_ind = loop_i;
+		//	saveGrid();
+		//}
 	}
 	current_block_ind = 0;
 
@@ -75,7 +80,10 @@ int GridManager::getCurrentInd(){
 }
 
 bool GridManager::loadGrid(int ind){
-	if(ind < this->subgrid_num){
+	grid_ = grid_lists[ind];
+	current_block_ind = ind;
+	return true;
+	/*if(ind < this->subgrid_num){
 		if(ind == this->current_block_ind){
 			return true;
 		}else{
@@ -99,7 +107,7 @@ bool GridManager::loadGrid(int ind){
 		}
 	}else{
 		return false;
-	}
+	}*/
 }
 
 bool GridManager::loadGrid(int i, int j, int k){
@@ -107,13 +115,13 @@ bool GridManager::loadGrid(int i, int j, int k){
 }
 
 void GridManager::saveGrid(){
-	string filename = getSubGridFileName(this->current_block_ind);
+	/*string filename = getSubGridFileName(this->current_block_ind);
 	ofstream gridFile (filename.c_str(), ios::out | ios::binary);
 	gridFile.write((char *) &(this->current_block_ind), sizeof(int));
 	gridFile.write((char *) &(this->subgridsize_), sizeof(int));
 	gridFile.write((char *) &(this->gridsize_), sizeof(int));
 	gridFile.write((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
-	gridFile.close();
+	gridFile.close();*/
 }
 
 REAL * GridManager::getSubGrid(){
@@ -244,5 +252,18 @@ Point GridManager::getPoint(int i, int j, int k){
 	int ai, aj, ak;
 	current2Actual(i, j, k, ai, aj, ak);
 	return getPointByActualCoor(ai, aj, ak);
+}
+
+void GridManager::saveToFile(){
+	ofstream gridFile (filename_.c_str(), ios::out | ios::binary);
+	int i;
+	for(i = 0; i < this->getSubGridNum(); i++){
+		this->loadGrid(i);
+		gridFile.write((char *) &(this->current_block_ind), sizeof(int));
+		gridFile.write((char *) &(this->subgridsize_), sizeof(int));
+		gridFile.write((char *) &(this->gridsize_), sizeof(int));
+		gridFile.write((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
+	}
+	gridFile.close();
 }
 
