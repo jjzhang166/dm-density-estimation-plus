@@ -178,7 +178,7 @@ int main(int argv, char * args[]) {
 				"================================FINISHED=============================\n");
 
 
-	/*int i, j, k, l;
+	int i, j, k, l;
 	for (l = 0; l < grid.getSubGridNum(); l++) {
 		grid.loadGrid(l);
 		int gs = grid.getSubGridSize();
@@ -199,7 +199,7 @@ int main(int argv, char * args[]) {
 				}
 			}
 		}
-	}*/
+	}
 
 		return 0;
 	} else {

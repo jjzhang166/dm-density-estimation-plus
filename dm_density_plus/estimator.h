@@ -8,6 +8,7 @@
 #ifndef ESTIMATOR_H_
 #define ESTIMATOR_H_
 #include "grids.h"
+#include "tetraselector.h"
 
 class Estimater {
 public:
@@ -15,15 +16,19 @@ public:
 	void computeDensity();
 	bool isGood();						// if false, has some error
 	bool isFinished();					// whether the calculation is finished
+	~Estimater();
 private:
 	TetraStream * tetrastream_;
 	GridManager * gridmanager_;
+	//TetraSelector * tetraselector_;
+
 	bool good_;
 	bool finished_;
 	bool testTouch(Tetrahedron * tetra);
 	double box;
 	double ng;
 	double dx2;
+
 };
 
 #endif /* ESTIMATOR_H_ */
