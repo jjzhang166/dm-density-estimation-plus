@@ -9,58 +9,68 @@
 #ifndef GRIDS_H_
 #define GRIDS_H_
 #include <string>
-#include "tetrahedron.h"
+#include <vector>
 
-class GridManager {
+using namespace std;
+
+#include "tetrahedron.h"
+#include "types.h"
+
+class GridManager{
 public:
 	GridManager(std::string filename, int gridsize, int subgridsize);
 	GridManager(std::string filename, int gridsize, int subgridsize,
 			Point boxStartPoint, Point boxEndPoint);
-	bool loadGrid(int i, int j, int k);	// load a sub grid at (i, j, k) of size subgridsize
-										// the current memory will be directly cleared
-										// if failed, returns false, keep the current grid
-										// NOTE: THIS IS NOT THE SAME WITH loadGridByActualCoor
-										// i-j-k here stands for the coordinates of subgrids in
-										// larger grids
+	bool loadGrid(int i, int j, int k);		// load a sub grid at (i, j, k) of size subgridsize
+											// the current memory will be directly cleared
+											// if failed, returns false, keep the current grid
+											// NOTE: THIS IS NOT THE SAME WITH loadGridByActualCoor
+											// i-j-k here stands for the coordinates of subgrids in
+											// larger grids
 
-	bool loadGrid(int ind);	// load the grid at ind with ind = k * subgridsize * subgridsize + j * subgridsize + i
+
+	bool loadGrid(int ind);					// load the grid at ind with ind = k * subgridsize * subgridsize + j * subgridsize + i
 
 	bool loadGridByActualCoor(int i, int j, int k); //load the subgrid which has the current point
-	// if the point is already in current block, do nothing
-	// otherwise reload without saving
+											// if the point is already in current block, do nothing
+											// otherwise reload without saving
 
-	void saveGrid();	// save the current grid into the file on the harddrive
+	//deprecated
+	void saveGrid();						// save the current grid into the file on the harddrive
+	void saveToFile();						// save the whole grid into file
+
 	int getGridSize();
 	int getSubGridSize();
-	int getSubGridNum();				// get total subgrids in the main grids
+	int getSubGridNum();					// get total subgrids in the main grids
 
-	double getValueByActualCoor(int i, int j, int k); //get the value of the actual point. If current
-	// block does not has the point, save and reload
+	REAL getValueByActualCoor(int i, int j, int k); //get the value of the actual point. If current
+											// block does not has the point, save and reload
 
-	double getValue(int i, int j, int k);	// get the value of current block
+	REAL getValue(int i, int j, int k);	// get the value of current block
 
-	void setValue(int i, int j, int k, double value);// set the value of current block
-	void setValueByActualCoor(int i, int j, int k, double value); //set the value of the actual coor
-	// if the value is not in current block, save and reload
+	void setValue(int i, int j, int k, REAL value);// set the value of current block
+	void setValueByActualCoor(int i, int j, int k, REAL value); //set the value of the actual coor
+											// if the value is not in current block, save and reload
 	bool isInCurrentBlock(int i, int j, int k); //check whether coor is in current block
 
-	//convert the actual index to current index
+											//convert the actual index to current index
 	void actual2Current(int ai, int aj, int ak, int &ci, int &cj, int &ck);
 	void current2Actual(int ci, int cj, int ck, int &ai, int &aj, int &ak);
 
 	int getCurrentInd();					// get current index number
 
-	double * getSubGrid();					// get the actual subgrid memory
+	REAL * getSubGrid();					// get the actual subgrid memory
 
 	Point getStartPoint();
 	Point getEndPoint();
 
-	Point getPoint(int i, int j, int k);// get the point in units of the box of current index
+	Point getPoint(int i, int j, int k);	// get the point in units of the box of current index
 	Point getPointByActualCoor(int i, int j, int k);
 
 	~GridManager();
 private:
 	std::string filename_;
+	vector<REAL *> grid_lists;
 	int gridsize_;
 	int subgridsize_;
 	int subgrid_num;
@@ -68,12 +78,15 @@ private:
 	int convertToIndex(int i, int j, int k);// convert the i-j-k index of the sub grid to a index
 	int convertToIndexByActualCoor(int i, int j, int k);// convert the i-j-k index of the sub grid to a index
 
+
 	std::string getSubGridFileName(int ind);// get the filename of the subgrid
 											// file format: index subgridsize gridsize [data block]
 
-	Point boxStartPoint_, boxEndPoint_;	// the two 2 specifies two diagonal points
+	Point boxStartPoint_, boxEndPoint_;		// the two 2 specifies two diagonal points
 
-	double * grid_;							// the actual grid pointer
+	REAL * grid_;							// the actual grid pointer
 };
+
+
 
 #endif /* GRIDS_H_ */

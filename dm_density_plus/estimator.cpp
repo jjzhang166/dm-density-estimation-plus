@@ -38,8 +38,8 @@ bool isInBox(Point &p, Point &v1, Point &v2, double dx2){
 
 //test whether this tetra is intouch with current cube
 bool Estimater::testTouch(Tetrahedron * tetra){
-	Point p1, p2, p3, p4, p5, p6, p7, p8;
-	Point v1, v2, v3, v4, v5, v6, v7, v8;
+	Point p1, p2, p3, p4;//, p5, p6, p7, p8;
+	Point v1, /*v2, v3, v4, v5, v6, v7,*/ v8;
 	int sg = gridmanager_->getSubGridSize();
 
 	v1 = gridmanager_->getPoint(0, 0, 0);
