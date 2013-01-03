@@ -16,11 +16,11 @@ Tetrahedron::Tetrahedron() {
 	volume = 0;
 }
 
-double Tetrahedron::computeVolume() {
-	double vol;
-	double v1x, v1y, v1z;
-	double v2x, v2y, v2z;
-	double v3x, v3y, v3z;
+REAL Tetrahedron::computeVolume() {
+	REAL vol;
+	REAL v1x, v1y, v1z;
+	REAL v2x, v2y, v2z;
+	REAL v3x, v3y, v3z;
 
 	v1x = v2.x - v1.x;
 	v1y = v2.y - v1.y;
@@ -44,8 +44,8 @@ double Tetrahedron::computeVolume() {
 	return vol;
 }
 
-double Tetrahedron::det4d(double m[4][4]) {
-	double value;
+REAL Tetrahedron::det4d(REAL m[4][4]) {
+	REAL value;
 	value = m[0][3] * m[1][2] * m[2][1] * m[3][0]
 			- m[0][2] * m[1][3] * m[2][1] * m[3][0]
 			- m[0][3] * m[1][1] * m[2][2] * m[3][0]
@@ -73,7 +73,7 @@ double Tetrahedron::det4d(double m[4][4]) {
 	return value;
 }
 
-void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]) {
+void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, REAL m[4][4]) {
 	m[0][0] = p1.x;
 	m[0][1] = p1.y;
 	m[0][2] = p1.z;
@@ -93,8 +93,8 @@ void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]) {
 }
 
 bool Tetrahedron::isInTetra(Point p) {
-	double m[4][4];
-	double d0, d1, d2, d3, d4;
+	REAL m[4][4];
+	REAL d0, d1, d2, d3, d4;
 
 	//[[3,2,1,1],[2,2,3,1],[5,4,3,1],[2,1,2,1]]
 	//test
@@ -128,22 +128,29 @@ bool Tetrahedron::isInTetra(Point p) {
 	return false;
 }
 
-double Tetrahedron::minx() {
+REAL Tetrahedron::minx() {
 	return min(min(min(v1.x, v2.x), v3.x), v4.x);
 }
-double Tetrahedron::miny() {
+REAL Tetrahedron::miny() {
 	return min(min(min(v1.y, v2.y), v3.y), v4.y);
 }
-double Tetrahedron::minz() {
+REAL Tetrahedron::minz() {
 	return min(min(min(v1.z, v2.z), v3.z), v4.z);
 }
-double Tetrahedron::maxx() {
+REAL Tetrahedron::maxx() {
 	return max(max(max(v1.x, v2.x), v3.x), v4.x);
 }
-double Tetrahedron::maxy() {
+REAL Tetrahedron::maxy() {
 	return max(max(max(v1.y, v2.y), v3.y), v4.y);
 }
-double Tetrahedron::maxz() {
+REAL Tetrahedron::maxz() {
 	return max(max(max(v1.z, v2.z), v3.z), v4.z);
 }
 
+Point Tetrahedron::getCenter() {
+	Point retp;
+	retp.x = (v1.x + v2.x + v3.x + v4.x) / 4.0;
+	retp.y = (v1.y + v2.y + v3.y + v4.y) / 4.0;
+	retp.z = (v1.z + v2.z + v3.z + v4.z) / 4.0;
+	return retp;
+}

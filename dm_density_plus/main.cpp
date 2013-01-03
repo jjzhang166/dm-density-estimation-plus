@@ -32,7 +32,7 @@ using namespace std;
 int gridsize = 128;						//total grid size
 int subgridsize = 16;			//how many grid could be stored in the memory
 int inputmemgrid = 16;						//the input memory grid size
-string filename = "multires_150";			//the input data filename
+string filename = "/Users/lyang/git/dm-density-estimation-plus/dm_density_plus/Debug/multires_150";			//the input data filename
 string gridfilename = "tetrahegen.grid";	//output filename
 bool isoutputres = false;
 
@@ -98,81 +98,13 @@ int main(int argv, char * args[]){
 	printf("*********************************************************************\n");
 
 	TetraStream tetraStream(filename, inputmemgrid);
+	tetraStream.loadBlock(0);
+	//test tetrastream:
+	//return 0;
+
 	GridManager grid(gridfilename, gridsize, subgridsize);
 	Estimater estimater(&tetraStream, &grid);
 
-
-	//test grid
-
-/*	grid.setValueByActualCoor(130,110,100, 8.9889);
-	grid.saveGrid();
-	if(grid.loadGrid(6)){
-		grid.setValue(1,2,3, 3.1415926);
-		grid.saveGrid();
-		printf("Current grid: %d\n", grid.getCurrentInd());
-	}
-	if(grid.loadGrid(1, 0, 1)){
-		printf("Current grid: %d\n", grid.getCurrentInd());
-	}
-	if(grid.loadGrid(6)){
-		printf("GridTesting value: %f\n", grid.getValue(1,2,3));
-	}
-	printf("Testing value %f\n", grid.getValueByActualCoor(130, 110, 100));
-
-	int ai = 129;
-	int aj = 210;
-	int ak = 101;
-	int ci, cj, ck;
-	grid.loadGridByActualCoor(ai, aj, ak);
-	//printf("A ind -> %d\n", grid.getCurrentInd());
-	grid.actual2Current(ai, aj, ak, ci, cj, ck);
-	grid.current2Actual(ci, cj, ck, ai, aj, ak);
-	printf("Testing Converting %d %d %d %d %d %d\n",
-			ai, aj, ak, ci, cj, ck);
-*/
-	//test gadget reader
-	/*GadgetReader::GSnap gsnap(filename);
-	std::cout << gsnap.GetFileName() << endl;
-	std::cout << gsnap.GetFormat() << endl;
-	std::cout << gsnap.GetHeader(0).BoxSize << endl;
-	std::cout << gsnap.GetHeader(0).Omega0 << endl;
-	std::cout << gsnap.GetHeader(0).OmegaLambda << endl;
-	std::cout << gsnap.GetHeader(0).npart[gsnap.GetFormat()] << endl;
-	std::cout << pow(gsnap.GetNpart(gsnap.GetFormat()), 1.0/3.0) << endl;
-	set<string> bs = gsnap.GetBlocks();
-	vector<string> bsv;
-	std::copy(bs.begin(), bs.end(), std::back_inserter(bsv));
-
-	for(std::vector<string>::iterator it=bsv.begin(); it!=bsv.end(); ++it){
-		cout << *it << endl;
-	}
-
-	int nparts = gsnap.GetNpart(gsnap.GetFormat());
-
-	float * data_array = new float[nparts * 3];
-	float * sx = new float[nparts];
-	float * sy = new float[nparts];
-	float * sz = new float[nparts];
-	int * ids = new int[nparts];
-	gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
-	gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
-
-	//sorting
-	for(int i = 0; i < nparts; i++){
-		sx[ids[i]] = data_array[i * 3];
-		sy[ids[i]] = data_array[i * 3 + 1];
-		sz[ids[i]] = data_array[i * 3 + 2];
-	}
-	delete data_array;
-
-	for(int i = 0; i < nparts; i++){
-		printf("%6f %6f %6f\n", sx[i], sy[i], sz[i]);
-	}
-	delete ids;
-	delete sx;
-	delete sy;
-	delete sz;
-	*/
 	printf("*****************************COMPUTING ...***************************\n");
 
 	estimater.computeDensity();
@@ -203,3 +135,75 @@ int main(int argv, char * args[]){
 	}
 }
 
+
+//test grid
+
+/*	grid.setValueByActualCoor(130,110,100, 8.9889);
+grid.saveGrid();
+if(grid.loadGrid(6)){
+	grid.setValue(1,2,3, 3.1415926);
+	grid.saveGrid();
+	printf("Current grid: %d\n", grid.getCurrentInd());
+}
+if(grid.loadGrid(1, 0, 1)){
+	printf("Current grid: %d\n", grid.getCurrentInd());
+}
+if(grid.loadGrid(6)){
+	printf("GridTesting value: %f\n", grid.getValue(1,2,3));
+}
+printf("Testing value %f\n", grid.getValueByActualCoor(130, 110, 100));
+
+int ai = 129;
+int aj = 210;
+int ak = 101;
+int ci, cj, ck;
+grid.loadGridByActualCoor(ai, aj, ak);
+//printf("A ind -> %d\n", grid.getCurrentInd());
+grid.actual2Current(ai, aj, ak, ci, cj, ck);
+grid.current2Actual(ci, cj, ck, ai, aj, ak);
+printf("Testing Converting %d %d %d %d %d %d\n",
+		ai, aj, ak, ci, cj, ck);
+*/
+//test gadget reader
+/*GadgetReader::GSnap gsnap(filename);
+std::cout << gsnap.GetFileName() << endl;
+std::cout << gsnap.GetFormat() << endl;
+std::cout << gsnap.GetHeader(0).BoxSize << endl;
+std::cout << gsnap.GetHeader(0).Omega0 << endl;
+std::cout << gsnap.GetHeader(0).OmegaLambda << endl;
+std::cout << gsnap.GetHeader(0).npart[gsnap.GetFormat()] << endl;
+std::cout << pow(gsnap.GetNpart(gsnap.GetFormat()), 1.0/3.0) << endl;
+set<string> bs = gsnap.GetBlocks();
+vector<string> bsv;
+std::copy(bs.begin(), bs.end(), std::back_inserter(bsv));
+
+for(std::vector<string>::iterator it=bsv.begin(); it!=bsv.end(); ++it){
+	cout << *it << endl;
+}
+
+int nparts = gsnap.GetNpart(gsnap.GetFormat());
+
+float * data_array = new float[nparts * 3];
+float * sx = new float[nparts];
+float * sy = new float[nparts];
+float * sz = new float[nparts];
+int * ids = new int[nparts];
+gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
+gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
+
+//sorting
+for(int i = 0; i < nparts; i++){
+	sx[ids[i]] = data_array[i * 3];
+	sy[ids[i]] = data_array[i * 3 + 1];
+	sz[ids[i]] = data_array[i * 3 + 2];
+}
+delete data_array;
+
+for(int i = 0; i < nparts; i++){
+	printf("%6f %6f %6f\n", sx[i], sy[i], sz[i]);
+}
+delete ids;
+delete sx;
+delete sy;
+delete sz;
+*/

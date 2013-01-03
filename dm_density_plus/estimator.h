@@ -8,7 +8,6 @@
 #ifndef ESTIMATOR_H_
 #define ESTIMATOR_H_
 #include "grids.h"
-#include "tetraselector.h"
 
 class Estimater {
 public:
