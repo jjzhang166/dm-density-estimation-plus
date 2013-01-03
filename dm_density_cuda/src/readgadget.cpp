@@ -63,6 +63,7 @@ GSnap::GSnap(string filename){
 	file.read((char *) &record0, sizeof(uint32_t));
 	file.read((char *) ids, sizeof(uint32_t) * Npart);
 	file.read((char *) &record1, sizeof(uint32_t));
+
 	if(record0 != record1){
 		printf("Record in file not equal--ids!\n");
 		return;
