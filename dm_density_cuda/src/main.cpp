@@ -179,6 +179,7 @@ int main(int argv, char * args[]){
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");
 		int i, j, k;
+		//isoutputres = true;
 		if (isoutputres) {
 			//grid.loadGrid(l);
 			int tgs = grid.getGridSize();

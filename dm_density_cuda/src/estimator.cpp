@@ -30,33 +30,37 @@ void Estimater::computeDensity(){
 	if(initialCUDA(tetrastream_, gridmanager_) != cudaSuccess){
 		exit(1);
 	}
-	if(computeTetraMemWithCuda() != cudaSuccess)
-		exit(1);
-	//computeTetraSelectionWithCuda();
 
-
-	printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
-	printf("=========[");
-	int res_print_ = gridmanager_->getSubGridNum() / 50;
-	if(res_print_ == 0){
-		res_print_ = 1;
-	}
-
-	for(loop_i = 0; loop_i < gridmanager_->getSubGridNum(); loop_i ++){
-		if((loop_i + 1) % (res_print_) == 0){
-			//printf(">");
-			cout<<"<";
-			cout.flush();
+	int tetra_ind = 0;
+	int tetra_num_block = tetrastream_->getTotalBlockNum();
+	for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
+		printf("TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
+		tetrastream_->loadBlock(tetra_ind);
+		if(computeTetraMemWithCuda() != cudaSuccess)
+			exit(1);
+		//computeTetraSelectionWithCuda();
+		printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
+		printf("=========[");
+		int res_print_ = gridmanager_->getSubGridNum() / 50;
+		if(res_print_ == 0){
+			res_print_ = 1;
 		}
-		tetrastream_->reset();
-		gridmanager_->loadGrid(loop_i);
-		//int count = 0;
-		calculateGridWithCuda();
-		gridmanager_->saveGrid();
+
+		for(loop_i = 0; loop_i < gridmanager_->getSubGridNum(); loop_i ++){
+			if((loop_i + 1) % (res_print_) == 0){
+				//printf(">");
+				cout<<"<";
+				cout.flush();
+			}
+			gridmanager_->loadGrid(loop_i);
+			//int count = 0;
+			calculateGridWithCuda();
+			gridmanager_->saveGrid();
+		}
+		finished_ = true;
+		finishCUDA();
+		printf("]========\n");
 	}
-	finished_ = true;
-	finishCUDA();
-	printf("]========\n");
 	//printf("Finished\n");
 
 /*	int i, j, k, l;

@@ -6,162 +6,154 @@
  */
 #include <string>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
 #include "tetrahedron.h"
 #include "tetrastream.h"
-//#include "gadget/gadgetreader.hpp"
 #include "readgadget.h"
 
-TetraStream::TetraStream(string filename, int inputmemgridsize){
+//inputmemgridsize should be a divisor of the total_grid_size
+TetraStream::TetraStream(string filename, int inputmemgridsize) {
 	filename_ = filename;
 	mem_grid_size_ = inputmemgridsize;
-	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_) * (mem_grid_size_);
+	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
+			* (mem_grid_size_);
 
-	//TODO read from file
-	total_parts_ = 0;
-	particle_grid_size_ = 0;
+	gsnap_ = new GSnap(filename_);
+	particle_grid_size_ = ceil(pow(gsnap_->Npart, 1.0 / 3.0));
+	total_parts_ = gsnap_->Npart;
+	current_tetra_num = 0;
 
-	tetra_iter_ = tetras_.begin();
-	numParts_ = 0;
-	position_ = NULL;
+	current_ind_tetra = 0;
+	current_ind_block = 0;
+	tetras_ = new Tetrahedron[mem_tetra_size_];
+	position_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
 
-	ngrid_ = 0;
-	printf(">>> Read particle positions...\n");
-	readPosition();			// read the index-sorted position data
-	printf(">>> Converting particle to tetrahedrons... \n");
-	convertToTetrahedron();	// convert the vertex data to tetrahedron
-	//test
-	//printf("---test---Tetrahedron numbers %d \n", tetras_.size());
-	//printf("---test---Tetrahedron numbers %d \n", tetras_.size());
-	//unsigned int i = 0;
-	//for(i = 0; i < tetras_.size(); i++){
-	//	printf("---test---Tetrahedron vol %f \n", tetras_[i].volume);
-	//}
+	total_tetra_grid_num_ = particle_grid_size_ / mem_grid_size_ *
+			particle_grid_size_ / mem_grid_size_ *
+			particle_grid_size_ / mem_grid_size_;
+
+	loadBlock(0);		//load the zeros block
+
 }
 
-bool TetraStream::hasnext(){
-	if(tetra_iter_ != tetras_.end()){
-		return true;
-	}else{
-		return false;
-	}
-}
 
-vector<Tetrahedron>::iterator TetraStream::next(){
-	tetra_iter_ ++;
-	return tetra_iter_;
-}
-
-bool TetraStream::reset(){
-	tetra_iter_ = tetras_.begin();
+bool TetraStream::reset() {
+	loadBlock(0);
 	return true;
 }
 
-TetraStream::~TetraStream(){
+TetraStream::~TetraStream() {
 	delete position_;
 	delete gsnap_;
+	delete tetras_;
 }
 
-void TetraStream::readPosition(){
-	//GadgetReader::GSnap gsnap(filename_);
-	gsnap_ = new GSnap(filename_);
-	int nparts = gsnap_->Npart;//gsnap.GetNpart(gsnap.GetFormat());
+int TetraStream::getTotalBlockNum(){
+	return total_tetra_grid_num_;
+}
 
-	float * data_array = gsnap_->pos;//new float[nparts * 3];
-	uint32_t * ids = gsnap_->ids;//new int[nparts];
+int TetraStream::getBlockSize(){
+	return mem_grid_size_;
+}
 
-	//gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
-	//gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
+int TetraStream::getBlockNumTetra(){
+	return current_tetra_num;
+}
 
-	ngrid_ = ceil(pow(nparts, 1.0/3.0));
+Tetrahedron * TetraStream::getCurrentBlock(){
+	return tetras_;
+}
 
-	position_ = new Point[nparts];
-	numParts_ = nparts;
+Tetrahedron * TetraStream::getBlock(int i){
+	loadBlock(i);
+	return tetras_;
+}
 
-	//sorting
-	for(int i = 0; i < nparts; i++){
-		position_[ids[i]].x = data_array[i * 3];
-		position_[ids[i]].y = data_array[i * 3 + 1];
-		position_[ids[i]].z = data_array[i * 3 + 2];
+int TetraStream::getCurrentInd(){
+	return current_ind_block;
+}
+
+void TetraStream::loadBlock(int i){
+	if(i >= this->total_tetra_grid_num_){
+		return;
 	}
-
-	//delete data_array;
-
-
+	int imin, jmin, kmin, imax, jmax, kmax;
+	int ngb = particle_grid_size_ / mem_grid_size_;
+	imin = i % ngb * mem_grid_size_;
+	jmin = i / ngb % ngb * mem_grid_size_;
+	kmin = i / ngb / ngb % ngb * mem_grid_size_;
+	imax = imin + mem_grid_size_;
+	if(imax == particle_grid_size_){
+		imax = particle_grid_size_ - 1;
+	}
+	jmax = jmin + mem_grid_size_;
+	if(jmax == particle_grid_size_){
+		jmax = particle_grid_size_ - 1;
+	}
+	kmax = kmin + mem_grid_size_;
+	if(kmax == particle_grid_size_){
+		kmax = particle_grid_size_ - 1;
+	}
+	gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax);
+	convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
+	current_ind_block = i;
 }
 
-void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4){
+void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 	Tetrahedron tetra_;
 	tetra_.v1 = position_[ind1];
 	tetra_.v2 = position_[ind2];
 	tetra_.v3 = position_[ind3];
 	tetra_.v4 = position_[ind4];
 	tetra_.computeVolume();
-	tetras_.push_back(tetra_);
+	tetras_[current_ind_tetra] = (tetra_);
+	current_ind_tetra ++;
 }
 
-
-void TetraStream::addTetra(int i1, int j1, int k1,
-		int i2, int j2, int k2,
-		int i3, int j3, int k3,
-		int i4, int j4, int k4){	// add a tetra to the vectot
+void TetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
+		int i3, int j3, int k3, int i4, int j4, int k4,
+		int isize, int jsize, int ksize) {// add a tetra to the vectot
 	int ind1, ind2, ind3, ind4;
-	ind1 = (i1) + (j1) * ngrid_ + (k1) * ngrid_ * ngrid_;
-	ind2 = (i2) + (j2) * ngrid_ + (k2) * ngrid_ * ngrid_;
-	ind3 = (i3) + (j3) * ngrid_ + (k3) * ngrid_ * ngrid_;
-	ind4 = (i4) + (j4) * ngrid_ + (k4) * ngrid_ * ngrid_;
+	ind1 = (i1) + (j1) * isize + (k1) * isize * jsize;
+	ind2 = (i2) + (j2) * isize + (k2) * isize * jsize;
+	ind3 = (i3) + (j3) * isize + (k3) * isize * jsize;
+	ind4 = (i4) + (j4) * isize + (k4) * isize * jsize;
 	addTetra(ind1, ind2, ind3, ind4);
 }
 
-
-void TetraStream::convertToTetrahedron(){
-
-
+void TetraStream::convertToTetrahedron(int ii, int jj, int kk) {
+	current_ind_tetra = 0;
 	int i, j, k;		//loop variables
-	//printf("----test----Ngrid %d \n", ngrid_);
 
-	for(k = 0; k < ngrid_ - 1; k++){
-		for(j = 0; j < ngrid_ - 1; j++){
-			for(i = 0; i < ngrid_ - 1; i++){
+	for (k = 0; k < kk-1; k++) {
+		for (j = 0; j < jj-1; j++) {
+			for (i = 0; i < ii-1; i++) {
 				//1
-				addTetra(i,   j,   k,
-						 i,   j+1, k,
-						 i,   j,   k+1,
-						 i+1, j,   k+1);
+				addTetra(i, j, k, i, j + 1, k, i, j, k + 1, i + 1, j, k + 1,
+						ii, jj, kk);
 				//2
-				addTetra(i,   j,   k,
-						 i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j,   k);
+				addTetra(i, j, k, i, j + 1, k, i + 1, j, k + 1, i + 1, j, k,
+						ii, jj, kk);
 				//3
-				addTetra(i,   j,   k+1,
-						 i,   j+1, k+1,
-						 i+1, j,   k+1,
-						 i,   j+1, k);
+				addTetra(i, j, k + 1, i, j + 1, k + 1, i + 1, j, k + 1, i,
+						j + 1, k, ii, jj, kk);
 				//4
-				addTetra(i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j+1, k+1,
-						 i,   j+1, k+1);
+				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1, i,
+						j + 1, k + 1, ii, jj, kk);
 				//5
-				addTetra(i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j+1, k+1,
-						 i+1, j+1, k);
+				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1,
+						i + 1, j + 1, k, ii, jj, kk);
 				//6
-				addTetra(i,   j+1, k,
-						 i+1, j,   k+1,
-						 i+1, j+1, k,
-						 i+1, j,   k);
+				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k, i + 1,
+						j, k, ii, jj, kk);
 
 			}
 		}
 	}
+	current_tetra_num = current_ind_tetra;
 }
 
 
-vector<Tetrahedron> * TetraStream::getTretras(){
-	return &tetras_;
-}

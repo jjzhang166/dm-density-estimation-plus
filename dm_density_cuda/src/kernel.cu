@@ -18,10 +18,10 @@ using namespace std;
 using namespace std;
 
 int sub_grid_size_;
-int num_tetra_;
+int num_tetra_ = 0;
 
 Tetrahedron * dev_tetras;
-std::vector<Tetrahedron> * tetras_v;
+Tetrahedron * tetras_v;
 GridManager * gridmanager;
 TetraStream * tetrastream;
 REAL * dev_grids;
@@ -187,34 +187,35 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 		//check whether the tetra is getting in touch with the current tetra
 		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
 			tetra_select[startind + count] = loop_i;
-			count ++;
+			count = count + 1;
 		}
 	}
 }
 
 //initialize the CUDA
 cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
-	int num_tetra, int sub_grid_size, int grid_size;
+	int grid_size;
 
 	tetrastream = tetrastream_;
 	gridmanager = gridmanager_;
-	tetras_v = tetrastream_->getTretras();
+	//tetras_v = tetrastream_->getTretras();
 
-	num_tetra = tetrastream->getTretras()->size();
-	sub_grid_size = gridmanager->getSubGridSize();
+	num_tetra_ = tetrastream->getBlockSize();
+	num_tetra_ = 6 * num_tetra_ * num_tetra_ * num_tetra_;
+
+	sub_grid_size_ = gridmanager->getSubGridSize();
 	grid_size = gridmanager->getGridSize();
 
+	//printf("%d\n", grid_size);
 	cudaError_t cudaStatus;
 	cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
         return cudaStatus;
     }
-	sub_grid_size_ = sub_grid_size;
-	num_tetra_ = num_tetra;
 
 	// Allocate GPU buffers for tetrahedrons    .
-    cudaStatus = cudaMalloc((void**)&dev_tetras, num_tetra * sizeof(Tetrahedron));
+    cudaStatus = cudaMalloc((void**)&dev_tetras, num_tetra_ * sizeof(Tetrahedron));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed -- allocating tetra memory!");
         return cudaStatus;
@@ -229,7 +230,8 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
 
 	// Allocate GPU tetra memory for subgrids.
 	int nsub = gridmanager->getSubGridNum();
-    cudaStatus = cudaMalloc((void**)&dev_tetra_mem, nsub * sizeof(int));
+
+	cudaStatus = cudaMalloc((void**)&dev_tetra_mem, nsub * sizeof(int));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed -- allocating grids memory!");
         return cudaStatus;
@@ -237,14 +239,18 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
 	return cudaStatus;
 }
 
+
 cudaError_t computeTetraMemWithCuda(){
 	//copy the memory to CUDA
 	cudaError_t cudaStatus;
 
-	int blocksize = 1024;
-	int gridsize = gridmanager->getSubGridNum() / 1024 + 1;
+	tetras_v = tetrastream ->getCurrentBlock();
+	num_tetra_ = tetrastream->getBlockNumTetra();
 
-	cudaStatus = cudaMemcpy(dev_tetras, &((*tetras_v)[0]), num_tetra_ * sizeof(Tetrahedron), cudaMemcpyHostToDevice);
+	int blocksize = 512;
+	int gridsize = gridmanager->getSubGridNum() / blocksize + 1;
+
+	cudaStatus = cudaMemcpy(dev_tetras, tetras_v, num_tetra_ * sizeof(Tetrahedron), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMemcpy failed -- copying tetrahedrons!");
         return cudaStatus;
@@ -261,7 +267,8 @@ cudaError_t computeTetraMemWithCuda(){
 		fprintf(stderr,"cudaThreadSynchronize error -- sync tetra mem: %s\n", cudaGetErrorString(cudaStatus));
 		return cudaStatus;
 	}
-	int * tetramem = new int[gridmanager->getSubGridNum()];
+	int * tetramem;
+	tetramem = new int[gridmanager->getSubGridNum()];
 	cudaStatus = cudaMemcpy(tetramem, dev_tetra_mem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyDeviceToHost);
     if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem!");
@@ -270,7 +277,7 @@ cudaError_t computeTetraMemWithCuda(){
 
 	int j;
 	for(j = 1; j < gridmanager->getSubGridNum(); j++){
-		//printf("%d ==> %d\n", j, tetramem[j]);
+		printf("%d ==> %d\n", j, tetramem[j]);
 		tetramem[j] = tetramem[j] + tetramem[j - 1];
 		
 	}
@@ -297,6 +304,12 @@ cudaError_t computeTetraMemWithCuda(){
 		num_tetra_, gridmanager->getSubGridSize(), gridmanager->getGridSize(), 
 		gridmanager->getSubGridNum(), 
 		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x);
+
+	cudaStatus = cudaThreadSynchronize();
+	if( cudaStatus != cudaSuccess){
+		fprintf(stderr,"cudaThreadSynchronize error -- sync tetra mem: %s\n", cudaGetErrorString(cudaStatus));
+		return cudaStatus;
+	}
 
 	delete tetramem;
 	return cudaSuccess;
