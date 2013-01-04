@@ -7,6 +7,12 @@
 #include <vector>
 #include <iostream>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include "gettimeofday_win.h"
+#else
+#include "unistd.h"
+#endif
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
@@ -25,7 +31,17 @@ Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
 	finished_ = false;
 }
 
+void Estimater::getRunnintTime(double &iotime, double &calctime){
+	iotime += this->iotime_;
+	calctime += this->calctime_;
+}
+
 void Estimater::computeDensity(){
+	timeval timediff;
+	double t1, t2 = 0;
+	iotime_ = 0;
+	calctime_ = 0;
+
 	int loop_i;
 	if(initialCUDA(tetrastream_, gridmanager_) != cudaSuccess){
 		exit(1);
@@ -35,9 +51,22 @@ void Estimater::computeDensity(){
 	int tetra_num_block = tetrastream_->getTotalBlockNum();
 	for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
 		printf("TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
+
+		gettimeofday(&timediff, NULL);
+	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		tetrastream_->loadBlock(tetra_ind);
+		gettimeofday(&timediff, NULL);
+		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+		iotime_ += t2 - t1;
+
+		gettimeofday(&timediff, NULL);
+	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		if(computeTetraMemWithCuda() != cudaSuccess)
 			exit(1);
+		gettimeofday(&timediff, NULL);
+		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+		calctime_ += t2 - t1;
+
 		//computeTetraSelectionWithCuda();
 		printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
 		printf("=========[");
@@ -47,15 +76,33 @@ void Estimater::computeDensity(){
 		}
 
 		for(loop_i = 0; loop_i < gridmanager_->getSubGridNum(); loop_i ++){
+
+			gettimeofday(&timediff, NULL);
+			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			if((loop_i + 1) % (res_print_) == 0){
 				//printf(">");
 				cout<<"<";
 				cout.flush();
 			}
 			gridmanager_->loadGrid(loop_i);
+			gettimeofday(&timediff, NULL);
+			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+			iotime_ += t2 - t1;
+
 			//int count = 0;
+			gettimeofday(&timediff, NULL);
+			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			calculateGridWithCuda();
+			gettimeofday(&timediff, NULL);
+			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+			calctime_ += t2 - t1;
+
+			gettimeofday(&timediff, NULL);
+			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			gridmanager_->saveGrid();
+			gettimeofday(&timediff, NULL);
+			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+			iotime_ += t2 - t1;
 		}
 		finished_ = true;
 		printf("]========\n");

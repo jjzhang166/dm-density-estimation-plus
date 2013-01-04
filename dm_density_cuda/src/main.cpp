@@ -114,7 +114,32 @@ int main(int argv, char * args[]){
 	printf("*****************************COMPUTING ...***************************\n");
 
 	estimater.computeDensity();
-	estimater.getRunnintTime(io_t, calc_t, total_t);
+	estimater.getRunnintTime(io_t, calc_t);
+
+
+	//single vex_vol correction
+	REAL box = grid.getEndPoint().x - grid.getStartPoint().x;
+	REAL ng = grid.getGridSize();
+	REAL vox_vol = box * box * box / ng / ng / ng;
+	int tetra_block_ind = 0;
+	for(tetra_block_ind = 0; tetra_block_ind < tetraStream.getTotalBlockNum(); tetra_block_ind ++){
+		tetraStream.loadBlock(tetra_block_ind);
+		int tetra_ind = 0;
+		for(tetra_ind = 0; tetra_ind < tetraStream.getBlockNumTetra(); tetra_ind ++){
+			Tetrahedron & tetra = (tetraStream.getCurrentBlock())[tetra_ind];
+			int xindmin = tetra.minx() / box * grid.getGridSize();
+			int xindmax = tetra.maxx() / box * grid.getGridSize();
+			int yindmin = tetra.miny() / box * grid.getGridSize();
+			int yindmax = tetra.maxy() / box * grid.getGridSize();
+			int zindmin = tetra.minz() / box * grid.getGridSize();
+			int zindmax = tetra.maxz() / box * grid.getGridSize();
+			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
+			if(n_samples == 1){
+				grid.setValueByActualCoor(xindmin, yindmin, zindmin, 6.0 / vox_vol);
+			}
+		}
+	}
+
 
 	gettimeofday(&timediff, NULL);
 	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -125,19 +150,7 @@ int main(int argv, char * args[]){
 	t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 	io_t += t2 - t1;
 
-	//single vex_vol correction
-	/*REAL box = grid.getEndPoint().x - grid.getStartPoint().x;
-	REAL ng = grid.getGridSize();
-	REAL vox_vol = box * box * box / ng / ng / ng;
-	int tetra_block_ind = 0;
-	for(tetra_block_ind = 0; tetra_block_ind < tetraStream.getTotalBlockNum(); tetra_block_ind ++){
-		tetraStream.loadBlock(tetra_block_ind);
-		int tetra_ind = 0;
-		for(tetra_ind = 0; tetra_ind < tetraStream.getBlockNumTetra(); tetra_ind ++){
-			Tetrahedron & tetra = (tetraStream.getCurrentBlock())[tetra_ind];
-			REAL n_samples = 
-		}
-	}*/
+
 
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");

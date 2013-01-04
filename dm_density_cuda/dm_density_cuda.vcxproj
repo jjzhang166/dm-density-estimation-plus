@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="src\estimator.h" />
     <ClInclude Include="src\gadgetheader.h" />
+    <ClInclude Include="src\gettimeofday_win.h" />
     <ClInclude Include="src\grids.h" />
     <ClInclude Include="src\kernel.h" />
     <ClInclude Include="src\readgadget.h" />
@@ -24,6 +25,7 @@
     <ClCompile Include="src\estimator.cpp">
       <FileType>CppCode</FileType>
     </ClCompile>
+    <ClCompile Include="src\gettimeofday_win.cpp" />
     <ClCompile Include="src\grids.cpp" />
     <ClCompile Include="src\main.cpp" />
     <CudaCompile Include="src\tetrahedron.cu">
@@ -105,6 +107,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <MaxRegCount>0</MaxRegCount>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

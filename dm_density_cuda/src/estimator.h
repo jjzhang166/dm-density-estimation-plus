@@ -14,11 +14,14 @@ public:
 	void computeDensity();
 	bool isGood();						// if false, has some error
 	bool isFinished();					// whether the calculation is finished
+	void getRunnintTime(double &iotime, double &calctime);
 private:
 	TetraStream * tetrastream_;
 	GridManager * gridmanager_;
 	bool good_;
 	bool finished_;
+	double iotime_;
+	double calctime_;
 };
 
 
