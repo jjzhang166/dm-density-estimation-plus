@@ -104,6 +104,8 @@ void GSnap::readPosBlock(Point * posblock, int imin, int jmin, int kmin, int ima
 	fstream file(filename_.c_str(), ios_base::in | ios_base::binary);
 	readIndex(file, block_count, imin, jmin, kmin, imax, jmax, kmax);
 
+	//int kkkk = block_count[511];
+
 	for(i = 0; i < ii; i++){
 		for(j = 0; j < jj; j++){
 			for(k = 0; k < kk; k++){
@@ -126,7 +128,8 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 	//fseek
 	streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
-			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t);
+			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
+			+ sizeof(uint32_t);
 	file.seekg(spos, ios_base::beg);
 
 	for(i = 0; i < (int)Npart; i++){

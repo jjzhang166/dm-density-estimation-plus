@@ -183,11 +183,13 @@ void Estimater::computeDensity() {
 		int count = 0;
 		int tetra_block_ind = 0;
 		int totalnum = tetrastream_->getTotalBlockNum();
+		int count_tetra = 0;
 		for(tetra_block_ind = 0; tetra_block_ind < totalnum; tetra_block_ind ++){
 			int tetra_ind = 0;
 			tetrastream_->loadBlock(tetra_block_ind);
 			Tetrahedron * current_tetras_ = tetrastream_->getCurrentBlock();
 			int current_tetra_num = tetrastream_->getBlockNumTetra();
+			bool hasp = false;
 			for(tetra_ind = 0; tetra_ind < current_tetra_num; tetra_ind++){
 				int i = 0, j = 0, k = 0;
 				Tetrahedron tetra = current_tetras_[tetra_ind];
@@ -196,7 +198,7 @@ void Estimater::computeDensity() {
 					continue;
 				}
 
-				//count_tetra ++;
+				count_tetra ++;
 
 				if (tetra.maxx() - tetra.minx()
 						> (gridmanager_->getEndPoint().x
@@ -214,7 +216,7 @@ void Estimater::computeDensity() {
 					continue;
 				//printf("Tetra: %f %f %f\n", tetra.v1.x, tetra.v1.y, tetra.v1.z);
 				//printf("Tetrahedron number: %d\n", count);
-				bool hasp = false;
+
 
 				int sgs = gridmanager_->getSubGridSize();
 				for (i = 0; i < sgs; i++) {
@@ -234,6 +236,7 @@ void Estimater::computeDensity() {
 						}
 					}
 				}
+
 			}
 
 		}

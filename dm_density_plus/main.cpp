@@ -99,9 +99,6 @@ int main(int argv, char * args[]){
 
 	TetraStream tetraStream(filename, inputmemgrid);
 	tetraStream.loadBlock(0);
-	//test tetrastream:
-	//return 0;
-
 	GridManager grid(gridfilename, gridsize, subgridsize);
 	Estimater estimater(&tetraStream, &grid);
 
