@@ -114,9 +114,11 @@ __device__ bool isInBox(Point &p, Point &v1, Point &v2, float dx2){
 }
 
 // nsg = gs / subs
-__device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float dx2, Tetrahedron * tetra){
+// vox_vel = box^3/ng^3;
+__device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float dx2, 
+	Tetrahedron * tetra){
 
-	Point p1, p2, p3, p4;
+	//Point p1, p2, p3, p4;
 	Point v1, v8;
 	//int sg = subgs;
 
@@ -124,22 +126,24 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 	v8 = getPoint(ind, subgs,subgs,subgs, subgs, gs, nsg, box);
 
 
-	p1 = tetra->v1;
-	p2 = tetra->v2;
-	p3 = tetra->v3;
-	p4 = tetra->v4;
+	//p1 = tetra->v1;
+	//p2 = tetra->v2;
+	//p3 = tetra->v3;
+	//p4 = tetra->v4;
 
-	double minx = min(min(min(p1.x, p2.x), p3.x), p4.x);
-	double maxx = max(max(max(p1.x, p2.x), p3.x), p4.x);
-	double miny = min(min(min(p1.y, p2.y), p3.y), p4.y);
-	double maxy = max(max(max(p1.y, p2.y), p3.y), p4.y);
-	double minz = min(min(min(p1.z, p2.z), p3.z), p4.z);
-	double maxz = max(max(max(p1.z, p2.z), p3.z), p4.z);
+	double minx = tetra->minx();//min(min(min(p1.x, p2.x), p3.x), p4.x);
+	double maxx = tetra->maxx();//max(max(max(p1.x, p2.x), p3.x), p4.x);
+	double miny = tetra->miny();//min(min(min(p1.y, p2.y), p3.y), p4.y);
+	double maxy = tetra->maxy();//max(max(max(p1.y, p2.y), p3.y), p4.y);
+	double minz = tetra->minz();//min(min(min(p1.z, p2.z), p3.z), p4.z);
+	double maxz = tetra->maxz();//max(max(max(p1.z, p2.z), p3.z), p4.z);
 
 	if (minx > v8.x - 2*dx2 || maxx < v1.x + 2*dx2
 		|| miny > v8.y - 2*dx2 || maxy < v1.y + 2*dx2
 		|| minz > v8.z - 2*dx2 || maxz < v1.z + 2*dx2){
 		return false;
+		//check whether this one is in the vox_vel
+		//if((maxx - minx + 1) * ((maxy - miny + 1) * ((maxz - minz + 1))
 	}
 	return true;
 
@@ -249,12 +253,6 @@ cudaError_t computeTetraMemWithCuda(){
 
 	int blocksize = 512;
 	int gridsize = gridmanager->getSubGridNum() / blocksize + 1;
-
-	//test
-	//for(int ffi =0; ffi < num_tetra_; ffi ++){
-	//	printf("---%e\n", tetras_v[ffi].volume);
-	//}
-
 
 	cudaStatus = cudaMemcpy(dev_tetras, tetras_v, num_tetra_ * sizeof(Tetrahedron), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
@@ -374,128 +372,3 @@ void finishCUDA(){
 
 
 //assuming the start coordinates is (0,0,0)
-/*
-__device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float dx2, Tetrahedron * tetra){
-
-	Point p1, p2, p3, p4;
-	Point v1, v2, v3, v4, v5, v6, v7, v8;
-
-	v1 = getPoint(ind, 0, 0, 0, subgs, gs, nsg, box);
-	v2 = getPoint(ind, 0, 0,subgs, subgs, gs, nsg, box);
-	v3 = getPoint(ind, 0, subgs,0, subgs, gs, nsg, box);
-	v4 = getPoint(ind, 0,subgs,subgs, subgs, gs, nsg, box);
-	v5 = getPoint(ind, subgs,0, 0, subgs, gs, nsg, box);
-	v6 = getPoint(ind, subgs,0,subgs, subgs, gs, nsg, box);
-	v7 = getPoint(ind, subgs,subgs,0, subgs, gs, nsg, box);
-	v8 = getPoint(ind, subgs,subgs,subgs, subgs, gs, nsg, box);
-
-	p1 = tetra->v1;
-	p2 = tetra->v2;
-	p3 = tetra->v3;
-	p4 = tetra->v4;
-
-	if(isInBox(p1, v1, v8, 2*dx2)
-	|| isInBox(p2, v1, v8, 2*dx2)
-	|| isInBox(p3, v1, v8, 2*dx2)
-	|| isInBox(p4, v1, v8, 2*dx2)){
-		return true;
-	}
-
-	if(tetra->isInTetra(v1)
-	|| tetra->isInTetra(v2)
-	|| tetra->isInTetra(v3)
-	|| tetra->isInTetra(v4)
-	|| tetra->isInTetra(v5)
-	|| tetra->isInTetra(v6)
-	|| tetra->isInTetra(v7)
-	|| tetra->isInTetra(v8))
-		return true;
-	return false;
-}
-
-*/
-// dx2 -- the half gridsize
-
-
-
-
-
-	/*p1.x = minx;
-	p1.y = miny;
-	p1.z = minz;
-
-	p2.x = minx;
-	p2.y = miny;
-	p2.z = maxz;
-
-	p3.x = minx;
-	p3.y = maxy;
-	p3.z = minz;
-
-	p4.x = minx;
-	p4.y = maxy;
-	p4.z = maxz;
-
-	p5.x = maxx;
-	p5.y = miny;
-	p5.z = minz;
-
-	p6.x = maxx;
-	p6.y = miny;
-	p6.z = maxz;
-
-	p7.x = maxx;
-	p7.y = maxy;
-	p7.z = minz;
-
-	p8.x = maxx;
-	p8.y = maxy;
-	p8.z = maxz;
-
-
-	if(isInBox(p1, v1, v8, 2*dx2)
-	|| isInBox(p2, v1, v8, 2*dx2)
-	|| isInBox(p3, v1, v8, 2*dx2)
-	|| isInBox(p4, v1, v8, 2*dx2)
-	|| isInBox(p5, v1, v8, 2*dx2)
-	|| isInBox(p6, v1, v8, 2*dx2)
-	|| isInBox(p7, v1, v8, 2*dx2)
-	|| isInBox(p8, v1, v8, 2*dx2)){
-		return true;
-	}
-
-		//check whether the edge intersects with the cube
-	if(minx <= v1.x && maxx >= v8.x){
-		if(miny <= v8.y && miny >= v1.y && minz <= v8.z && minz >= v1.z)
-			return true;
-		if(miny <= v8.y && miny >= v1.y && maxz <= v8.z && maxz >= v1.z)
-			return true;
-		if(maxy <= v8.y && maxy >= v1.y && minz <= v8.z && minz >= v1.z)
-			return true;
-		if(maxy <= v8.y && maxy >= v1.y && maxz <= v8.z && maxz >= v1.z)
-			return true;
-	}
-
-	if(miny <= v1.y && maxy >= v8.y){
-		if(minx <= v8.x && minx >= v1.x && minz <= v8.z && minz >= v1.z)
-			return true;
-		if(minx <= v8.x && minx >= v1.x && maxz <= v8.z && maxz >= v1.z)
-			return true;
-		if(maxx <= v8.y && maxx >= v1.x && minz <= v8.z && minz >= v1.z)
-			return true;
-		if(maxx <= v8.x && maxx >= v1.x && maxz <= v8.z && maxz >= v1.z)
-			return true;
-	}
-
-	if(minz <= v1.z && maxz >= v8.z){
-		if(minx <= v8.x && minx >= v1.x && miny <= v8.y && miny >= v1.y)
-			return true;
-		if(minx <= v8.x && minx >= v1.x && maxy <= v8.y && maxy >= v1.y)
-			return true;
-		if(maxx <= v8.y && maxx >= v1.x && miny <= v8.y && miny >= v1.y)
-			return true;
-		if(maxx <= v8.x && maxx >= v1.x && maxy <= v8.y && maxy >= v1.y)
-			return true;
-	}
-
-	return false;*/

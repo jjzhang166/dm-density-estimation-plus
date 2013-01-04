@@ -22,6 +22,7 @@ public:
 	REAL x;
 	REAL y;
 	REAL z;
+	//CUDA_CALLABLE_MEMBER Point & operator=(const Point &rhs);
 };
 
 class Tetrahedron{
@@ -46,6 +47,8 @@ public:
 	CUDA_CALLABLE_MEMBER REAL maxx();
 	CUDA_CALLABLE_MEMBER REAL maxy();
 	CUDA_CALLABLE_MEMBER REAL maxz();
+
+	//CUDA_CALLABLE_MEMBER Tetrahedron & operator=(const Tetrahedron & rhs);
 
 private:
 };

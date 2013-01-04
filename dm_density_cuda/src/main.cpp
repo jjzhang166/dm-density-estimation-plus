@@ -19,6 +19,12 @@
 #include <cstring>
 #include <cmath>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include "gettimeofday_win.h"
+#else
+#include "unistd.h"
+#endif
+
 #include "grids.h"
 #include "tetrahedron.h"
 #include "tetrastream.h"
@@ -35,7 +41,7 @@ string gridfilename = "tetrahedron.grid";	//output filename
 bool isoutputres = false;					
 
 void printUsage(string pname){
-	printf("Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n", pname.c_str()
+	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n", pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
 			, "[-df <datafilename>]"
@@ -84,7 +90,13 @@ void readParameters(int argv, char * args[]){
 }
 
 int main(int argv, char * args[]){
-	//int loop_i;
+	double io_t = 0, calc_t = 0, total_t = 0;
+	timeval timediff;
+	double t1, t2, t0 = 0;
+	
+	gettimeofday(&timediff, NULL);
+	t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+
 	readParameters(argv, args);
 	printf("\n=========================DENSITY ESTIMATION==========================\n");
 	printf("*****************************PARAMETERES*****************************\n");
@@ -99,85 +111,38 @@ int main(int argv, char * args[]){
 	GridManager grid(gridfilename, gridsize, subgridsize);
 	Estimater estimater(&tetraStream, &grid);
 
-
-	//test grid
-
-/*	grid.setValueByActualCoor(130,110,100, 8.9889);
-	grid.saveGrid();
-	if(grid.loadGrid(6)){
-		grid.setValue(1,2,3, 3.1415926);
-		grid.saveGrid();
-		printf("Current grid: %d\n", grid.getCurrentInd());
-	}
-	if(grid.loadGrid(1, 0, 1)){
-		printf("Current grid: %d\n", grid.getCurrentInd());
-	}
-	if(grid.loadGrid(6)){
-		printf("GridTesting value: %f\n", grid.getValue(1,2,3));
-	}
-	printf("Testing value %f\n", grid.getValueByActualCoor(130, 110, 100));
-
-	int ai = 129;
-	int aj = 210;
-	int ak = 101;
-	int ci, cj, ck;
-	grid.loadGridByActualCoor(ai, aj, ak);
-	//printf("A ind -> %d\n", grid.getCurrentInd());
-	grid.actual2Current(ai, aj, ak, ci, cj, ck);
-	grid.current2Actual(ci, cj, ck, ai, aj, ak);
-	printf("Testing Converting %d %d %d %d %d %d\n",
-			ai, aj, ak, ci, cj, ck);
-*/
-	//test gadget reader
-	/*GadgetReader::GSnap gsnap(filename);
-	std::cout << gsnap.GetFileName() << endl;
-	std::cout << gsnap.GetFormat() << endl;
-	std::cout << gsnap.GetHeader(0).BoxSize << endl;
-	std::cout << gsnap.GetHeader(0).Omega0 << endl;
-	std::cout << gsnap.GetHeader(0).OmegaLambda << endl;
-	std::cout << gsnap.GetHeader(0).npart[gsnap.GetFormat()] << endl;
-	std::cout << pow(gsnap.GetNpart(gsnap.GetFormat()), 1.0/3.0) << endl;
-	set<string> bs = gsnap.GetBlocks();
-	vector<string> bsv;
-	std::copy(bs.begin(), bs.end(), std::back_inserter(bsv));
-
-	for(std::vector<string>::iterator it=bsv.begin(); it!=bsv.end(); ++it){
-		cout << *it << endl;
-	}
-
-	int nparts = gsnap.GetNpart(gsnap.GetFormat());
-
-	float * data_array = new float[nparts * 3];
-	float * sx = new float[nparts];
-	float * sy = new float[nparts];
-	float * sz = new float[nparts];
-	int * ids = new int[nparts];
-	gsnap.GetBlock("POS ", data_array, nparts, 0, 0);
-	gsnap.GetBlock("ID  ", ids, nparts, 0, 0);
-
-	//sorting
-	for(int i = 0; i < nparts; i++){
-		sx[ids[i]] = data_array[i * 3];
-		sy[ids[i]] = data_array[i * 3 + 1];
-		sz[ids[i]] = data_array[i * 3 + 2];
-	}
-	delete data_array;
-
-	for(int i = 0; i < nparts; i++){
-		printf("%6f %6f %6f\n", sx[i], sy[i], sz[i]);
-	}
-	delete ids;
-	delete sx;
-	delete sy;
-	delete sz;
-	*/
 	printf("*****************************COMPUTING ...***************************\n");
 
 	estimater.computeDensity();
+	estimater.getRunnintTime(io_t, calc_t, total_t);
+
+	gettimeofday(&timediff, NULL);
+	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+
 	grid.saveToFile();
+
+	gettimeofday(&timediff, NULL);
+	t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+	io_t += t2 - t1;
+
+	//single vex_vol correction
+	/*REAL box = grid.getEndPoint().x - grid.getStartPoint().x;
+	REAL ng = grid.getGridSize();
+	REAL vox_vol = box * box * box / ng / ng / ng;
+	int tetra_block_ind = 0;
+	for(tetra_block_ind = 0; tetra_block_ind < tetraStream.getTotalBlockNum(); tetra_block_ind ++){
+		tetraStream.loadBlock(tetra_block_ind);
+		int tetra_ind = 0;
+		for(tetra_ind = 0; tetra_ind < tetraStream.getBlockNumTetra(); tetra_ind ++){
+			Tetrahedron & tetra = (tetraStream.getCurrentBlock())[tetra_ind];
+			REAL n_samples = 
+		}
+	}*/
 
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");
+		gettimeofday(&timediff, NULL);
+	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		int i, j, k;
 		//isoutputres = true;
 		if (isoutputres) {
@@ -195,11 +160,18 @@ int main(int argv, char * args[]){
 			}
 		}
 
-			
+		gettimeofday(&timediff, NULL);
+		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+		io_t += t2 - t1;
+		total_t = t2 - t0;
+
+		printf("Time: IO: %f sec, COMPUTING: %f sec, TOTAL: %f sec\n", io_t, calc_t, total_t);
+		printf("=====================================================================\n");
 		return 0;
 	}else{
 		printf("=================================ERROR===============================\n");
 		exit(1);
 	}
+	
 }
 

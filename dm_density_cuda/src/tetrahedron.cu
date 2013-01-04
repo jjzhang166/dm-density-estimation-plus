@@ -140,5 +140,21 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::maxz(){
 	return max(max(max(v1.z, v2.z), v3.z), v4.z);
 }
 
+/*
+CUDA_CALLABLE_MEMBER Point &  Point::operator=(const Point &rhs){
+	this->x = rhs.x;
+	this->y = rhs.y;
+	this->z = rhs.z;
+	return *this;
+}
 
 
+
+CUDA_CALLABLE_MEMBER Tetrahedron & Tetrahedron::operator=(const Tetrahedron & rhs){
+	this->v1 = rhs.v1;
+	this->v2 = rhs.v2;
+	this->v3 = rhs.v3;
+	this->v4 = rhs.v4;
+	this->volume = rhs.volume;
+	return *this;
+}*/

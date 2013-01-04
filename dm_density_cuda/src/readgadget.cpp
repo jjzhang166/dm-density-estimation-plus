@@ -38,7 +38,7 @@ GSnap::GSnap(string filename) {
 	}
 
 	Npart = header.npart[1];
-	grid_size = ceil(pow(Npart, 1.0/3.0));
+	grid_size = (int)ceil(pow(Npart, 1.0/3.0));
 	/*pos = new float[Npart * 3];
 	vel = new float[Npart * 3];
 	ids = new uint32_t[Npart];
@@ -110,6 +110,7 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
 		for(j = 0; j < jj; j++){
 			for(k = 0; k < kk; k++){
 				Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
+				//posblock[i + j * ii + k * ii * jj] = apos;
 				posblock[i + j * ii + k * ii * jj].x = apos.x;
 				posblock[i + j * ii + k * ii * jj].y = apos.y;
 				posblock[i + j * ii + k * ii * jj].z = apos.z;
