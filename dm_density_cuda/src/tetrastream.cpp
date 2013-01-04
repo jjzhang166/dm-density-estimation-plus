@@ -30,6 +30,9 @@ TetraStream::TetraStream(string filename, int inputmemgridsize) {
 	current_ind_block = 0;
 	tetras_ = new Tetrahedron[mem_tetra_size_];
 	position_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
+	for(int i = 0; i < (mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1); i++){
+		position_[i].x = position_[i].y = position_[i].z = 0.0;
+	}
 
 	total_tetra_grid_num_ = particle_grid_size_ / mem_grid_size_ *
 			particle_grid_size_ / mem_grid_size_ *
@@ -98,6 +101,12 @@ void TetraStream::loadBlock(int i){
 		kmax = particle_grid_size_ - 1;
 	}
 	gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax);
+
+	//for(int ffi =0; ffi < ((imax - imin + 1)*(jmax - jmin + 1)*(kmax - kmin + 1)); ffi ++){
+	//	printf("---%e\n", position_[ffi].x);
+	//}
+
+
 	convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
 	current_ind_block = i;
 }

@@ -58,9 +58,9 @@ void Estimater::computeDensity(){
 			gridmanager_->saveGrid();
 		}
 		finished_ = true;
-		finishCUDA();
 		printf("]========\n");
 	}
+	finishCUDA();
 	//printf("Finished\n");
 
 /*	int i, j, k, l;

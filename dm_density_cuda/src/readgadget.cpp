@@ -84,7 +84,7 @@ GSnap::GSnap(string filename) {
 }
 
 
-void GSnap::readPosBlock(Point * posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax){
+void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax){
 	int ii = imax - imin + 1;
 	int jj = jmax - jmin + 1;
 	int kk = kmax - kmin + 1;
@@ -110,7 +110,10 @@ void GSnap::readPosBlock(Point * posblock, int imin, int jmin, int kmin, int ima
 		for(j = 0; j < jj; j++){
 			for(k = 0; k < kk; k++){
 				Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
-				posblock[i + j * ii + k * ii * jj] = apos;
+				posblock[i + j * ii + k * ii * jj].x = apos.x;
+				posblock[i + j * ii + k * ii * jj].y = apos.y;
+				posblock[i + j * ii + k * ii * jj].z = apos.z;
+				//printf("-%d--%e\n", i + j * ii + k * ii * jj,posblock[i + j * ii + k * ii * jj].x);
 			}
 		}
 	}
@@ -147,7 +150,7 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 }
 
 Point GSnap::readPos(std::fstream &file, int count){
-	Point retp;
+	Point retp; 
 
 	streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 			+ sizeof(uint32_t) + count * sizeof(REAL) * 3;

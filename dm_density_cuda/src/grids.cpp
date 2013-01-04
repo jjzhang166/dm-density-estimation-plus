@@ -83,31 +83,6 @@ bool GridManager::loadGrid(int ind){
 	grid_ = grid_lists[ind];
 	current_block_ind = ind;
 	return true;
-	/*if(ind < this->subgrid_num){
-		if(ind == this->current_block_ind){
-			return true;
-		}else{
-			string filename = getSubGridFileName(ind);
-			ifstream gridFile(filename.c_str(), ios::in | ios::binary);
-			int c_ind = 0;
-			int c_sub = 0;
-			int c_grid = 0;
-			gridFile.read((char *) &c_ind, sizeof(int));
-			gridFile.read((char *) &c_sub, sizeof(int));
-			gridFile.read((char *) &c_grid, sizeof(int));
-			if(c_ind != ind || c_sub != subgridsize_ || c_grid != gridsize_){
-				printf("File format incorrect! File is changed by other programs.\n");
-				gridFile.close();
-				exit(1);
-			}
-			gridFile.read((char *) grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
-			current_block_ind = ind;
-			gridFile.close();
-			return true;
-		}
-	}else{
-		return false;
-	}*/
 }
 
 bool GridManager::loadGrid(int i, int j, int k){
@@ -115,13 +90,6 @@ bool GridManager::loadGrid(int i, int j, int k){
 }
 
 void GridManager::saveGrid(){
-	/*string filename = getSubGridFileName(this->current_block_ind);
-	ofstream gridFile (filename.c_str(), ios::out | ios::binary);
-	gridFile.write((char *) &(this->current_block_ind), sizeof(int));
-	gridFile.write((char *) &(this->subgridsize_), sizeof(int));
-	gridFile.write((char *) &(this->gridsize_), sizeof(int));
-	gridFile.write((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
-	gridFile.close();*/
 }
 
 REAL * GridManager::getSubGrid(){

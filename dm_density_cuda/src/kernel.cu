@@ -158,7 +158,7 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 	tetra_mem[ind] = 0;
 	int subsubgridsize = gridsize / subgridsize;
 	for(loop_i = 0; loop_i < ntetra; loop_i ++){
-		Tetrahedron * tetra = &dtetra[loop_i];
+		Tetrahedron * tetra = &(dtetra[loop_i]);
 		//check whether the tetra is getting in touch with the current tetra
 		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
 			tetra_mem[ind] += 1;
@@ -250,6 +250,12 @@ cudaError_t computeTetraMemWithCuda(){
 	int blocksize = 512;
 	int gridsize = gridmanager->getSubGridNum() / blocksize + 1;
 
+	//test
+	//for(int ffi =0; ffi < num_tetra_; ffi ++){
+	//	printf("---%e\n", tetras_v[ffi].volume);
+	//}
+
+
 	cudaStatus = cudaMemcpy(dev_tetras, tetras_v, num_tetra_ * sizeof(Tetrahedron), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMemcpy failed -- copying tetrahedrons!");
@@ -277,7 +283,7 @@ cudaError_t computeTetraMemWithCuda(){
 
 	int j;
 	for(j = 1; j < gridmanager->getSubGridNum(); j++){
-		printf("%d ==> %d\n", j, tetramem[j]);
+		//printf("%d ==> %d\n", j, tetramem[j]);
 		tetramem[j] = tetramem[j] + tetramem[j - 1];
 		
 	}

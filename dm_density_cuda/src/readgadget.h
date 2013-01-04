@@ -19,7 +19,7 @@ public:
 	gadget_header header;
 	uint32_t Npart;
 
-	void readPosBlock(Point * posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax);
+	void readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax);
 
 private:
 	uint32_t * ids;
