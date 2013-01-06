@@ -88,18 +88,18 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 
 
 		//testing
-		/*
-		Point p1;
-		p1.x = 12 / (REAL) ng * box + x0 + dx2; 
-		p1.y = 5 / (REAL) ng * box + y0 + dx2; 
-		p1.z = 11 / (REAL) ng * box + z0 + dx2; 
-		Tetrahedron * tetra1 = &dtetra[3165]; 
+		
+		/*Point p1;
+		p1.x = 139851 % 128 / (REAL) ng * box + dx2; 
+		p1.y = 139851 / 128 % 128 / (REAL) ng * box + dx2; 
+		p1.z = 139851 / 128 / 128 % 128 / (REAL) ng * box + dx2; 
+		Tetrahedron * tetra1 = &dtetra[772]; 
 		bool k = tetra1->isInTetra(p1);
 		int ggg = tetra_selection[loop_i];
-		if(sub_ind == 25 ){//tetra_selection[loop_i] == 3165){
+		if(sub_ind == 36 && ggg == 772){
 
 			
-			if(k && (ggg == 3165)){
+			if(k){
 				ng ++;
 				p1.x ++;
 				tetra1->v1.x ++;
@@ -107,8 +107,8 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 				ng += ng*1*0;
 				k = tetra1->isInTetra(p1);
 			}
-		}
-		*/
+		}*/
+		
 
 		if(tetra->isInTetra(p)){
 			dgrids[i + j * sgs + k * sgs * sgs] += 1 / tetra->volume;
