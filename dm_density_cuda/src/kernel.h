@@ -12,7 +12,7 @@ void finishCUDA();
 
 cudaError_t computeTetraMemWithCuda();
 
-//cudaError_t computeTetraSelectionWithCuda();
+cudaError_t computeTetraSelectionWithCuda(bool & hasmore);
 
 cudaError_t calculateGridWithCuda();
 #endif

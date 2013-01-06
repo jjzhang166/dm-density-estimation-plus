@@ -41,10 +41,11 @@ void Estimater::computeDensity(){
 	double t1, t2 = 0;
 	iotime_ = 0;
 	calctime_ = 0;
+	finished_ = false;
 
 	int loop_i;
 	if(initialCUDA(tetrastream_, gridmanager_) != cudaSuccess){
-		exit(1);
+		return;
 	}
 
 	int tetra_ind = 0;
@@ -62,51 +63,62 @@ void Estimater::computeDensity(){
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		if(computeTetraMemWithCuda() != cudaSuccess)
-			exit(1);
+			return;
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		calctime_ += t2 - t1;
 
-		//computeTetraSelectionWithCuda();
-		printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
-		printf("=========[");
-		int res_print_ = gridmanager_->getSubGridNum() / 50;
-		if(res_print_ == 0){
-			res_print_ = 1;
-		}
 
-		for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
-
-			gettimeofday(&timediff, NULL);
-			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-			if((loop_i + 1) % (res_print_) == 0){
-				//printf(">");
-				cout<<"<";
-				cout.flush();
+		bool hasnext = true;
+		while(hasnext){
+			if(computeTetraSelectionWithCuda(hasnext)!=cudaSuccess){
+				return;
 			}
-			gridmanager_->loadGrid(loop_i);
+			if(hasnext){
+				printf("GPU memory insufficient, divided to multiple step.\n");
+			}
+						//computeTetraSelectionWithCuda();
+			printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
+			printf("=========[");
+			int res_print_ = gridmanager_->getSubGridNum() / 50;
+			if(res_print_ == 0){
+				res_print_ = 1;
+			}
 
-			gettimeofday(&timediff, NULL);
-			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-			iotime_ += t2 - t1;
+			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
 
-			//int count = 0;
-			gettimeofday(&timediff, NULL);
-			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-			calculateGridWithCuda();
-			gettimeofday(&timediff, NULL);
-			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-			calctime_ += t2 - t1;
+				gettimeofday(&timediff, NULL);
+				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+				if((loop_i + 1) % (res_print_) == 0){
+					//printf(">");
+					cout<<"<";
+					cout.flush();
+				}
+				gridmanager_->loadGrid(loop_i);
 
-			gettimeofday(&timediff, NULL);
-			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-			gridmanager_->saveGrid();
-			gettimeofday(&timediff, NULL);
-			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-			iotime_ += t2 - t1;
+				gettimeofday(&timediff, NULL);
+				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+				iotime_ += t2 - t1;
+
+				//int count = 0;
+				gettimeofday(&timediff, NULL);
+				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+				calculateGridWithCuda();
+				gettimeofday(&timediff, NULL);
+				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+				calctime_ += t2 - t1;
+
+				gettimeofday(&timediff, NULL);
+				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+				gridmanager_->saveGrid();
+				gettimeofday(&timediff, NULL);
+				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+				iotime_ += t2 - t1;
+			}
+			printf("]========\n");
 		}
 		finished_ = true;
-		printf("]========\n");
+
 	}
 	finishCUDA();
 	//printf("Finished\n");
