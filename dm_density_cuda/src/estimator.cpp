@@ -68,18 +68,21 @@ void Estimater::computeDensity(){
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		calctime_ += t2 - t1;
 
-		//computeTetraSelectionWithCuda();
-		printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
-		printf("=========[");
-		int res_print_ = gridmanager_->getSubGridNum() / 50;
-		if(res_print_ == 0){
-			res_print_ = 1;
-		}
 
 		bool hasnext = true;
 		while(hasnext){
 			if(computeTetraSelectionWithCuda(hasnext)!=cudaSuccess){
 				return;
+			}
+			if(hasnext){
+				printf("GPU memory insufficient, divided to multiple step.\n");
+			}
+						//computeTetraSelectionWithCuda();
+			printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
+			printf("=========[");
+			int res_print_ = gridmanager_->getSubGridNum() / 50;
+			if(res_print_ == 0){
+				res_print_ = 1;
 			}
 
 			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
@@ -112,9 +115,10 @@ void Estimater::computeDensity(){
 				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 				iotime_ += t2 - t1;
 			}
+			printf("]========\n");
 		}
 		finished_ = true;
-		printf("]========\n");
+
 	}
 	finishCUDA();
 	//printf("Finished\n");

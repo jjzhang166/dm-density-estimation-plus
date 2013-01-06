@@ -29,7 +29,7 @@ int * dev_tetra_mem;					//each element specifies the total tetras a block have
 int * dev_tetra_select;
 long TETRA_LIST_MEM_LIM = 1024*1024*1024;	//1GB for the memory lists
 int current_tetra_list_ind = 0;
-int total_tetra_list_count = 0;
+//int total_tetra_list_count = 0;
 int * tetramem;
 int * tetramem_list;					//the tetramemory list
 
@@ -329,18 +329,18 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 	if(current_tetra_list_ind == 0){
 		tetramem = new int[gridmanager->getSubGridNum()];
 		tetramem_list = new int[gridmanager->getSubGridNum()];
-		cudaStatus = cudaMemcpy(tetramem, dev_tetra_mem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(tetramem_list, dev_tetra_mem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess) {
 			fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem!");
 			return cudaStatus;
 		}
 		int j;
-		total_tetra_list_count = gridmanager->getSubGridNum();
-		tetramem_list[gridmanager->getSubGridNum()-1] = tetramem[gridmanager->getSubGridNum()-1];
+		//total_tetra_list_count = gridmanager->getSubGridNum();
+		//tetramem_list[gridmanager->getSubGridNum()-1] = tetramem[gridmanager->getSubGridNum()-1];
+		tetramem[0] = tetramem_list[0];
 		for(j = 1; j < gridmanager->getSubGridNum(); j++){
-			tetramem_list[j-1] = tetramem[j-1];
 			if(memoryneed ==0){
-				tetramem[j] = tetramem[j] + tetramem[j - 1];
+				tetramem[j] = tetramem_list[j] + tetramem[j - 1];
 				if(tetramem[j] * 4 > TETRA_LIST_MEM_LIM){
 					memoryneed = tetramem[j - 1];
 					tetramem[j] = memoryneed;
@@ -388,6 +388,7 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 	//printf("Tetramem: %d\n", tetramem[ gridmanager->getSubGridNum() - 1]);
 	int totalmem = memoryneed;
 
+	cudaFree(dev_tetra_select);
 	cudaStatus = cudaMalloc((void**)&dev_tetra_select, totalmem * sizeof(int));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed -- allocating tetra memory!");
@@ -456,7 +457,6 @@ cudaError_t calculateGridWithCuda(){
         return cudaStatus;
     }
 
-	cudaFree(dev_tetra_select);
 	return cudaSuccess;
 }
 
