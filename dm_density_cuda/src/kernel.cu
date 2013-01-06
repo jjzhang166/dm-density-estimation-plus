@@ -27,7 +27,11 @@ TetraStream * tetrastream;
 REAL * dev_grids;
 int * dev_tetra_mem;					//each element specifies the total tetras a block have
 int * dev_tetra_select;
-
+long TETRA_LIST_MEM_LIM = 1024*1024*1024;	//1GB for the memory lists
+int current_tetra_list_ind = 0;
+int total_tetra_list_count = 0;
+int * tetramem;
+int * tetramem_list;					//the tetramemory list
 
 //__global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids, 
 //	int gsize, int sub_gsize, REAL, REAL , REAL, REAL);
@@ -204,11 +208,17 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 
 
 __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int * tetra_select, 
-		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box){
+		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box,
+		int start_ind, int end_ind){
 	int loop_i = 0;
 	int ind;
 	float dx2 = box / gridsize / 2.0;
 	ind = blockIdx.x * blockDim.x + threadIdx.x;		//the index of the tetrahedron
+
+	if(ind < start_ind || ind >= end_ind){
+		return;
+	}
+
 	if(ind >= numsubgrid){
 		return;
 	}
@@ -304,19 +314,68 @@ cudaError_t computeTetraMemWithCuda(){
 		fprintf(stderr,"cudaThreadSynchronize error -- sync tetra mem: %s\n", cudaGetErrorString(cudaStatus));
 		return cudaStatus;
 	}
-	int * tetramem;
-	tetramem = new int[gridmanager->getSubGridNum()];
-	cudaStatus = cudaMemcpy(tetramem, dev_tetra_mem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyDeviceToHost);
-    if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem!");
-        return cudaStatus;
-    }
 
-	int j;
-	for(j = 1; j < gridmanager->getSubGridNum(); j++){
-		//printf("%d ==> %d\n", j, tetramem[j]);
-		tetramem[j] = tetramem[j] + tetramem[j - 1];
-		
+	return cudaStatus;
+}
+
+//compute the tetraselection
+//if has more grid need to be calculate, assign hasmore to be true, otherwise to be false
+cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
+	int blocksize = 512;
+	int gridsize = gridmanager->getSubGridNum() / blocksize + 1;
+	cudaError_t cudaStatus;
+	int memoryneed = 0;
+	int start_index_tetra = current_tetra_list_ind;
+	if(current_tetra_list_ind == 0){
+		tetramem = new int[gridmanager->getSubGridNum()];
+		tetramem_list = new int[gridmanager->getSubGridNum()];
+		cudaStatus = cudaMemcpy(tetramem, dev_tetra_mem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyDeviceToHost);
+		if (cudaStatus != cudaSuccess) {
+			fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem!");
+			return cudaStatus;
+		}
+		int j;
+		total_tetra_list_count = gridmanager->getSubGridNum();
+		tetramem_list[gridmanager->getSubGridNum()-1] = tetramem[gridmanager->getSubGridNum()-1];
+		for(j = 1; j < gridmanager->getSubGridNum(); j++){
+			tetramem_list[j-1] = tetramem[j-1];
+			if(memoryneed ==0){
+				tetramem[j] = tetramem[j] + tetramem[j - 1];
+				if(tetramem[j] * 4 > TETRA_LIST_MEM_LIM){
+					memoryneed = tetramem[j - 1];
+					tetramem[j] = memoryneed;
+					current_tetra_list_ind = j;
+				}
+			}else{
+				tetramem[j] = memoryneed;
+			}
+		}
+
+		if(memoryneed == 0){
+			memoryneed = tetramem[gridmanager->getSubGridNum()-1];
+			current_tetra_list_ind = gridmanager->getSubGridNum();
+		}
+	}else{
+		int j;
+		for(j = 0; j < current_tetra_list_ind; j++){
+			tetramem[j] = 0;
+		}
+		for(j = current_tetra_list_ind; j < gridmanager->getSubGridNum(); j++){
+			if(memoryneed ==0){
+				tetramem[j] = tetramem_list[j] + tetramem[j - 1];
+				if(tetramem[j] * 4 > TETRA_LIST_MEM_LIM){
+					memoryneed = tetramem[j - 1];
+					tetramem[j] = memoryneed;
+					current_tetra_list_ind = j;
+				}
+			}else{
+				tetramem[j] = memoryneed;
+			}
+		}
+		if(memoryneed == 0){
+			memoryneed = tetramem[gridmanager->getSubGridNum()-1];
+			current_tetra_list_ind = gridmanager->getSubGridNum();
+		}
 	}
 
 	cudaStatus = cudaMemcpy(dev_tetra_mem, tetramem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyHostToDevice);
@@ -327,7 +386,7 @@ cudaError_t computeTetraMemWithCuda(){
 
 	//allocating memory
 	//printf("Tetramem: %d\n", tetramem[ gridmanager->getSubGridNum() - 1]);
-	int totalmem = tetramem[gridmanager->getSubGridNum() - 1];
+	int totalmem = memoryneed;
 
 	cudaStatus = cudaMalloc((void**)&dev_tetra_select, totalmem * sizeof(int));
     if (cudaStatus != cudaSuccess) {
@@ -335,12 +394,11 @@ cudaError_t computeTetraMemWithCuda(){
         return cudaStatus;
     }
 
-
-
 	computeTetraSelection<<<gridsize, blocksize>>>(dev_tetras, dev_tetra_mem, dev_tetra_select, 
 		num_tetra_, gridmanager->getSubGridSize(), gridmanager->getGridSize(), 
 		gridmanager->getSubGridNum(), 
-		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x);
+		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x,
+		start_index_tetra, current_tetra_list_ind);
 
 	cudaStatus = cudaThreadSynchronize();
 	if( cudaStatus != cudaSuccess){
@@ -348,15 +406,17 @@ cudaError_t computeTetraMemWithCuda(){
 		return cudaStatus;
 	}
 
-	delete tetramem;
+	//delete tetramem;
+	hasmore = true;
+	if(current_tetra_list_ind == gridmanager->getSubGridNum()){
+		current_tetra_list_ind = 0;
+		hasmore = false;
+		delete tetramem;
+		delete tetramem_list;
+	}
 	return cudaSuccess;
 }
 
-/*
-cudaError_t computeTetraSelectionWithCuda(){
-	return cudaSuccess;
-}
-*/
 
 cudaError_t calculateGridWithCuda(){
 	cudaError_t cudaStatus;
@@ -396,7 +456,7 @@ cudaError_t calculateGridWithCuda(){
         return cudaStatus;
     }
 
-
+	cudaFree(dev_tetra_select);
 	return cudaSuccess;
 }
 
