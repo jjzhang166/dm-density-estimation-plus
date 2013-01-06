@@ -39,9 +39,6 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 
 	vol =  v1x*v2y*v3z + v1y*v2z*v3x + v1z*v2x*v3y -
 	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y);
-	//vol =  v1[0]*v2[1]*v3[2] + v1[1]*v2[2]*v3[0] + v1[2]*v2[0]*v3[1] - $
-    //  (v1[2]*v2[1]*v3[0] + v1[1]*v2[0]*v3[2] + v1[0]*v2[2]*v3[1])
-
 	vol /= 6.0;
 	volume = abs(vol);
 	return vol;
@@ -67,39 +64,30 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::det4d(REAL m[4][4]) {
 }
 
 CUDA_CALLABLE_MEMBER void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, REAL m[4][4]){
-	m[0][0] = p1.x * 1.0e-11;
-	m[0][1] = p1.y * 1.0e-11;
-	m[0][2] = p1.z * 1.0e-11;
-	m[0][3] = 1.0 * 1.0e-11;
+	m[0][0] = p1.x * (REAL)1.0e-11;
+	m[0][1] = p1.y * (REAL)1.0e-11;
+	m[0][2] = p1.z * (REAL)1.0e-11;
+	m[0][3] = 1.0 * (REAL)1.0e-11;
 	m[1][0] = p2.x;
 	m[1][1] = p2.y;
 	m[1][2] = p2.z;
-	m[1][3] = 1.0;
+	m[1][3] = 1.0f;
 	m[2][0] = p3.x;
 	m[2][1] = p3.y;
 	m[2][2] = p3.z;
-	m[2][3] = 1.0;
+	m[2][3] = 1.0f;
 	m[3][0] = p4.x;
 	m[3][1] = p4.y;
 	m[3][2] = p4.z;
-	m[3][3] = 1.0;
+	m[3][3] = 1.0f;
 }
 
 CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point p){
 	REAL m[4][4];
 	REAL d0=0.0, d1=0.0, d2=0.0, d3=0.0, d4=0.0;
 
-	//[[3,2,1,1],[2,2,3,1],[5,4,3,1],[2,1,2,1]]
-	//test
-	//v1.x=3;v1.y=2;v1.z=1;
-	//v2.x=2;v2.y=2;v3.z=3;
-	//v3.x=5;v3.y=4;v3.z=3;
-	//v4.x=2;v4.y=1;v4.z=2;
-
 	c2m(v1, v2, v3, v4, m);		//change the det to be det / 10^11
 	d0 = det4d(m);
-
-	//printf("Test Determinant %f / 4.00\n", d0);
 
 	c2m(p, v2, v3, v4, m);
 	d1 = det4d(m);
@@ -113,15 +101,11 @@ CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point p){
 	c2m(v1, v2, v3, p, m);
 	d4 = det4d(m);
 
-	//testing
-	//d2++;
-
 	if(d0 > 0){
 		return (d1 >= 0) && (d2 >= 0) && (d3 >= 0) && (d4 >= 0);
 	}else{
 		return (d1 <= 0) && (d2 <= 0) && (d3 <= 0) && (d4 <= 0);
 	}
-	return false;
 }
 
 

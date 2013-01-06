@@ -22,7 +22,7 @@ TetraStream::TetraStream(string filename, int inputmemgridsize) {
 			* (mem_grid_size_);
 
 	gsnap_ = new GSnap(filename_);
-	particle_grid_size_ = ceil(pow(gsnap_->Npart, 1.0 / 3.0));
+	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
 	total_parts_ = gsnap_->Npart;
 	current_tetra_num = 0;
 

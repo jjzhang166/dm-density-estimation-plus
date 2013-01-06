@@ -20,23 +20,19 @@ using namespace std;
 int sub_grid_size_;
 int num_tetra_ = 0;
 
-Tetrahedron * dev_tetras;
-Tetrahedron * tetras_v;
-GridManager * gridmanager;
-TetraStream * tetrastream;
-REAL * dev_grids;
-int * dev_tetra_mem;					//each element specifies the total tetras a block have
-int * dev_tetra_select;
-long TETRA_LIST_MEM_LIM = 1024*1024*1024;	//1GB for the memory lists
-int current_tetra_list_ind = 0;
+Tetrahedron * dev_tetras;						//the tetrahedrons in the GPU memory
+Tetrahedron * tetras_v;							//the tetrahedrons in the CPU memory
+GridManager * gridmanager;						//grid manager
+TetraStream * tetrastream;						//tetrahedron stream
+REAL * dev_grids;								//the grids in the GPU memory
+int * dev_tetra_mem;							//each element specifies the total tetras a block have
+int * dev_tetra_select;							//tetra hedron selected in this list
+long TETRA_LIST_MEM_LIM = 1024*1024*1024;		//1GB for the memory lists
+int current_tetra_list_ind = 0;					//the current grid block, which is already calculated tetrahedron selection 
 //int total_tetra_list_count = 0;
 int * tetramem;
 int * tetramem_list;					//the tetramemory list
 
-//__global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids, 
-//	int gsize, int sub_gsize, REAL, REAL , REAL, REAL);
-//__global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem, int ntetra);
-//__global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int * dev_tetra_select);
 
 __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	int gsize, int sub_gsize, 
@@ -142,43 +138,25 @@ __device__ Point getPoint(int ind, int i, int j, int k, int subgridsize,
 	return retP;
 }
 
-
-__device__ bool isInBox(Point &p, Point &v1, Point &v2, float dx2){
-	return (p.x >= v1.x - dx2 && p.x < v2.x + dx2) && (p.y >= v1.y - dx2 && p.y < v2.y + dx2)
-			&& (p.z >= v1.z - dx2 && p.z < v2.z + dx2);
-}
-
 // nsg = gs / subs
 // vox_vel = box^3/ng^3;
 __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float dx2, 
 	Tetrahedron * tetra){
-
-	//Point p1, p2, p3, p4;
 	Point v1, v8;
-	//int sg = subgs;
-
 	v1 = getPoint(ind, 0, 0, 0,subgs, gs, nsg, box);
 	v8 = getPoint(ind, subgs,subgs,subgs, subgs, gs, nsg, box);
 
-
-	//p1 = tetra->v1;
-	//p2 = tetra->v2;
-	//p3 = tetra->v3;
-	//p4 = tetra->v4;
-
-	double minx = tetra->minx();//min(min(min(p1.x, p2.x), p3.x), p4.x);
-	double maxx = tetra->maxx();//max(max(max(p1.x, p2.x), p3.x), p4.x);
-	double miny = tetra->miny();//min(min(min(p1.y, p2.y), p3.y), p4.y);
-	double maxy = tetra->maxy();//max(max(max(p1.y, p2.y), p3.y), p4.y);
-	double minz = tetra->minz();//min(min(min(p1.z, p2.z), p3.z), p4.z);
-	double maxz = tetra->maxz();//max(max(max(p1.z, p2.z), p3.z), p4.z);
+	double minx = tetra->minx();
+	double maxx = tetra->maxx();
+	double miny = tetra->miny();
+	double maxy = tetra->maxy();
+	double minz = tetra->minz();
+	double maxz = tetra->maxz();
 
 	if (minx > v8.x + dx2 || maxx < v1.x - dx2
 		|| miny > v8.y + dx2 || maxy < v1.y - dx2
 		|| minz > v8.z + dx2 || maxz < v1.z - dx2){
 		return false;
-		//check whether this one is in the vox_vel
-		//if((maxx - minx + 1) * ((maxy - miny + 1) * ((maxz - minz + 1))
 	}
 	return true;
 
@@ -241,7 +219,7 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 
 //initialize the CUDA
 cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
-	int grid_size;
+	//int grid_size;
 
 	tetrastream = tetrastream_;
 	gridmanager = gridmanager_;
@@ -251,7 +229,7 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
 	num_tetra_ = 6 * num_tetra_ * num_tetra_ * num_tetra_;
 
 	sub_grid_size_ = gridmanager->getSubGridSize();
-	grid_size = gridmanager->getGridSize();
+	//grid_size = gridmanager->getGridSize();
 
 	//printf("%d\n", grid_size);
 	cudaError_t cudaStatus;
@@ -417,8 +395,6 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 	}
 	return cudaSuccess;
 }
-
-
 cudaError_t calculateGridWithCuda(){
 	cudaError_t cudaStatus;
 	//dim3 size(sub_grid_size_, sub_grid_size_, sub_grid_size_);
