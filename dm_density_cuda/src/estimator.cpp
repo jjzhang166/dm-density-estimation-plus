@@ -75,7 +75,7 @@ void Estimater::computeDensity(){
 			res_print_ = 1;
 		}
 
-		for(loop_i = 0; loop_i < gridmanager_->getSubGridNum(); loop_i ++){
+		for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
 
 			gettimeofday(&timediff, NULL);
 			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -85,6 +85,7 @@ void Estimater::computeDensity(){
 				cout.flush();
 			}
 			gridmanager_->loadGrid(loop_i);
+
 			gettimeofday(&timediff, NULL);
 			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			iotime_ += t2 - t1;

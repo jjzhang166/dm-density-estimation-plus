@@ -111,6 +111,7 @@ int main(int argv, char * args[]){
 	GridManager grid(gridfilename, gridsize, subgridsize);
 	Estimater estimater(&tetraStream, &grid);
 
+
 	printf("*****************************COMPUTING ...***************************\n");
 
 	estimater.computeDensity();
@@ -118,6 +119,7 @@ int main(int argv, char * args[]){
 
 
 	//single vex_vol correction
+	/*
 	REAL box = grid.getEndPoint().x - grid.getStartPoint().x;
 	REAL ng = grid.getGridSize();
 	REAL vox_vol = box * box * box / ng / ng / ng;
@@ -134,11 +136,32 @@ int main(int argv, char * args[]){
 			int zindmin = tetra.minz() / box * grid.getGridSize();
 			int zindmax = tetra.maxz() / box * grid.getGridSize();
 			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
+
+			//test
+			if(tetra_ind == 3165){
+				printf("v1-> %f %f %f\n", tetra.v1.x, tetra.v1.y, tetra.v1.z);
+				printf("v2-> %f %f %f\n", tetra.v2.x, tetra.v2.y, tetra.v2.z);
+				printf("v3-> %f %f %f\n", tetra.v3.x, tetra.v3.y, tetra.v3.z);
+				printf("v4-> %f %f %f\n", tetra.v4.x, tetra.v4.y, tetra.v4.z);
+				int tgs = grid.getGridSize();
+				int i0 = 187036 % tgs;
+				int j0 = 187036 / tgs % tgs;
+				int k0 = 187036 / tgs / tgs % tgs;
+				Point p;
+				REAL dx2 = box/ng/2;
+				p.x = i0 * box / ng + dx2;
+				p.y = j0 * box / ng + dx2;
+				p.z = k0 * box / ng + dx2;
+				printf("Point: %f %f %f\n", p.x, p.y, p.z);
+				cout << tetra.isInTetra(p) << endl;;
+
+			}
 			if(n_samples == 1){
 				grid.setValueByActualCoor(xindmin, yindmin, zindmin, 6.0 / vox_vol);
 			}
 		}
 	}
+	*/
 
 
 	gettimeofday(&timediff, NULL);
@@ -165,6 +188,8 @@ int main(int argv, char * args[]){
 				for (j = 0; j < tgs; j++) {
 					for (k = 0; k < tgs; k++) {
 						double v = grid.getValueByActualCoor(k, j, i);
+//						if((k) + (j) * tgs + (i) * tgs * tgs == 2133)
+//							printf("ok\n");
 						if (v > 0) {
 							printf("Ind: %d ==> %e\n", (k) + (j) * tgs + (i) * tgs * tgs, v);
 						}

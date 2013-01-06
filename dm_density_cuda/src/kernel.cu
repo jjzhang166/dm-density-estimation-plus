@@ -34,7 +34,7 @@ int * dev_tetra_select;
 //__global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem, int ntetra);
 //__global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int * dev_tetra_select);
 
-__global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids, 
+__global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	int gsize, int sub_gsize, 
 	int * tetra_mem, int * tetra_selection, int sub_ind,  int numsubgridsize,
 	REAL box = 32000, REAL x0 = 0, REAL y0 = 0, REAL z0 = 0){
@@ -44,6 +44,13 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	i = blockIdx.x * blockDim.x + threadIdx.x;
 	j = blockIdx.y * blockDim.y + threadIdx.y;
 	k = blockIdx.z * blockDim.z + threadIdx.z;
+
+	if(i >= sub_gsize)
+		return;
+	if(j >= sub_gsize)
+		return;
+	if(k >= sub_gsize)
+		return;
 
 	int startind = 0;
 	if(sub_ind > 0){
@@ -74,6 +81,30 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 		p.x = i / (REAL) ng * box + x0 + dx2; 
 		p.y = j / (REAL) ng * box + y0 + dx2;
 		p.z = k / (REAL) ng * box + z0 + dx2;
+
+
+		//testing
+		/*
+		Point p1;
+		p1.x = 12 / (REAL) ng * box + x0 + dx2; 
+		p1.y = 5 / (REAL) ng * box + y0 + dx2; 
+		p1.z = 11 / (REAL) ng * box + z0 + dx2; 
+		Tetrahedron * tetra1 = &dtetra[3165]; 
+		bool k = tetra1->isInTetra(p1);
+		int ggg = tetra_selection[loop_i];
+		if(sub_ind == 25 ){//tetra_selection[loop_i] == 3165){
+
+			
+			if(k && (ggg == 3165)){
+				ng ++;
+				p1.x ++;
+				tetra1->v1.x ++;
+			}else{
+				ng += ng*1*0;
+				k = tetra1->isInTetra(p1);
+			}
+		}
+		*/
 
 		if(tetra->isInTetra(p)){
 			dgrids[i + j * sgs + k * sgs * sgs] += 1 / tetra->volume;
@@ -138,9 +169,9 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 	double minz = tetra->minz();//min(min(min(p1.z, p2.z), p3.z), p4.z);
 	double maxz = tetra->maxz();//max(max(max(p1.z, p2.z), p3.z), p4.z);
 
-	if (minx > v8.x - 2*dx2 || maxx < v1.x + 2*dx2
-		|| miny > v8.y - 2*dx2 || maxy < v1.y + 2*dx2
-		|| minz > v8.z - 2*dx2 || maxz < v1.z + 2*dx2){
+	if (minx > v8.x + dx2 || maxx < v1.x - dx2
+		|| miny > v8.y + dx2 || maxy < v1.y - dx2
+		|| minz > v8.z + dx2 || maxz < v1.z - dx2){
 		return false;
 		//check whether this one is in the vox_vel
 		//if((maxx - minx + 1) * ((maxy - miny + 1) * ((maxz - minz + 1))
@@ -165,6 +196,7 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 		Tetrahedron * tetra = &(dtetra[loop_i]);
 		//check whether the tetra is getting in touch with the current tetra
 		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
+			//if(loop_i == 3165)
 			tetra_mem[ind] += 1;
 		}
 	}
@@ -190,6 +222,7 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 		Tetrahedron * tetra = &dtetra[loop_i];
 		//check whether the tetra is getting in touch with the current tetra
 		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
+			//if(loop_i == 3165)
 			tetra_select[startind + count] = loop_i;
 			count = count + 1;
 		}
@@ -298,7 +331,7 @@ cudaError_t computeTetraMemWithCuda(){
 
 	cudaStatus = cudaMalloc((void**)&dev_tetra_select, totalmem * sizeof(int));
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed -- allocating grids memory!");
+        fprintf(stderr, "cudaMalloc failed -- allocating tetra memory!");
         return cudaStatus;
     }
 
@@ -330,6 +363,11 @@ cudaError_t calculateGridWithCuda(){
 	//dim3 size(sub_grid_size_, sub_grid_size_, sub_grid_size_);
 	dim3 blocksize(8, 8, 8);
 	dim3 gridsize(sub_grid_size_/8, sub_grid_size_/8, sub_grid_size_/8);
+	if(sub_grid_size_ %8 != 0){
+		gridsize.x ++;
+		gridsize.y ++;
+		gridsize.z ++;
+	}
 
 	if(num_tetra_ == 0)
 		return cudaErrorUnknown;
