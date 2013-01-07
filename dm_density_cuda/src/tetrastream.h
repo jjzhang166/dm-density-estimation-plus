@@ -26,6 +26,7 @@ public:
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
 	int getBlockNumTetra();		//get number of tetrahedrons in memory
+	gadget_header getHeader();	//get the header
 	Tetrahedron * getCurrentBlock();	//return the current tetrahedron block
 	Tetrahedron * getBlock(int i);		//return the i-th tetrahedron block
 	int getCurrentInd();				//return the current block id

@@ -78,6 +78,7 @@ private:
 	int convertToIndex(int i, int j, int k);// convert the i-j-k index of the sub grid to a index
 	int convertToIndexByActualCoor(int i, int j, int k);// convert the i-j-k index of the sub grid to a index
 
+	void initialize(string filename, int gridsize, int subgridsize);
 
 	std::string getSubGridFileName(int ind);// get the filename of the subgrid
 											// file format: index subgridsize gridsize [data block]

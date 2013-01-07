@@ -108,7 +108,19 @@ int main(int argv, char * args[]){
 	printf("*********************************************************************\n");
 
 	TetraStream tetraStream(filename, inputmemgrid);
-	GridManager grid(gridfilename, gridsize, subgridsize);
+
+	Point startpoint;
+	Point endpoint;
+	startpoint.x = 0;
+	startpoint.y = 0;
+	startpoint.z = 0;
+	gadget_header header = tetraStream.getHeader();
+	endpoint.x = header.BoxSize;
+	endpoint.y = header.BoxSize;
+	endpoint.z = header.BoxSize;
+
+	GridManager grid(gridfilename, gridsize, subgridsize, startpoint, endpoint);
+
 	Estimater estimater(&tetraStream, &grid);
 
 

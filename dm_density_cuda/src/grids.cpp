@@ -15,7 +15,7 @@ using namespace std;
 #include "tetrahedron.h"
 #include "grids.h"
 
-GridManager::GridManager(string filename, int gridsize, int subgridsize){
+void GridManager::initialize(string filename, int gridsize, int subgridsize){
 	filename_ = filename;
 	gridsize_ = gridsize;
 	subgridsize_ = subgridsize;
@@ -42,6 +42,11 @@ GridManager::GridManager(string filename, int gridsize, int subgridsize){
 	}
 	current_block_ind = 0;
 
+}
+
+GridManager::GridManager(string filename, int gridsize, int subgridsize){
+	initialize( filename, gridsize, subgridsize);
+	
 	boxStartPoint_.x = 0;
 	boxStartPoint_.y = 0;
 	boxStartPoint_.z = 0;
@@ -54,9 +59,18 @@ GridManager::GridManager(string filename, int gridsize, int subgridsize){
 
 GridManager::GridManager(std::string filename, int gridsize, int subgridsize,
 		Point boxStartPoint, Point boxEndPoint){
-	GridManager(filename, gridsize, subgridsize);
-	boxStartPoint_ = boxStartPoint;
-	boxEndPoint_ = boxEndPoint;
+	
+	initialize( filename, gridsize, subgridsize);
+	
+	boxStartPoint_.x = boxStartPoint.x;
+	boxStartPoint_.y = boxStartPoint.y;
+	boxStartPoint_.z = boxStartPoint.z;
+
+	boxEndPoint_.x = boxEndPoint.x;
+	boxEndPoint_.y = boxEndPoint.y;
+	boxEndPoint_.z = boxEndPoint.z;
+	//boxStartPoint_ = boxStartPoint;
+	//boxEndPoint_ = boxEndPoint;
 }
 
 GridManager::~GridManager(){
@@ -224,13 +238,24 @@ Point GridManager::getPoint(int i, int j, int k){
 
 void GridManager::saveToFile(){
 	ofstream gridFile (filename_.c_str(), ios::out | ios::binary);
-	int i;
+	int i,j,k;
+	/*
 	for(i = 0; i < this->getSubGridNum(); i++){
 		this->loadGrid(i);
 		gridFile.write((char *) &(this->current_block_ind), sizeof(int));
 		gridFile.write((char *) &(this->subgridsize_), sizeof(int));
 		gridFile.write((char *) &(this->gridsize_), sizeof(int));
 		gridFile.write((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
+	}*/
+
+	int tgs = getGridSize();
+	for (i = 0; i < tgs; i++) {
+		for (j = 0; j < tgs; j++) {
+			for (k = 0; k < tgs; k++) {
+				REAL v = getValueByActualCoor(k, j, i);
+				gridFile.write((char *) &v, sizeof(REAL));
+			}
+		}
 	}
 	gridFile.close();
 }

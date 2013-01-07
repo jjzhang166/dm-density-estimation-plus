@@ -166,3 +166,6 @@ void TetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 }
 
 
+gadget_header TetraStream::getHeader(){
+	return this->gsnap_->header;	//get the header
+}

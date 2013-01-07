@@ -27,11 +27,10 @@ TetraStream * tetrastream;						//tetrahedron stream
 REAL * dev_grids;								//the grids in the GPU memory
 int * dev_tetra_mem;							//each element specifies the total tetras a block have
 int * dev_tetra_select;							//tetra hedron selected in this list
-long TETRA_LIST_MEM_LIM = 1024*1024*1024;		//1GB for the memory lists
+long TETRA_LIST_MEM_LIM = 128*1024*1024;		//128 for the memory lists
 int current_tetra_list_ind = 0;					//the current grid block, which is already calculated tetrahedron selection 
-//int total_tetra_list_count = 0;
 int * tetramem;
-int * tetramem_list;					//the tetramemory list
+int * tetramem_list;							//the tetramemory list
 
 
 __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
@@ -113,6 +112,7 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 }
 
 // numsubgrid is the gridsize / subgridsize
+// get a actual coordinate of the i, j, k
 __device__ Point getPoint(int ind, int i, int j, int k, int subgridsize, 
 		int gridsize, int numsubgrid, float box){
 	int ai, aj, ak;
@@ -140,6 +140,7 @@ __device__ Point getPoint(int ind, int i, int j, int k, int subgridsize,
 
 // nsg = gs / subs
 // vox_vel = box^3/ng^3;
+//check whether the tetrahedron cuboid is in touch with the grid sub-block
 __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float dx2, 
 	Tetrahedron * tetra){
 	Point v1, v8;
@@ -163,6 +164,7 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 }
 
 
+//compute how many tetrahedrons are in touch with a certain subblock of the density grid
 __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem, 
 		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box){
 	int loop_i = 0;
@@ -184,7 +186,7 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 	}
 }
 
-
+//compute the actual list of tetrahedrons thar are in touch with subblock
 __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int * tetra_select, 
 		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box,
 		int start_ind, int end_ind){
@@ -265,6 +267,7 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
 }
 
 
+//compute how many tetrahedrons are in touch with a certain subblock of the density grid
 cudaError_t computeTetraMemWithCuda(){
 	//copy the memory to CUDA
 	cudaError_t cudaStatus;
@@ -277,7 +280,7 @@ cudaError_t computeTetraMemWithCuda(){
 
 	cudaStatus = cudaMemcpy(dev_tetras, tetras_v, num_tetra_ * sizeof(Tetrahedron), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed -- copying tetrahedrons!");
+        fprintf(stderr, "cudaMemcpy failed -- copying tetrahedrons!\n");
         return cudaStatus;
     }
 
@@ -309,7 +312,7 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 		tetramem_list = new int[gridmanager->getSubGridNum()];
 		cudaStatus = cudaMemcpy(tetramem_list, dev_tetra_mem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess) {
-			fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem!");
+			fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem!\n");
 			return cudaStatus;
 		}
 		int j;
@@ -358,18 +361,18 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 
 	cudaStatus = cudaMemcpy(dev_tetra_mem, tetramem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem back!");
+		fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem back!\n");
         return cudaStatus;
     }
 
 	//allocating memory
 	//printf("Tetramem: %d\n", tetramem[ gridmanager->getSubGridNum() - 1]);
 	int totalmem = memoryneed;
-
+	printf("Memory allocating: %d\n", totalmem);
 	cudaFree(dev_tetra_select);
 	cudaStatus = cudaMalloc((void**)&dev_tetra_select, totalmem * sizeof(int));
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed -- allocating tetra memory!");
+        fprintf(stderr, "cudaMalloc failed -- allocating tetra memory!\n");
         return cudaStatus;
     }
 
@@ -395,6 +398,8 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 	}
 	return cudaSuccess;
 }
+
+//density estimation
 cudaError_t calculateGridWithCuda(){
 	cudaError_t cudaStatus;
 	//dim3 size(sub_grid_size_, sub_grid_size_, sub_grid_size_);
@@ -411,7 +416,7 @@ cudaError_t calculateGridWithCuda(){
 
 	cudaStatus = cudaMemcpy(dev_grids, gridmanager->getSubGrid(), sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(REAL), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
-    fprintf(stderr, "cudaMemcpy failed -- copying subgrids!");
+    fprintf(stderr, "cudaMemcpy failed -- copying subgrids!\n");
         return cudaStatus;
     }
 	//<<<1, size>>>
@@ -429,13 +434,14 @@ cudaError_t calculateGridWithCuda(){
 
 	cudaStatus = cudaMemcpy(gridmanager->getSubGrid(), dev_grids, sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(REAL), cudaMemcpyDeviceToHost);
     if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed -- copying subgrids!");
+		fprintf(stderr, "cudaMemcpy failed -- copying subgrids!\n");
         return cudaStatus;
     }
 
 	return cudaSuccess;
 }
 
+//clean up
 void finishCUDA(){
 	cudaFree(dev_grids);
 	cudaFree(dev_tetras);
