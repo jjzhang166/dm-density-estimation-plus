@@ -13,6 +13,7 @@
 
 using namespace std;
 
+#include "gadgetheader.h"
 #include "tetrahedron.h"
 #include "types.h"
 
@@ -21,6 +22,8 @@ public:
 	GridManager(std::string filename, int gridsize, int subgridsize);
 	GridManager(std::string filename, int gridsize, int subgridsize,
 			Point boxStartPoint, Point boxEndPoint);
+
+
 	bool loadGrid(int i, int j, int k);		// load a sub grid at (i, j, k) of size subgridsize
 											// the current memory will be directly cleared
 											// if failed, returns false, keep the current grid
@@ -37,7 +40,12 @@ public:
 
 	//deprecated
 	void saveGrid();						// save the current grid into the file on the harddrive
+	
+	//io
 	void saveToFile();						// save the whole grid into file
+	void saveToFileOld();					// save the whole grid into file in an old format
+	void loadFromFile(string filename);		// load the grid data from file
+	void loadFromFileOld(string filename);	// load the grid data from an old format
 
 	int getGridSize();
 	int getSubGridSize();
@@ -86,6 +94,8 @@ private:
 	Point boxStartPoint_, boxEndPoint_;		// the two 2 specifies two diagonal points
 
 	REAL * grid_;							// the actual grid pointer
+
+	gadget_header grid_header;
 };
 
 

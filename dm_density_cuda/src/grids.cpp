@@ -55,6 +55,10 @@ GridManager::GridManager(string filename, int gridsize, int subgridsize){
 	boxEndPoint_.y = 32000;
 	boxEndPoint_.z = 32000;
 
+	grid_header.BoxSize = 32000;
+	grid_header.npart[0] = gridsize;
+	grid_header.npartTotal[0] = gridsize * gridsize * gridsize;
+
 }
 
 GridManager::GridManager(std::string filename, int gridsize, int subgridsize,
@@ -69,8 +73,10 @@ GridManager::GridManager(std::string filename, int gridsize, int subgridsize,
 	boxEndPoint_.x = boxEndPoint.x;
 	boxEndPoint_.y = boxEndPoint.y;
 	boxEndPoint_.z = boxEndPoint.z;
-	//boxStartPoint_ = boxStartPoint;
-	//boxEndPoint_ = boxEndPoint;
+
+	grid_header.BoxSize = boxEndPoint.x - boxStartPoint.x;
+	grid_header.npart[0] = gridsize;
+	grid_header.npartTotal[0] = gridsize * gridsize * gridsize;
 }
 
 GridManager::~GridManager(){
@@ -239,20 +245,15 @@ Point GridManager::getPoint(int i, int j, int k){
 void GridManager::saveToFile(){
 	ofstream gridFile (filename_.c_str(), ios::out | ios::binary);
 	int i,j,k;
-	/*
-	for(i = 0; i < this->getSubGridNum(); i++){
-		this->loadGrid(i);
-		gridFile.write((char *) &(this->current_block_ind), sizeof(int));
-		gridFile.write((char *) &(this->subgridsize_), sizeof(int));
-		gridFile.write((char *) &(this->gridsize_), sizeof(int));
-		gridFile.write((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
-	}*/
+
+	//write the header
+	gridFile.write((char *) & grid_header, sizeof(gadget_header));
 
 	int tgs = getGridSize();
 	for (i = 0; i < tgs; i++) {
 		for (j = 0; j < tgs; j++) {
 			for (k = 0; k < tgs; k++) {
-				REAL v = getValueByActualCoor(k, j, i);
+				REAL v = getValueByActualCoor(i, j, k);
 				gridFile.write((char *) &v, sizeof(REAL));
 			}
 		}
@@ -260,3 +261,55 @@ void GridManager::saveToFile(){
 	gridFile.close();
 }
 
+void GridManager::saveToFileOld(){
+	ofstream gridFile (filename_.c_str(), ios::out | ios::binary);
+	int i;
+	
+	for(i = 0; i < this->getSubGridNum(); i++){
+		this->loadGrid(i);
+		gridFile.write((char *) &(this->current_block_ind), sizeof(int));
+		gridFile.write((char *) &(this->subgridsize_), sizeof(int));
+		gridFile.write((char *) &(this->gridsize_), sizeof(int));
+		gridFile.write((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
+	}
+
+	gridFile.close();
+}
+
+void GridManager::loadFromFileOld(string gridfilename){
+	ifstream gridFile (gridfilename.c_str(), ios::in | ios::binary);
+	
+	int i;
+	for(i = 0; i < this->getSubGridNum(); i++){
+		this->loadGrid(i);
+		gridFile.read((char *) &(this->current_block_ind), sizeof(int));
+		gridFile.read((char *) &(this->subgridsize_), sizeof(int));
+		gridFile.read((char *) &(this->gridsize_), sizeof(int));
+		gridFile.read((char *) this->grid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
+	}
+
+	gridFile.close();
+}
+
+void GridManager::loadFromFile(string gridfilename){
+	ifstream gridFile (gridfilename.c_str(), ios::in | ios::binary);
+	int i,j,k;
+
+	//write the header
+	gridFile.read((char *) & grid_header, sizeof(gadget_header));
+	if(this->gridsize_ != (grid_header.npart)[0]){
+		printf("Input file do not have the same grid with the output file!\n");
+		exit(1);
+	}
+	int tgs = getGridSize();
+	for (i = 0; i < tgs; i++) {
+		for (j = 0; j < tgs; j++) {
+			for (k = 0; k < tgs; k++) {
+				REAL v;
+				gridFile.read((char *) &v, sizeof(REAL));
+				this->setValueByActualCoor(i, j, k, v);
+			}
+		}
+	}
+	gridFile.close();
+}

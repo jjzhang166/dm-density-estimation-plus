@@ -115,9 +115,9 @@ int main(int argv, char * args[]){
 	startpoint.y = 0;
 	startpoint.z = 0;
 	gadget_header header = tetraStream.getHeader();
-	endpoint.x = header.BoxSize;
-	endpoint.y = header.BoxSize;
-	endpoint.z = header.BoxSize;
+	endpoint.x = (REAL)header.BoxSize;
+	endpoint.y = (REAL)header.BoxSize;
+	endpoint.z = (REAL)header.BoxSize;
 
 	GridManager grid(gridfilename, gridsize, subgridsize, startpoint, endpoint);
 
