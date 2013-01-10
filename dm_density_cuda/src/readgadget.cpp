@@ -110,10 +110,10 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
 		for(j = 0; j < jj; j++){
 			for(k = 0; k < kk; k++){
 				Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
-				//posblock[i + j * ii + k * ii * jj] = apos;
-				posblock[i + j * ii + k * ii * jj].x = apos.x;
+				posblock[i + j * ii + k * ii * jj] = apos;
+				/*posblock[i + j * ii + k * ii * jj].x = apos.x;
 				posblock[i + j * ii + k * ii * jj].y = apos.y;
-				posblock[i + j * ii + k * ii * jj].z = apos.z;
+				posblock[i + j * ii + k * ii * jj].z = apos.z;*/
 				//printf("-%d--%e\n", i + j * ii + k * ii * jj,posblock[i + j * ii + k * ii * jj].x);
 			}
 		}

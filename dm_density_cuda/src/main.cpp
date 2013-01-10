@@ -36,16 +36,18 @@ using namespace std;
 int gridsize    = 128;						//total grid size
 int subgridsize = 16;						//how many grid could be stored in the memory
 int inputmemgrid = 16;						//the input memory grid size
-string filename = "E:\\multires_150";			//the input data filename
-string gridfilename = "tetrahedron.grid";	//output filename
+int gpu_mem_for_tetralist = 128*1024*1024;	//gpu memory for tetrahedron list
+string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
+string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
 bool isoutputres = false;					
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n", pname.c_str()
+	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n %s\n", pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
 			, "[-df <datafilename>]"
 			, "[-of <gridfilename>]"
+			, "[-memgl <GPU memory for tetra list>]"
 			, "[-t <numbers of tetra in memory>]"
 			, "[-o] to output result"
 			);
@@ -55,13 +57,9 @@ void readParameters(int argv, char * args[]){
 	int k = 1;
 	if(argv == 1){
 		return;
-	}/*else if(argv % 2 ==0){
-		printUsage(args[0]);
-		exit(1);
-	}*/else{
+	}else{
 		while(k < argv){
 			stringstream ss;
-			//printf("fsafasdfa ---- %s\n", args[k]);
 			if(strcmp(args[k], "-g") == 0){
 				ss << args[k + 1];
 				ss >> gridsize;
@@ -74,6 +72,9 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-of") == 0){
 				ss << args[k + 1];
 				ss >> gridfilename;
+			}else if(strcmp(args[k], "-memgl") == 0){
+				ss << args[k + 1];
+				ss >> gpu_mem_for_tetralist;
 			}else if(strcmp(args[k], "-t") == 0){
 				ss << args[k + 1];
 				ss >> inputmemgrid;
@@ -89,6 +90,32 @@ void readParameters(int argv, char * args[]){
 	}
 }
 
+void singleVoxvolCorrection(GridManager &grid, TetraStream &tetraStream){
+	//single vex_vol correction
+	
+	REAL box = (REAL)(grid.getEndPoint().x - grid.getStartPoint().x);
+	REAL ng = (REAL)grid.getGridSize();
+	REAL vox_vol = box * box * box / ng / ng / ng;
+	int tetra_block_ind = 0;
+	for(tetra_block_ind = 0; tetra_block_ind < tetraStream.getTotalBlockNum(); tetra_block_ind ++){
+		tetraStream.loadBlock(tetra_block_ind);
+		int tetra_ind = 0;
+		for(tetra_ind = 0; tetra_ind < tetraStream.getBlockNumTetra(); tetra_ind ++){
+			Tetrahedron & tetra = (tetraStream.getCurrentBlock())[tetra_ind];
+			int xindmin = (int)( tetra.minx() / box * grid.getGridSize());
+			int xindmax = (int)( tetra.maxx() / box * grid.getGridSize());
+			int yindmin = (int)( tetra.miny() / box * grid.getGridSize());
+			int yindmax = (int)( tetra.maxy() / box * grid.getGridSize());
+			int zindmin = (int)( tetra.minz() / box * grid.getGridSize());
+			int zindmax = (int)( tetra.maxz() / box * grid.getGridSize());
+			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
+			if(n_samples == 1){
+				grid.setValueByActualCoor(xindmin, yindmin, zindmin, 6.0f / vox_vol);
+			}
+		}
+	}
+}
+
 int main(int argv, char * args[]){
 	double io_t = 0, calc_t = 0, total_t = 0;
 	timeval timediff;
@@ -100,15 +127,18 @@ int main(int argv, char * args[]){
 	readParameters(argv, args);
 	printf("\n=========================DENSITY ESTIMATION==========================\n");
 	printf("*****************************PARAMETERES*****************************\n");
-	printf("Grid Size     = %d\n", gridsize);
-	printf("Sub Grid Size = %d\n", subgridsize);
-	printf("Data File     = %s\n", filename.c_str());
-	printf("Grid File     = %s\n", gridfilename.c_str());
-	printf("Tetra in Mem  = %d\n", inputmemgrid);
+	printf("Grid Size               = %d\n", gridsize);
+	printf("Sub Grid Size           = %d\n", subgridsize);
+	printf("Data File               = %s\n", filename.c_str());
+	printf("Grid File               = %s\n", gridfilename.c_str());
+	printf("Tetra in Mem            = %d\n", inputmemgrid);
+	printf("GPU mem for tetra list  = %d\n", gpu_mem_for_tetralist);
 	printf("*********************************************************************\n");
 
+	//tetrastream
 	TetraStream tetraStream(filename, inputmemgrid);
-
+	
+	//compute the startpoint and endpoint
 	Point startpoint;
 	Point endpoint;
 	startpoint.x = 0;
@@ -119,63 +149,27 @@ int main(int argv, char * args[]){
 	endpoint.y = (REAL)header.BoxSize;
 	endpoint.z = (REAL)header.BoxSize;
 
+	//gridmanager
 	GridManager grid(gridfilename, gridsize, subgridsize, startpoint, endpoint);
 
-	Estimater estimater(&tetraStream, &grid);
-
+	//estimator
+	Estimater estimater(&tetraStream, &grid, gpu_mem_for_tetralist);
 
 	printf("*****************************COMPUTING ...***************************\n");
-
 	estimater.computeDensity();
 	estimater.getRunnintTime(io_t, calc_t);
 
+	//single vox_vol correction
+	gettimeofday(&timediff, NULL);
+	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 
-	//single vex_vol correction
-	/*
-	REAL box = grid.getEndPoint().x - grid.getStartPoint().x;
-	REAL ng = grid.getGridSize();
-	REAL vox_vol = box * box * box / ng / ng / ng;
-	int tetra_block_ind = 0;
-	for(tetra_block_ind = 0; tetra_block_ind < tetraStream.getTotalBlockNum(); tetra_block_ind ++){
-		tetraStream.loadBlock(tetra_block_ind);
-		int tetra_ind = 0;
-		for(tetra_ind = 0; tetra_ind < tetraStream.getBlockNumTetra(); tetra_ind ++){
-			Tetrahedron & tetra = (tetraStream.getCurrentBlock())[tetra_ind];
-			int xindmin = tetra.minx() / box * grid.getGridSize();
-			int xindmax = tetra.maxx() / box * grid.getGridSize();
-			int yindmin = tetra.miny() / box * grid.getGridSize();
-			int yindmax = tetra.maxy() / box * grid.getGridSize();
-			int zindmin = tetra.minz() / box * grid.getGridSize();
-			int zindmax = tetra.maxz() / box * grid.getGridSize();
-			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
+	singleVoxvolCorrection(grid, tetraStream);
 
-			//test
-			if(tetra_ind == 3165){
-				printf("v1-> %f %f %f\n", tetra.v1.x, tetra.v1.y, tetra.v1.z);
-				printf("v2-> %f %f %f\n", tetra.v2.x, tetra.v2.y, tetra.v2.z);
-				printf("v3-> %f %f %f\n", tetra.v3.x, tetra.v3.y, tetra.v3.z);
-				printf("v4-> %f %f %f\n", tetra.v4.x, tetra.v4.y, tetra.v4.z);
-				int tgs = grid.getGridSize();
-				int i0 = 187036 % tgs;
-				int j0 = 187036 / tgs % tgs;
-				int k0 = 187036 / tgs / tgs % tgs;
-				Point p;
-				REAL dx2 = box/ng/2;
-				p.x = i0 * box / ng + dx2;
-				p.y = j0 * box / ng + dx2;
-				p.z = k0 * box / ng + dx2;
-				printf("Point: %f %f %f\n", p.x, p.y, p.z);
-				cout << tetra.isInTetra(p) << endl;;
+	gettimeofday(&timediff, NULL);
+	t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+	calc_t += t2 - t1;
 
-			}
-			if(n_samples == 1){
-				grid.setValueByActualCoor(xindmin, yindmin, zindmin, 6.0 / vox_vol);
-			}
-		}
-	}
-	*/
-
-
+	//save to file
 	gettimeofday(&timediff, NULL);
 	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 
@@ -185,23 +179,18 @@ int main(int argv, char * args[]){
 	t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 	io_t += t2 - t1;
 
-
-
 	if(estimater.isFinished()){
 		printf("================================FINISHED=============================\n");
+		//output as text file
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		int i, j, k;
-		//isoutputres = true;
 		if (isoutputres) {
-			//grid.loadGrid(l);
 			int tgs = grid.getGridSize();
 			for (i = 0; i < tgs; i++) {
 				for (j = 0; j < tgs; j++) {
 					for (k = 0; k < tgs; k++) {
-						double v = grid.getValueByActualCoor(k, j, i);
-//						if((k) + (j) * tgs + (i) * tgs * tgs == 2133)
-//							printf("ok\n");
+						REAL v = grid.getValueByActualCoor(k, j, i);
 						if (v > 0) {
 							printf("Ind: %d ==> %e\n", (k) + (j) * tgs + (i) * tgs * tgs, v);
 						}

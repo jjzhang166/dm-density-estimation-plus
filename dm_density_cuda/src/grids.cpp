@@ -58,7 +58,6 @@ GridManager::GridManager(string filename, int gridsize, int subgridsize){
 	grid_header.BoxSize = 32000;
 	grid_header.npart[0] = gridsize;
 	grid_header.npartTotal[0] = gridsize * gridsize * gridsize;
-
 }
 
 GridManager::GridManager(std::string filename, int gridsize, int subgridsize,

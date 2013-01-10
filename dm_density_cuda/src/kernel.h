@@ -7,7 +7,7 @@
 #include "tetrastream.h"
 #include "grids.h"
 
-cudaError_t initialCUDA(TetraStream * tetrastream, GridManager * gridmanager);
+cudaError_t initialCUDA(TetraStream * tetrastream, GridManager * gridmanager, int mem_for_tetralist);
 void finishCUDA();
 
 cudaError_t computeTetraMemWithCuda();

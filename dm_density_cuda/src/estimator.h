@@ -11,6 +11,7 @@
 class Estimater{
 public:
 	Estimater(TetraStream * tetrastream, GridManager * gridmanager);
+	Estimater(TetraStream * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim);
 	void computeDensity();
 	bool isGood();						// if false, has some error
 	bool isFinished();					// whether the calculation is finished
@@ -22,6 +23,7 @@ private:
 	bool finished_;
 	double iotime_;
 	double calctime_;
+	int gpu_tetra_list_mem_lim;
 };
 
 

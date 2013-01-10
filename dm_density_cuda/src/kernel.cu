@@ -32,6 +32,8 @@ int current_tetra_list_ind = 0;					//the current grid block, which is already c
 int * tetramem;
 int * tetramem_list;							//the tetramemory list
 
+//test
+//int testmemtttt = 0;
 
 __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	int gsize, int sub_gsize, 
@@ -106,6 +108,8 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 		
 
 		if(tetra->isInTetra(p)){
+			//testing
+			//dgrids[i + j * sgs + k * sgs * sgs] += 1.0e-11f;
 			dgrids[i + j * sgs + k * sgs * sgs] += 1 / tetra->volume;
 		}
 	}
@@ -147,18 +151,25 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 	v1 = getPoint(ind, 0, 0, 0,subgs, gs, nsg, box);
 	v8 = getPoint(ind, subgs,subgs,subgs, subgs, gs, nsg, box);
 
-	double minx = tetra->minx();
-	double maxx = tetra->maxx();
-	double miny = tetra->miny();
-	double maxy = tetra->maxy();
-	double minz = tetra->minz();
-	double maxz = tetra->maxz();
+	REAL minx = tetra->minx();
+	REAL maxx = tetra->maxx();
+	REAL miny = tetra->miny();
+	REAL maxy = tetra->maxy();
+	REAL minz = tetra->minz();
+	REAL maxz = tetra->maxz();
 
 	if (minx > v8.x + dx2 || maxx < v1.x - dx2
 		|| miny > v8.y + dx2 || maxy < v1.y - dx2
 		|| minz > v8.z + dx2 || maxz < v1.z - dx2){
 		return false;
 	}
+	//test
+	/*if (minx > v8.x|| maxx < v1.x
+		|| miny > v8.y || maxy < v1.y
+		|| minz > v8.z || maxz < v1.z){
+		return false;
+	}*/
+
 	return true;
 
 }
@@ -207,8 +218,10 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 	if(ind > 0){
 		startind = tetra_mem[ind - 1];
 	}
+
 	int subsubgridsize = gridsize / subgridsize;
-	for(loop_i = 0; loop_i < ntetra; loop_i ++){
+	int total = tetra_mem[ind] - startind;
+	for(loop_i = 0; (loop_i < ntetra) && (count < total); loop_i ++){
 		Tetrahedron * tetra = &dtetra[loop_i];
 		//check whether the tetra is getting in touch with the current tetra
 		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
@@ -220,8 +233,9 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 }
 
 //initialize the CUDA
-cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_){
+cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, int mem_for_tetralist){
 	//int grid_size;
+	TETRA_LIST_MEM_LIM = mem_for_tetralist;
 
 	tetrastream = tetrastream_;
 	gridmanager = gridmanager_;
@@ -322,6 +336,9 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 		for(j = 1; j < gridmanager->getSubGridNum(); j++){
 			if(memoryneed ==0){
 				tetramem[j] = tetramem_list[j] + tetramem[j - 1];
+				//test
+				//printf("%d\n",  tetramem_list[j]);
+
 				if(tetramem[j] * 4 > TETRA_LIST_MEM_LIM){
 					memoryneed = tetramem[j - 1];
 					tetramem[j] = memoryneed;
@@ -341,8 +358,16 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 		for(j = 0; j < current_tetra_list_ind; j++){
 			tetramem[j] = 0;
 		}
+		//at least count 1
+		tetramem[current_tetra_list_ind] = tetramem_list[current_tetra_list_ind];
+		current_tetra_list_ind ++;
+		
 		for(j = current_tetra_list_ind; j < gridmanager->getSubGridNum(); j++){
 			if(memoryneed ==0){
+
+				//test
+				//printf("%d\n",  tetramem_list[j]);
+
 				tetramem[j] = tetramem_list[j] + tetramem[j - 1];
 				if(tetramem[j] * 4 > TETRA_LIST_MEM_LIM){
 					memoryneed = tetramem[j - 1];
@@ -359,6 +384,14 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 		}
 	}
 
+	//test
+	/*int tttmm[512];
+	int tttmm1[512];
+	for(int i = 0; i < 512; i++){
+		tttmm[i] = tetramem[i];
+		tttmm1[i] = tetramem_list[i];
+	}*/
+
 	cudaStatus = cudaMemcpy(dev_tetra_mem, tetramem, gridmanager->getSubGridNum() * sizeof(int), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed -- copying tetra-mem back!\n");
@@ -368,6 +401,10 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 	//allocating memory
 	//printf("Tetramem: %d\n", tetramem[ gridmanager->getSubGridNum() - 1]);
 	int totalmem = memoryneed;
+
+	//test
+	//testmemtttt += memoryneed;
+
 	printf("Memory allocating: %d\n", totalmem);
 	cudaFree(dev_tetra_select);
 	cudaStatus = cudaMalloc((void**)&dev_tetra_select, totalmem * sizeof(int));

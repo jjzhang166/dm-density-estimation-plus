@@ -15,7 +15,10 @@ using namespace std;
 
 #include "tetrahedron.h"
 
-Tetrahedron::Tetrahedron(){
+#define EPSILON 1e-6
+#define EPSILON1 1e-11
+
+CUDA_CALLABLE_MEMBER Tetrahedron::Tetrahedron(){
 	volume = 0;
 }
 
@@ -44,9 +47,9 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 	return vol;
 }
 
-CUDA_CALLABLE_MEMBER REAL Tetrahedron::det4d(REAL m[4][4]) {
-   REAL value;
-   REAL v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12;
+CUDA_CALLABLE_MEMBER double Tetrahedron::det4d(double m[4][4]) {
+   double value;
+   double v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12;
 		 v1 =  (m[0][3] * m[1][2] * m[2][1] * m[3][0]-m[0][2] * m[1][3] * m[2][1] * m[3][0]);
 		 v2 =  (-m[0][3] * m[1][1] * m[2][2] * m[3][0]+m[0][1] * m[1][3] * m[2][2] * m[3][0]);
 		 v3 =  (+m[0][2] * m[1][1] * m[2][3] * m[3][0]-m[0][1] * m[1][2] * m[2][3] * m[3][0]);
@@ -63,11 +66,11 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::det4d(REAL m[4][4]) {
    return value;
 }
 
-CUDA_CALLABLE_MEMBER void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, REAL m[4][4]){
-	m[0][0] = p1.x * (REAL)1.0e-11;
-	m[0][1] = p1.y * (REAL)1.0e-11;
-	m[0][2] = p1.z * (REAL)1.0e-11;
-	m[0][3] = 1.0 * (REAL)1.0e-11;
+CUDA_CALLABLE_MEMBER void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]){
+	m[0][0] = p1.x * 1.0e-11;
+	m[0][1] = p1.y * 1.0e-11;
+	m[0][2] = p1.z * 1.0e-11;
+	m[0][3] = 1.0 * 1.0e-11;
 	m[1][0] = p2.x;
 	m[1][1] = p2.y;
 	m[1][2] = p2.z;
@@ -83,8 +86,12 @@ CUDA_CALLABLE_MEMBER void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p
 }
 
 CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point p){
-	REAL m[4][4];
-	REAL d0=0.0, d1=0.0, d2=0.0, d3=0.0, d4=0.0;
+	if(p.x > maxx() || p.y > maxy() || p.z > maxz()
+	|| p.x < minx() || p.y < miny() || p.z < minz()){
+		return false;
+	}
+	double m[4][4];
+	double d0=0.0, d1=0.0, d2=0.0, d3=0.0, d4=0.0;
 
 	c2m(v1, v2, v3, v4, m);		//change the det to be det / 10^11
 	d0 = det4d(m);
@@ -101,11 +108,48 @@ CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point p){
 	c2m(v1, v2, v3, p, m);
 	d4 = det4d(m);
 
+
 	if(d0 > 0){
 		return (d1 >= 0) && (d2 >= 0) && (d3 >= 0) && (d4 >= 0);
 	}else{
 		return (d1 <= 0) && (d2 <= 0) && (d3 <= 0) && (d4 <= 0);
 	}
+
+	/*if(d0 > EPSILON1){
+		REAL k1, k2, k3, k4;
+		k1 = d1 / d0;
+		k2 = d2 / d0;
+		k3 = d3 / d0;
+		k4 = d4 / d0;
+
+		if(k1 < EPSILON && k1 > -EPSILON )
+			return (k2>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
+		if(k2 < EPSILON && k2 > -EPSILON)
+			return (k1>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
+		if(k3 < EPSILON && k3 > -EPSILON)
+			return (k1>= EPSILON) && (k2>= EPSILON)  && (k4 >= EPSILON);
+		if(k4 < EPSILON && k4 > -EPSILON)
+			return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON);
+		return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON) && (k4 >= EPSILON);
+	}else if(d0 < -EPSILON1){
+		REAL k1, k2, k3, k4;
+		k1 = d1 / d0;
+		k2 = d2 / d0;
+		k3 = d3 / d0;
+		k4 = d4 / d0;
+
+		if(k1 < EPSILON && k1 > -EPSILON )
+			return (k2>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
+		if(k2 < EPSILON && k2 > -EPSILON)
+			return (k1>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
+		if(k3 < EPSILON && k3 > -EPSILON)
+			return (k1>= EPSILON) && (k2>= EPSILON)  && (k4 >= EPSILON);
+		if(k4 < EPSILON && k4 > -EPSILON)
+			return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON);
+		return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON) && (k4 >= EPSILON);
+	}else{
+		return false;
+	}*/
 }
 
 
@@ -128,7 +172,7 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::maxz(){
 	return max(max(max(v1.z, v2.z), v3.z), v4.z);
 }
 
-/*
+
 CUDA_CALLABLE_MEMBER Point &  Point::operator=(const Point &rhs){
 	this->x = rhs.x;
 	this->y = rhs.y;
@@ -136,6 +180,11 @@ CUDA_CALLABLE_MEMBER Point &  Point::operator=(const Point &rhs){
 	return *this;
 }
 
+CUDA_CALLABLE_MEMBER Point::Point(const Point &point){
+	this->x = point.x;
+	this->y = point.y;
+	this->z = point.z;
+}
 
 
 CUDA_CALLABLE_MEMBER Tetrahedron & Tetrahedron::operator=(const Tetrahedron & rhs){
@@ -145,4 +194,18 @@ CUDA_CALLABLE_MEMBER Tetrahedron & Tetrahedron::operator=(const Tetrahedron & rh
 	this->v4 = rhs.v4;
 	this->volume = rhs.volume;
 	return *this;
-}*/
+}
+
+CUDA_CALLABLE_MEMBER Tetrahedron::Tetrahedron(const Tetrahedron & rhs){
+	this->v1 = rhs.v1;
+	this->v2 = rhs.v2;
+	this->v3 = rhs.v3;
+	this->v4 = rhs.v4;
+	this->volume = rhs.volume;
+}
+
+CUDA_CALLABLE_MEMBER Point::Point(){
+	x = 0;
+	y = 0;
+	z = 0;
+}

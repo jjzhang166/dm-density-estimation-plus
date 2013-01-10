@@ -29,6 +29,15 @@ Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
 	gridmanager_ = gridmanager;
 	good_ = true;
 	finished_ = false;
+	gpu_tetra_list_mem_lim =  128*1024*1024;		//128M
+}
+
+Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim){
+	tetrastream_ = tetrastream;
+	gridmanager_ = gridmanager;
+	good_ = true;
+	finished_ = false;
+	gpu_tetra_list_mem_lim = tetra_list_mem_lim;
 }
 
 void Estimater::getRunnintTime(double &iotime, double &calctime){
@@ -44,14 +53,17 @@ void Estimater::computeDensity(){
 	finished_ = false;
 
 	int loop_i;
-	if(initialCUDA(tetrastream_, gridmanager_) != cudaSuccess){
+	if(initialCUDA(tetrastream_, gridmanager_, gpu_tetra_list_mem_lim) != cudaSuccess){
 		return;
 	}
 
 	int tetra_ind = 0;
 	int tetra_num_block = tetrastream_->getTotalBlockNum();
+	//testing  && tetra_ind < 50
 	for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
 		printf("TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
+		//if(tetra_ind  != 1)
+		//		continue;
 
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;

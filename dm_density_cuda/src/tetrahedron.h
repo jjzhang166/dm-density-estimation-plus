@@ -22,7 +22,9 @@ public:
 	REAL x;
 	REAL y;
 	REAL z;
-	//CUDA_CALLABLE_MEMBER Point & operator=(const Point &rhs);
+	CUDA_CALLABLE_MEMBER Point & operator=(const Point &rhs);
+	CUDA_CALLABLE_MEMBER Point(const Point &point);
+	CUDA_CALLABLE_MEMBER Point();
 };
 
 class Tetrahedron{
@@ -38,8 +40,8 @@ public:
 	CUDA_CALLABLE_MEMBER bool isInTetra(Point p);
 	REAL volume;
 
-	CUDA_CALLABLE_MEMBER REAL det4d(REAL m[4][4]);
-	CUDA_CALLABLE_MEMBER void c2m(Point p1, Point p2, Point p3, Point p4, REAL m[4][4]);
+	CUDA_CALLABLE_MEMBER double det4d(double m[4][4]);
+	CUDA_CALLABLE_MEMBER void c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]);
 
 	CUDA_CALLABLE_MEMBER REAL minx();
 	CUDA_CALLABLE_MEMBER REAL miny();
@@ -48,7 +50,8 @@ public:
 	CUDA_CALLABLE_MEMBER REAL maxy();
 	CUDA_CALLABLE_MEMBER REAL maxz();
 
-	//CUDA_CALLABLE_MEMBER Tetrahedron & operator=(const Tetrahedron & rhs);
+	CUDA_CALLABLE_MEMBER Tetrahedron & operator=(const Tetrahedron & rhs);
+	CUDA_CALLABLE_MEMBER Tetrahedron(const Tetrahedron &tetra);
 
 private:
 };
