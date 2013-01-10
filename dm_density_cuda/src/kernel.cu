@@ -63,14 +63,14 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	//for(loop_i = 0; loop_i < ntetra; loop_i ++){
 	for(loop_i = startind; loop_i < endind; loop_i ++){
 		Tetrahedron * tetra = &dtetra[tetra_selection[loop_i]];
-		if(tetra->maxx() - tetra->minx() > box / 2.0)
+		/*if(tetra->maxx() - tetra->minx() > box / 2.0)
 			continue;
 
 		if(tetra->maxy() - tetra->miny() > box / 2.0)
 			continue;
 
 		if(tetra->maxz() - tetra->minz() > box / 2.0)
-			continue;
+			continue;*/
 		
 		REAL ng = gsize;
 
@@ -157,6 +157,15 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 	REAL maxy = tetra->maxy();
 	REAL minz = tetra->minz();
 	REAL maxz = tetra->maxz();
+
+	if(maxx - minx > box / 2.0)
+			return false;
+
+	if(maxy - miny > box / 2.0)
+			return false;
+
+	if(maxz - minz > box / 2.0)
+			return false;
 
 	if (minx > v8.x + dx2 || maxx < v1.x - dx2
 		|| miny > v8.y + dx2 || maxy < v1.y - dx2
@@ -405,7 +414,7 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 	//test
 	//testmemtttt += memoryneed;
 
-	printf("Memory allocating: %d\n", totalmem);
+	//printf("Memory allocating: %d\n", totalmem);
 	cudaFree(dev_tetra_select);
 	cudaStatus = cudaMalloc((void**)&dev_tetra_select, totalmem * sizeof(int));
     if (cudaStatus != cudaSuccess) {

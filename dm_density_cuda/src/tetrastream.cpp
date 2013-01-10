@@ -38,7 +38,10 @@ TetraStream::TetraStream(string filename, int inputmemgridsize) {
 			particle_grid_size_ / mem_grid_size_ *
 			particle_grid_size_ / mem_grid_size_;
 
-	loadBlock(0);		//load the zeros block
+	grids_ = NULL;
+
+	//loadBlock(0);		//load the zeros block
+
 
 }
 
@@ -89,17 +92,20 @@ void TetraStream::loadBlock(int i){
 	jmin = i / ngb % ngb * mem_grid_size_;
 	kmin = i / ngb / ngb % ngb * mem_grid_size_;
 	imax = imin + mem_grid_size_;
+
+	//periodical condition
 	if(imax == particle_grid_size_){
-		imax = particle_grid_size_ - 1;
+		//imax = particle_grid_size_ - 1;
 	}
 	jmax = jmin + mem_grid_size_;
 	if(jmax == particle_grid_size_){
-		jmax = particle_grid_size_ - 1;
+		//jmax = particle_grid_size_ - 1;
 	}
 	kmax = kmin + mem_grid_size_;
 	if(kmax == particle_grid_size_){
-		kmax = particle_grid_size_ - 1;
+		//kmax = particle_grid_size_ - 1;
 	}
+
 	gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax);
 
 	//for(int ffi =0; ffi < ((imax - imin + 1)*(jmax - jmin + 1)*(kmax - kmin + 1)); ffi ++){
@@ -120,6 +126,20 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 	tetra_.computeVolume();
 	tetras_[current_ind_tetra] = (tetra_);
 	current_ind_tetra ++;
+
+	//single vox_vol correction
+	if(grids_ != NULL){
+			int xindmin = (int)( tetra_.minx() / box * grids_->getGridSize());
+			int xindmax = (int)( tetra_.maxx() / box * grids_->getGridSize());
+			int yindmin = (int)( tetra_.miny() / box * grids_->getGridSize());
+			int yindmax = (int)( tetra_.maxy() / box * grids_->getGridSize());
+			int zindmin = (int)( tetra_.minz() / box * grids_->getGridSize());
+			int zindmax = (int)( tetra_.maxz() / box * grids_->getGridSize());
+			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
+			if(n_samples == 1){
+				grids_->setValueByActualCoor(xindmin, yindmin, zindmin, 6.0f / vox_vol);
+			}
+	}
 }
 
 void TetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
@@ -165,6 +185,12 @@ void TetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 	current_tetra_num = current_ind_tetra;
 }
 
+void TetraStream::setSingleVoxvolCorrection(GridManager * grid){
+	this->grids_ = grid;
+	box = (REAL)(grids_->getEndPoint().x - grids_->getStartPoint().x);
+	ng = (REAL)grids_->getGridSize();
+	vox_vol = box * box * box / ng / ng / ng;
+}
 
 gadget_header TetraStream::getHeader(){
 	return this->gsnap_->header;	//get the header

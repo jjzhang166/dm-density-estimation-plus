@@ -247,16 +247,24 @@ void GridManager::saveToFile(){
 
 	//write the header
 	gridFile.write((char *) & grid_header, sizeof(gadget_header));
-
+	REAL * tempsubgrid_ = new REAL[subgridsize_ * subgridsize_ * subgridsize_];
 	int tgs = getGridSize();
+	int count = 0;
 	for (i = 0; i < tgs; i++) {
 		for (j = 0; j < tgs; j++) {
 			for (k = 0; k < tgs; k++) {
 				REAL v = getValueByActualCoor(i, j, k);
-				gridFile.write((char *) &v, sizeof(REAL));
+				tempsubgrid_[count] = v;
+				count ++;
+				if(count >= subgridsize_ * subgridsize_ * subgridsize_){
+					count =0;
+					gridFile.write((char *) tempsubgrid_, sizeof(REAL) * subgridsize_ * subgridsize_ * subgridsize_);
+				}
 			}
 		}
 	}
+	delete tempsubgrid_;
+
 	gridFile.close();
 }
 

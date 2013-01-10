@@ -36,6 +36,9 @@
     <ClInclude Include="src\gettimeofday_win.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="src\processbar.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -54,6 +57,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\gettimeofday_win.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\processbar.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

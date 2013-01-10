@@ -14,6 +14,7 @@
 #include <vector>
 #include "tetrahedron.h"
 #include "readgadget.h"
+#include "grids.h"
 using namespace std;
 
 /**
@@ -32,6 +33,7 @@ public:
 	int getCurrentInd();				//return the current block id
 	void loadBlock(int i);				//load the i-th block
 	bool reset();						//return to the 0-th block
+	void setSingleVoxvolCorrection(GridManager * grid);	//set up single voxvol correction, if not set to be null
 	~TetraStream();
 
 private:
@@ -51,6 +53,8 @@ private:
 	void convertToTetrahedron(int ii, int jj, int kk);	// convert the vertex data to tetrahedron
 														// ii, jj, kk is max-min+1
 
+	//void singleVoxvolCorrection();
+
 	int current_ind_tetra;			// the current tetra index
 	int current_ind_block;			// the current block index
 	void addTetra(int ind1, int ind2, int ind3, int ind4);// add a tetra to the vector
@@ -58,6 +62,12 @@ private:
 			int j3, int k3, int i4, int j4, int k4,
 			int isize, int jsize, int ksize);// add a tetra to the vector
 	GSnap * gsnap_;
+
+	//single vox_vol correction
+	GridManager * grids_;
+	REAL box;
+	REAL ng;
+	REAL vox_vol;
 
 };
 

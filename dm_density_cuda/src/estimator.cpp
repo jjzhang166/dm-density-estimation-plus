@@ -23,6 +23,9 @@ using namespace std;
 #include "grids.h"
 #include "estimator.h"
 #include "kernel.h"
+#include "processbar.h"
+
+
 
 Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
 	tetrastream_ = tetrastream;
@@ -45,12 +48,16 @@ void Estimater::getRunnintTime(double &iotime, double &calctime){
 	calctime += this->calctime_;
 }
 
+
+
+
 void Estimater::computeDensity(){
 	timeval timediff;
 	double t1, t2 = 0;
 	iotime_ = 0;
 	calctime_ = 0;
 	finished_ = false;
+	ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum());
 
 	int loop_i;
 	if(initialCUDA(tetrastream_, gridmanager_, gpu_tetra_list_mem_lim) != cudaSuccess){
@@ -60,8 +67,9 @@ void Estimater::computeDensity(){
 	int tetra_ind = 0;
 	int tetra_num_block = tetrastream_->getTotalBlockNum();
 	//testing  && tetra_ind < 50
+	process.start();
 	for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
-		printf("TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
+		//printf("TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
 		//if(tetra_ind  != 1)
 		//		continue;
 
@@ -86,12 +94,12 @@ void Estimater::computeDensity(){
 			if(computeTetraSelectionWithCuda(hasnext)!=cudaSuccess){
 				return;
 			}
-			if(hasnext){
-				printf("GPU memory insufficient, divided to multiple step.\n");
-			}
+			//if(hasnext){
+			//	printf("GPU memory insufficient, divided to multiple step.\n");
+			//}
 						//computeTetraSelectionWithCuda();
-			printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
-			printf("=========[");
+			//printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
+			//printf("=========[");
 			int res_print_ = gridmanager_->getSubGridNum() / 50;
 			if(res_print_ == 0){
 				res_print_ = 1;
@@ -101,11 +109,12 @@ void Estimater::computeDensity(){
 
 				gettimeofday(&timediff, NULL);
 				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-				if((loop_i + 1) % (res_print_) == 0){
+				//if((loop_i + 1) % (res_print_) == 0){
 					//printf(">");
-					cout<<"<";
-					cout.flush();
-				}
+				//	cout<<"<";
+				//	cout.flush();
+				//}
+				process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
 				gridmanager_->loadGrid(loop_i);
 
 				gettimeofday(&timediff, NULL);
@@ -127,12 +136,14 @@ void Estimater::computeDensity(){
 				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 				iotime_ += t2 - t1;
 			}
-			printf("]========\n");
+			//printf("]========\n");
 		}
-		finished_ = true;
 
 	}
+	finished_ = true;
+	process.end();
 	finishCUDA();
+
 	//printf("Finished\n");
 
 /*	int i, j, k, l;

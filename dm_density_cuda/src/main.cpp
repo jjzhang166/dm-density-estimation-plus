@@ -35,7 +35,7 @@ using namespace std;
 
 int gridsize    = 128;						//total grid size
 int subgridsize = 16;						//how many grid could be stored in the memory
-int inputmemgrid = 16;						//the input memory grid size
+int inputmemgrid =16;						//the input memory grid size
 int gpu_mem_for_tetralist = 128*1024*1024;	//gpu memory for tetrahedron list
 string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
 string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
@@ -90,32 +90,6 @@ void readParameters(int argv, char * args[]){
 	}
 }
 
-void singleVoxvolCorrection(GridManager &grid, TetraStream &tetraStream){
-	//single vex_vol correction
-	
-	REAL box = (REAL)(grid.getEndPoint().x - grid.getStartPoint().x);
-	REAL ng = (REAL)grid.getGridSize();
-	REAL vox_vol = box * box * box / ng / ng / ng;
-	int tetra_block_ind = 0;
-	for(tetra_block_ind = 0; tetra_block_ind < tetraStream.getTotalBlockNum(); tetra_block_ind ++){
-		tetraStream.loadBlock(tetra_block_ind);
-		int tetra_ind = 0;
-		for(tetra_ind = 0; tetra_ind < tetraStream.getBlockNumTetra(); tetra_ind ++){
-			Tetrahedron & tetra = (tetraStream.getCurrentBlock())[tetra_ind];
-			int xindmin = (int)( tetra.minx() / box * grid.getGridSize());
-			int xindmax = (int)( tetra.maxx() / box * grid.getGridSize());
-			int yindmin = (int)( tetra.miny() / box * grid.getGridSize());
-			int yindmax = (int)( tetra.maxy() / box * grid.getGridSize());
-			int zindmin = (int)( tetra.minz() / box * grid.getGridSize());
-			int zindmax = (int)( tetra.maxz() / box * grid.getGridSize());
-			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
-			if(n_samples == 1){
-				grid.setValueByActualCoor(xindmin, yindmin, zindmin, 6.0f / vox_vol);
-			}
-		}
-	}
-}
-
 int main(int argv, char * args[]){
 	double io_t = 0, calc_t = 0, total_t = 0;
 	timeval timediff;
@@ -152,22 +126,15 @@ int main(int argv, char * args[]){
 	//gridmanager
 	GridManager grid(gridfilename, gridsize, subgridsize, startpoint, endpoint);
 
+	//setup single vox_vol correction
+	tetraStream.setSingleVoxvolCorrection(&grid);
+
 	//estimator
 	Estimater estimater(&tetraStream, &grid, gpu_mem_for_tetralist);
 
 	printf("*****************************COMPUTING ...***************************\n");
 	estimater.computeDensity();
 	estimater.getRunnintTime(io_t, calc_t);
-
-	//single vox_vol correction
-	gettimeofday(&timediff, NULL);
-	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-
-	singleVoxvolCorrection(grid, tetraStream);
-
-	gettimeofday(&timediff, NULL);
-	t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-	calc_t += t2 - t1;
 
 	//save to file
 	gettimeofday(&timediff, NULL);

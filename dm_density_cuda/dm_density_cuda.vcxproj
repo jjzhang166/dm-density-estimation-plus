@@ -16,6 +16,7 @@
     <ClInclude Include="src\gettimeofday_win.h" />
     <ClInclude Include="src\grids.h" />
     <ClInclude Include="src\kernel.h" />
+    <ClInclude Include="src\processbar.h" />
     <ClInclude Include="src\readgadget.h" />
     <ClInclude Include="src\tetrahedron.h" />
     <ClInclude Include="src\tetrastream.h" />
@@ -33,6 +34,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </CudaCompile>
+    <ClCompile Include="src\processbar.cpp" />
     <ClCompile Include="src\readgadget.cpp" />
     <ClCompile Include="src\tetrastream.cpp" />
   </ItemGroup>

@@ -19,7 +19,7 @@ public:
 	gadget_header header;
 	uint32_t Npart;
 
-	void readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax);
+	void readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical = true, bool isOrdered = false);
 
 private:
 	uint32_t * ids;
@@ -29,7 +29,7 @@ private:
 	Point readPos(std::fstream &file, int count);
 
 	void readIndex(std::fstream &file, int *block,
-			int imin, int jmin, int kmin, int imax, int jmax, int kmax);
+			int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical = true, bool isOrdered = false);
 };
 
 #endif /* READGADGET_H_ */
