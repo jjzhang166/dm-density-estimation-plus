@@ -40,9 +40,10 @@ int gpu_mem_for_tetralist = 128*1024*1024;	//gpu memory for tetrahedron list
 string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
 string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
 bool isoutputres = false;					
+bool isVerbose = false;
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n %s\n", pname.c_str()
+	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n %s\n %s\n", pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
 			, "[-df <datafilename>]"
@@ -50,6 +51,7 @@ void printUsage(string pname){
 			, "[-memgl <GPU memory for tetra list>]"
 			, "[-t <numbers of tetra in memory>]"
 			, "[-o] to output result"
+			, "[-v] to show verbose"
 			);
 }
 
@@ -80,6 +82,9 @@ void readParameters(int argv, char * args[]){
 				ss >> inputmemgrid;
 			}else if(strcmp(args[k], "-o") == 0){
 				isoutputres = true;
+				k = k -1;
+			}else if(strcmp(args[k], "-v") == 0){
+				isVerbose = true;
 				k = k -1;
 			}else{
 				printUsage(args[0]);
@@ -131,6 +136,7 @@ int main(int argv, char * args[]){
 
 	//estimator
 	Estimater estimater(&tetraStream, &grid, gpu_mem_for_tetralist);
+	estimater.setVerbose(isVerbose);
 
 	printf("*****************************COMPUTING ...***************************\n");
 	estimater.computeDensity();

@@ -3,16 +3,22 @@
 
 using namespace std;
 
-ProcessBar::ProcessBar(int maxvalue){
+ProcessBar::ProcessBar(int maxvalue, int type){
 	maxvalue_ = maxvalue;
 	currentvalue_ = 0;
 	currentpercent_ = 0;
+	type_ = type;
 }
 
 
 void ProcessBar::start(){
-	printf("=========[---10---20---30---40---50---60---70---80---90--100]========\n");
-	printf("=========[");
+	if(type_ == 0){
+		printf("=========[---10---20---30---40---50---60---70---80---90--100]========\n");
+		printf("=========[");
+	}else if(type_ == 1){
+		printf("Computation starting ...\n");
+	}
+
 }
 
 void ProcessBar::setvalue(int value){
@@ -23,7 +29,12 @@ void ProcessBar::setvalue(int value){
 		if(percent > currentpercent_){
 			int i;
 			for(i = currentpercent_; i < percent; i++){
-				std::cout<<"<";
+				if(type_ == 0){
+					std::cout<<"<";
+				}else if(type_ == 1){
+					printf("%i percent finished ...\n", (int)ceil(rate * 100));
+				}
+
 				std::cout.flush();
 			}
 			currentpercent_ = percent;
@@ -32,5 +43,9 @@ void ProcessBar::setvalue(int value){
 }
 
 void ProcessBar::end(){
-	printf("]========\n");
+	if(type_ == 0){
+		printf("]========\n");
+	}else if(type_ == 1){
+		printf("Computation Finishing ...\n");
+	}
 }

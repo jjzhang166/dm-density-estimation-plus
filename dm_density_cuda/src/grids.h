@@ -75,8 +75,6 @@ public:
 	Point getPoint(int i, int j, int k);	// get the point in units of the box of current index
 	Point getPointByActualCoor(int i, int j, int k);
 
-	void setVerbose(bool verbose);
-
 	~GridManager();
 private:
 	std::string filename_;
@@ -99,7 +97,6 @@ private:
 
 	gadget_header grid_header;
 
-	bool isVerbose;
 };
 
 

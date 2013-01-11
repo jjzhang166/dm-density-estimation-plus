@@ -20,6 +20,21 @@ using namespace std;
 
 CUDA_CALLABLE_MEMBER Tetrahedron::Tetrahedron(){
 	volume = 0;
+	minx_ = 0;
+	miny_ = 0;
+	minz_ = 0;
+	maxx_ = 0;
+	maxy_ = 0;
+	maxz_ = 0;
+}
+
+CUDA_CALLABLE_MEMBER void Tetrahedron::computeMaxMin(){
+	minx_ = min(min(min(v1.x, v2.x), v3.x), v4.x);
+	miny_ = min(min(min(v1.y, v2.y), v3.y), v4.y);
+	minz_ = min(min(min(v1.z, v2.z), v3.z), v4.z);
+	maxx_ = max(max(max(v1.x, v2.x), v3.x), v4.x);
+	maxy_ = max(max(max(v1.y, v2.y), v3.y), v4.y);
+	maxz_ = max(max(max(v1.z, v2.z), v3.z), v4.z);
 }
 
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
@@ -44,6 +59,15 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y);
 	vol /= 6.0;
 	volume = abs(vol);
+
+	//compute min and max
+	computeMaxMin();
+	
+	//compute d0 to reduce calculation
+	//double m[4][4];
+	//c2m(v1, v2, v3, v4, m);		//change the det to be det / 10^11
+	//d0 = det4d(m);
+
 	return vol;
 }
 
@@ -114,62 +138,26 @@ CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point p){
 	}else{
 		return (d1 <= 0) && (d2 <= 0) && (d3 <= 0) && (d4 <= 0);
 	}
-
-	/*if(d0 > EPSILON1){
-		REAL k1, k2, k3, k4;
-		k1 = d1 / d0;
-		k2 = d2 / d0;
-		k3 = d3 / d0;
-		k4 = d4 / d0;
-
-		if(k1 < EPSILON && k1 > -EPSILON )
-			return (k2>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
-		if(k2 < EPSILON && k2 > -EPSILON)
-			return (k1>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
-		if(k3 < EPSILON && k3 > -EPSILON)
-			return (k1>= EPSILON) && (k2>= EPSILON)  && (k4 >= EPSILON);
-		if(k4 < EPSILON && k4 > -EPSILON)
-			return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON);
-		return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON) && (k4 >= EPSILON);
-	}else if(d0 < -EPSILON1){
-		REAL k1, k2, k3, k4;
-		k1 = d1 / d0;
-		k2 = d2 / d0;
-		k3 = d3 / d0;
-		k4 = d4 / d0;
-
-		if(k1 < EPSILON && k1 > -EPSILON )
-			return (k2>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
-		if(k2 < EPSILON && k2 > -EPSILON)
-			return (k1>= EPSILON) && (k3 >= EPSILON) && (k4 >= EPSILON);
-		if(k3 < EPSILON && k3 > -EPSILON)
-			return (k1>= EPSILON) && (k2>= EPSILON)  && (k4 >= EPSILON);
-		if(k4 < EPSILON && k4 > -EPSILON)
-			return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON);
-		return (k1>= EPSILON) && (k2>= EPSILON)  && (k3 >= EPSILON) && (k4 >= EPSILON);
-	}else{
-		return false;
-	}*/
 }
 
 
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::minx(){
-	return min(min(min(v1.x, v2.x), v3.x), v4.x);
+	return minx_;
 }
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::miny(){
-	return min(min(min(v1.y, v2.y), v3.y), v4.y);
+	return miny_;
 }
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::minz(){
-	return min(min(min(v1.z, v2.z), v3.z), v4.z);
+	return minz_;
 }
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::maxx(){
-	return max(max(max(v1.x, v2.x), v3.x), v4.x);
+	return maxx_;
 }
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::maxy(){
-	return max(max(max(v1.y, v2.y), v3.y), v4.y);
+	return maxy_;
 }
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::maxz(){
-	return max(max(max(v1.z, v2.z), v3.z), v4.z);
+	return maxz_;
 }
 
 
@@ -193,6 +181,12 @@ CUDA_CALLABLE_MEMBER Tetrahedron & Tetrahedron::operator=(const Tetrahedron & rh
 	this->v3 = rhs.v3;
 	this->v4 = rhs.v4;
 	this->volume = rhs.volume;
+	this->maxx_ = rhs.maxx_;
+	this->maxy_ = rhs.maxy_;
+	this->maxz_ = rhs.maxz_;
+	this->minx_ = rhs.minx_;
+	this->miny_ = rhs.miny_;
+	this->minz_ = rhs.minz_;
 	return *this;
 }
 
@@ -202,6 +196,12 @@ CUDA_CALLABLE_MEMBER Tetrahedron::Tetrahedron(const Tetrahedron & rhs){
 	this->v3 = rhs.v3;
 	this->v4 = rhs.v4;
 	this->volume = rhs.volume;
+	this->maxx_ = rhs.maxx_;
+	this->maxy_ = rhs.maxy_;
+	this->maxz_ = rhs.maxz_;
+	this->minx_ = rhs.minx_;
+	this->miny_ = rhs.miny_;
+	this->minz_ = rhs.minz_;
 }
 
 CUDA_CALLABLE_MEMBER Point::Point(){

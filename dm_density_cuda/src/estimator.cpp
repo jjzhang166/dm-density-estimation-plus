@@ -33,6 +33,7 @@ Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
 	good_ = true;
 	finished_ = false;
 	gpu_tetra_list_mem_lim =  128*1024*1024;		//128M
+	isVerbose_ = false;
 }
 
 Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim){
@@ -41,6 +42,7 @@ Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager, int t
 	good_ = true;
 	finished_ = false;
 	gpu_tetra_list_mem_lim = tetra_list_mem_lim;
+	isVerbose_ = false;
 }
 
 void Estimater::getRunnintTime(double &iotime, double &calctime){
@@ -49,7 +51,9 @@ void Estimater::getRunnintTime(double &iotime, double &calctime){
 }
 
 
-
+void Estimater::setVerbose(bool verbose){
+	isVerbose_ = verbose;
+}
 
 void Estimater::computeDensity(){
 	timeval timediff;
@@ -57,21 +61,34 @@ void Estimater::computeDensity(){
 	iotime_ = 0;
 	calctime_ = 0;
 	finished_ = false;
-	ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum());
+	int pbar_type = 0;
+
+	//testing
+	//isVerbose_ = true;
+
+	if(isVerbose_){
+		pbar_type = 1;
+	}else{
+		pbar_type = 0;
+	}
+	ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum(), pbar_type);
 
 	int loop_i;
+
+	if(isVerbose_)
+		printf("Initialing CUDA devices ...\n");
+
 	if(initialCUDA(tetrastream_, gridmanager_, gpu_tetra_list_mem_lim) != cudaSuccess){
 		return;
 	}
 
 	int tetra_ind = 0;
 	int tetra_num_block = tetrastream_->getTotalBlockNum();
-	//testing  && tetra_ind < 50
 	process.start();
+
 	for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
-		//printf("TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
-		//if(tetra_ind  != 1)
-		//		continue;
+		if(isVerbose_)
+			printf("Loading TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
 
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -79,6 +96,12 @@ void Estimater::computeDensity(){
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		iotime_ += t2 - t1;
+		
+		if(isVerbose_)
+			printf("LoadedTetraBlocks: %d/%d, takes time %f secs\n", tetra_ind + 1, tetra_num_block, t2 - t1);
+
+		if(isVerbose_)
+			printf("Computing how many tetra memory need for GPU ... ");
 
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -87,56 +110,55 @@ void Estimater::computeDensity(){
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		calctime_ += t2 - t1;
+		
+		if(isVerbose_)
+			printf("Costs %f secs\n", t2 - t1);
 
 
 		bool hasnext = true;
 		while(hasnext){
+			if(isVerbose_)
+				printf("Computing the tetrahedron list for each sub-grid block...\n");
+			gettimeofday(&timediff, NULL);
+			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			if(computeTetraSelectionWithCuda(hasnext)!=cudaSuccess){
 				return;
 			}
-			//if(hasnext){
-			//	printf("GPU memory insufficient, divided to multiple step.\n");
-			//}
-						//computeTetraSelectionWithCuda();
-			//printf("=========[---10---20---30---40---50---60---70---80---90--100-]========\n");
-			//printf("=========[");
+			gettimeofday(&timediff, NULL);
+			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+			calctime_ += t2 - t1;
+
+			if(isVerbose_){
+				if(hasnext){
+					printf("Cost %f secs. GPU memory insufficient, divided to multiple step.\n", t2 - t1);
+				}else{
+					printf("Cost %f secs.\n", t2 - t1);
+				}
+			}
+						
 			int res_print_ = gridmanager_->getSubGridNum() / 50;
 			if(res_print_ == 0){
 				res_print_ = 1;
 			}
 
-			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
+			if(isVerbose_){
+				printf("Looping over the grids... \n");
+			}
 
-				gettimeofday(&timediff, NULL);
-				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-				//if((loop_i + 1) % (res_print_) == 0){
-					//printf(">");
-				//	cout<<"<";
-				//	cout.flush();
-				//}
+			gettimeofday(&timediff, NULL);
+			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+
+			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
 				process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
 				gridmanager_->loadGrid(loop_i);
-
-				gettimeofday(&timediff, NULL);
-				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-				iotime_ += t2 - t1;
-
-				//int count = 0;
-				gettimeofday(&timediff, NULL);
-				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 				calculateGridWithCuda();
-				gettimeofday(&timediff, NULL);
-				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-				calctime_ += t2 - t1;
-
-				gettimeofday(&timediff, NULL);
-				t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-				gridmanager_->saveGrid();
-				gettimeofday(&timediff, NULL);
-				t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-				iotime_ += t2 - t1;
 			}
-			//printf("]========\n");
+
+			gettimeofday(&timediff, NULL);
+			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+			calctime_ += t2 - t1;
+			if(isVerbose_)
+				printf("Costs %f secs\n", t2 - t1);
 		}
 
 	}

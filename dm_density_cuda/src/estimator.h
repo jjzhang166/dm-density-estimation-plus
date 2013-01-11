@@ -16,6 +16,7 @@ public:
 	bool isGood();						// if false, has some error
 	bool isFinished();					// whether the calculation is finished
 	void getRunnintTime(double &iotime, double &calctime);
+	void setVerbose(bool verbose);
 private:
 	TetraStream * tetrastream_;
 	GridManager * gridmanager_;
@@ -24,6 +25,7 @@ private:
 	double iotime_;
 	double calctime_;
 	int gpu_tetra_list_mem_lim;
+	bool isVerbose_;
 };
 
 

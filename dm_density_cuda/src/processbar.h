@@ -11,7 +11,7 @@
 
 class ProcessBar {
 public:
-	ProcessBar(int maxvalue);
+	ProcessBar(int maxvalue, int type);
 	void start();
 	void setvalue(int value);
 	void end();
@@ -19,6 +19,7 @@ private:
 	int maxvalue_;
 	double currentvalue_;
 	int currentpercent_;
+	int type_;
 };
 
 #endif /* PROCESS_BAR_H_ */

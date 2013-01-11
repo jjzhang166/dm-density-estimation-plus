@@ -30,7 +30,9 @@ public:
 class Tetrahedron{
 public:
 	CUDA_CALLABLE_MEMBER Tetrahedron();
-	REAL computeVolume();
+	
+	CUDA_CALLABLE_MEMBER REAL computeVolume();				//also compute minmax
+	CUDA_CALLABLE_MEMBER void computeMaxMin();
 	Point v1;
 	Point v2;
 	Point v3;
@@ -54,6 +56,9 @@ public:
 	CUDA_CALLABLE_MEMBER Tetrahedron(const Tetrahedron &tetra);
 
 private:
+	REAL minx_, maxx_, miny_, maxy_, minz_, maxz_;
+
+	//double d0;				// compute d0 first to reduce calculation
 };
 
 
