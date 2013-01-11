@@ -63,14 +63,6 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	//for(loop_i = 0; loop_i < ntetra; loop_i ++){
 	for(loop_i = startind; loop_i < endind; loop_i ++){
 		Tetrahedron * tetra = &dtetra[tetra_selection[loop_i]];
-		/*if(tetra->maxx() - tetra->minx() > box / 2.0)
-			continue;
-
-		if(tetra->maxy() - tetra->miny() > box / 2.0)
-			continue;
-
-		if(tetra->maxz() - tetra->minz() > box / 2.0)
-			continue;*/
 		
 		REAL ng = gsize;
 
@@ -82,35 +74,12 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 		p.x = i / (REAL) ng * box + x0 + dx2; 
 		p.y = j / (REAL) ng * box + y0 + dx2;
 		p.z = k / (REAL) ng * box + z0 + dx2;
-
-
-		//testing
-		
-		/*Point p1;
-		p1.x = 139851 % 128 / (REAL) ng * box + dx2; 
-		p1.y = 139851 / 128 % 128 / (REAL) ng * box + dx2; 
-		p1.z = 139851 / 128 / 128 % 128 / (REAL) ng * box + dx2; 
-		Tetrahedron * tetra1 = &dtetra[772]; 
-		bool k = tetra1->isInTetra(p1);
-		int ggg = tetra_selection[loop_i];
-		if(sub_ind == 36 && ggg == 772){
-
-			
-			if(k){
-				ng ++;
-				p1.x ++;
-				tetra1->v1.x ++;
-			}else{
-				ng += ng*1*0;
-				k = tetra1->isInTetra(p1);
-			}
-		}*/
 		
 
 		if(tetra->isInTetra(p)){
 			//testing
 			//dgrids[i + j * sgs + k * sgs * sgs] += 1.0e-11f;
-			dgrids[i + j * sgs + k * sgs * sgs] += 1 / tetra->volume;
+			dgrids[i + j * sgs + k * sgs * sgs] += 1.0 / tetra->volume;
 		}
 	}
 }
