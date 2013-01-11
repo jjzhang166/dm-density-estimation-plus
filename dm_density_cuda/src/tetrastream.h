@@ -33,7 +33,7 @@ public:
 	int getCurrentInd();				//return the current block id
 	void loadBlock(int i);				//load the i-th block
 	bool reset();						//return to the 0-th block
-	void setSingleVoxvolCorrection(GridManager * grid);	//set up single voxvol correction, if not set to be null
+	void setSingleVoxvolCorrection(GridManager * grid);	//set up single voxvol correction and periodical correction, if not set to be null
 	~TetraStream();
 
 private:
@@ -57,7 +57,7 @@ private:
 
 	int current_ind_tetra;			// the current tetra index
 	int current_ind_block;			// the current block index
-	void addTetra(int ind1, int ind2, int ind3, int ind4);// add a tetra to the vector
+	void addTetra(int ind1, int ind2, int ind3, int ind4);// add a tetra to the vector, do some corrections
 	void addTetra(int i1, int j1, int k1, int i2, int j2, int k2, int i3,
 			int j3, int k3, int i4, int j4, int k4,
 			int isize, int jsize, int ksize);// add a tetra to the vector

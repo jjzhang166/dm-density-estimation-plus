@@ -145,11 +145,15 @@ __device__ Point getPoint(int ind, int i, int j, int k, int subgridsize,
 // nsg = gs / subs
 // vox_vel = box^3/ng^3;
 //check whether the tetrahedron cuboid is in touch with the grid sub-block
+//v1 and v8 are the two diagnal point of the cube
 __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float dx2, 
-	Tetrahedron * tetra){
+	Tetrahedron * tetra, Point &v1, Point &v8){
+	//moved
+	/*
 	Point v1, v8;
 	v1 = getPoint(ind, 0, 0, 0,subgs, gs, nsg, box);
 	v8 = getPoint(ind, subgs,subgs,subgs, subgs, gs, nsg, box);
+	*/
 
 	REAL minx = tetra->minx();
 	REAL maxx = tetra->maxx();
@@ -158,6 +162,7 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 	REAL minz = tetra->minz();
 	REAL maxz = tetra->maxz();
 
+	/* moved to the tetrahedron reading
 	if(maxx - minx > box / 2.0)
 			return false;
 
@@ -166,6 +171,7 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 
 	if(maxz - minz > box / 2.0)
 			return false;
+	*/
 
 	if (minx > v8.x + dx2 || maxx < v1.x - dx2
 		|| miny > v8.y + dx2 || maxy < v1.y - dx2
@@ -196,10 +202,15 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 	}
 	tetra_mem[ind] = 0;
 	int subsubgridsize = gridsize / subgridsize;
+
+	Point v1, v8;
+	v1 = getPoint(ind, 0, 0, 0,subgridsize, gridsize, subsubgridsize, box);
+	v8 = getPoint(ind, subgridsize ,subgridsize, subgridsize, subgridsize, gridsize, subsubgridsize, box);
+
 	for(loop_i = 0; loop_i < ntetra; loop_i ++){
 		Tetrahedron * tetra = &(dtetra[loop_i]);
 		//check whether the tetra is getting in touch with the current tetra
-		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
+		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra, v1, v8)){
 			//if(loop_i == 3165)
 			tetra_mem[ind] += 1;
 		}
@@ -230,10 +241,15 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 
 	int subsubgridsize = gridsize / subgridsize;
 	int total = tetra_mem[ind] - startind;
+
+	Point v1, v8;
+	v1 = getPoint(ind, 0, 0, 0,subgridsize, gridsize, subsubgridsize, box);
+	v8 = getPoint(ind, subgridsize ,subgridsize, subgridsize, subgridsize, gridsize, subsubgridsize, box);
+
 	for(loop_i = 0; (loop_i < ntetra) && (count < total); loop_i ++){
 		Tetrahedron * tetra = &dtetra[loop_i];
 		//check whether the tetra is getting in touch with the current tetra
-		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra)){
+		if(isInTouch(ind, subgridsize, gridsize, subsubgridsize, box, dx2, tetra, v1, v8)){
 			//if(loop_i == 3165)
 			tetra_select[startind + count] = loop_i;
 			count = count + 1;

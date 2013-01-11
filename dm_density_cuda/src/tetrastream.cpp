@@ -124,6 +124,20 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 	tetra_.v3 = position_[ind3];
 	tetra_.v4 = position_[ind4];
 	tetra_.computeVolume();
+
+	//periodical correction:
+	if(grids_ != NULL){
+		if(tetra_.maxx() - tetra_.minx() > box / 2.0)
+				return;
+
+		if(tetra_.maxy() - tetra_.miny() > box / 2.0)
+				return;
+
+		if(tetra_.maxz() - tetra_.minz() > box / 2.0)
+				return;
+	}
+
+	//add the tetrahedrons
 	tetras_[current_ind_tetra] = (tetra_);
 	current_ind_tetra ++;
 
