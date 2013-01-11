@@ -39,11 +39,11 @@ public:
 	Point v4;
 
 	//test wheter the point is in this tetra
-	CUDA_CALLABLE_MEMBER bool isInTetra(Point p);
+	CUDA_CALLABLE_MEMBER bool isInTetra(Point &p);
 	REAL volume;
 
-	CUDA_CALLABLE_MEMBER double det4d(double m[4][4]);
-	CUDA_CALLABLE_MEMBER void c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]);
+	//CUDA_CALLABLE_MEMBER double det4d(double m[4][4]);
+	//CUDA_CALLABLE_MEMBER void c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]);
 
 	CUDA_CALLABLE_MEMBER REAL minx();
 	CUDA_CALLABLE_MEMBER REAL miny();
@@ -57,6 +57,7 @@ public:
 
 private:
 	REAL minx_, maxx_, miny_, maxy_, minz_, maxz_;
+	CUDA_CALLABLE_MEMBER double getVolume(Point &v1, Point &v2, Point &v3, Point &v4);
 
 	//double d0;				// compute d0 first to reduce calculation
 };

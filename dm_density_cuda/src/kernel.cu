@@ -42,6 +42,8 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 
 	int loop_i = 0;
 	int i, j, k;
+
+
 	i = blockIdx.x * blockDim.x + threadIdx.x;
 	j = blockIdx.y * blockDim.y + threadIdx.y;
 	k = blockIdx.z * blockDim.z + threadIdx.z;
