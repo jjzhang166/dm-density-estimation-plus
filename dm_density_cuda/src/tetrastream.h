@@ -68,6 +68,9 @@ private:
 	REAL box;
 	REAL ng;
 	REAL vox_vol;
+	void splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1);
+	void splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1);
+	void splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1);
 
 };
 

@@ -238,7 +238,7 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, 
 	//tetras_v = tetrastream_->getTretras();
 
 	num_tetra_ = tetrastream->getBlockSize();
-	num_tetra_ = 6 * num_tetra_ * num_tetra_ * num_tetra_;
+	num_tetra_ = 6 * num_tetra_ * num_tetra_ * num_tetra_ * 8;
 
 	sub_grid_size_ = gridmanager->getSubGridSize();
 	//grid_size = gridmanager->getGridSize();

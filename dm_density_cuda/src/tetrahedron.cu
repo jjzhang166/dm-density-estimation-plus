@@ -64,55 +64,10 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 	computeMaxMin();
 	
 	//compute d0 to reduce calculation
-	//double m[4][4];
-	//c2m(v1, v2, v3, v4, m);		//change the det to be det / 10^11
-	//d0 = det4d(m);
+	//d0 = (REAL)getVolume(v1, v2, v3, v4);
 
 	return vol;
 }
-
-//edit to without the last colomn
-//this is only used for calculating the volume
-/*
-CUDA_CALLABLE_MEMBER double Tetrahedron::det4d(double m[4][4]) {
-   double value;
-   double v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12;
-		 v1 =  (((+1.0e-11 * m[1][2] - m[0][2]) * m[2][1]) * m[3][0]);
-		 v2 =  (((-1.0e-11 * m[1][1] + m[0][1]) * m[2][2]) * m[3][0]);
-		 v3 =  (( +m[0][2] * m[1][1] - m[0][1]  * m[1][2]) * m[3][0]);
-		 v4 =  (((-1.0e-11 * m[1][2] + m[0][2]) * m[2][0]) * m[3][1]);
-		 v5 =  (((+1.0e-11 * m[1][0] - m[0][0]) * m[2][2]) * m[3][1]);
-		 v6 =  (-m[0][2] * m[1][0]			 * m[3][1]+m[0][0] * m[1][2]          * m[3][1]);
-		 v7 =  (+1.0e-11 * m[1][1] * m[2][0] * m[3][2]-m[0][1] *          m[2][0] * m[3][2]);
-		 v8 =  (-1.0e-11 * m[1][0] * m[2][1] * m[3][2]+m[0][0] *          m[2][1] * m[3][2]);
-		 v9 =  (+m[0][1] * m[1][0]			 * m[3][2]-m[0][0] * m[1][1]          * m[3][2]);
-		 v10 = (-m[0][2] * m[1][1] * m[2][0] 		  +m[0][1] * m[1][2] * m[2][0] );
-		 v11 = (+m[0][2] * m[1][0] * m[2][1]          -m[0][0] * m[1][2] * m[2][1] );
-		 v12 = (-m[0][1] * m[1][0] * m[2][2]          +m[0][0] * m[1][1] * m[2][2] );
-   value = (v1 + v2 + v3 + v4 +  v5 + v6 + v7 + v8 + v9 + v10 + v11 + v12);
-   return value;
-}
-
-//edit to do not assign the last element
-CUDA_CALLABLE_MEMBER void Tetrahedron::c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]){
-	m[0][0] = p1.x * 1.0e-11;
-	m[0][1] = p1.y * 1.0e-11;
-	m[0][2] = p1.z * 1.0e-11;
-	m[0][3] = 1.0 * 1.0e-11;
-	m[1][0] = p2.x;
-	m[1][1] = p2.y;
-	m[1][2] = p2.z;
-	m[1][3] = 1.0f;
-	m[2][0] = p3.x;
-	m[2][1] = p3.y;
-	m[2][2] = p3.z;
-	m[2][3] = 1.0f;
-	m[3][0] = p4.x;
-	m[3][1] = p4.y;
-	m[3][2] = p4.z;
-	m[3][3] = 1.0f;
-}
-*/
 
 CUDA_CALLABLE_MEMBER double Tetrahedron::getVolume(Point &v1, Point &v2, Point &v3, Point &v4){
 	double vol;
@@ -190,16 +145,16 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::maxz(){
 
 
 CUDA_CALLABLE_MEMBER Point &  Point::operator=(const Point &rhs){
-	this->x = rhs.x;
-	this->y = rhs.y;
-	this->z = rhs.z;
+	x = rhs.x;
+	y = rhs.y;
+	z = rhs.z;
 	return *this;
 }
 
 CUDA_CALLABLE_MEMBER Point::Point(const Point &point){
-	this->x = point.x;
-	this->y = point.y;
-	this->z = point.z;
+	x = point.x;
+	y = point.y;
+	z = point.z;
 }
 
 
