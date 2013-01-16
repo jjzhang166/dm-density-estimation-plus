@@ -33,7 +33,8 @@ public:
 	int getCurrentInd();				//return the current block id
 	void loadBlock(int i);				//load the i-th block
 	bool reset();						//return to the 0-th block
-	void setSingleVoxvolCorrection(GridManager * grid);	//set up single voxvol correction and periodical correction, if not set to be null
+	void setCorrection(GridManager * grid);	//set up single voxvol correction and periodical correction, if not set to be null
+	void setIsInOrder(bool isinorder);		//set up whether the data is in order?
 	~TetraStream();
 
 private:
@@ -72,6 +73,8 @@ private:
 	void splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1);
 	void splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1);
 
+	bool isPeriodical_;
+	bool isInOrder_;
 };
 
 #endif /* TETRASTREAM_H_ */

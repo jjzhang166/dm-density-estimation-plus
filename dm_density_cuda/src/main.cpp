@@ -41,6 +41,7 @@ string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the
 string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
 bool isoutputres = false;					
 bool isVerbose = false;
+bool isInOrder = false;
 
 void printUsage(string pname){
 	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n %s\n %s\n", pname.c_str()
@@ -51,6 +52,7 @@ void printUsage(string pname){
 			, "[-memgl <GPU memory for tetra list>]"
 			, "[-t <numbers of tetra in memory>]"
 			, "[-o] to output result"
+			, "[-order] the data is in order"
 			, "[-v] to show verbose"
 			);
 }
@@ -86,6 +88,9 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-v") == 0){
 				isVerbose = true;
 				k = k -1;
+			}else if(strcmp(args[k], "-order") == 0){
+				isInOrder = true;
+				k = k -1;
 			}else{
 				printUsage(args[0]);
 				exit(1);
@@ -112,11 +117,15 @@ int main(int argv, char * args[]){
 	printf("Grid File               = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
 	printf("GPU mem for tetra list  = %d\n", gpu_mem_for_tetralist);
+	if(isInOrder){
+		printf("The data is already in right order for speed up...\n");
+	}
 	printf("*********************************************************************\n");
 
 	//tetrastream
 	TetraStream tetraStream(filename, inputmemgrid);
-	
+	tetraStream.setIsInOrder(isInOrder);
+
 	//compute the startpoint and endpoint
 	Point startpoint;
 	Point endpoint;
@@ -132,7 +141,7 @@ int main(int argv, char * args[]){
 	GridManager grid(gridfilename, gridsize, subgridsize, startpoint, endpoint);
 
 	//setup single vox_vol correction
-	tetraStream.setSingleVoxvolCorrection(&grid);
+	tetraStream.setCorrection(&grid);
 
 	//estimator
 	Estimater estimater(&tetraStream, &grid, gpu_mem_for_tetralist);

@@ -40,11 +40,15 @@ TetraStream::TetraStream(string filename, int inputmemgridsize) {
 
 	grids_ = NULL;
 
-	//loadBlock(0);		//load the zeros block
+	isPeriodical_ = false;
+	isInOrder_ = false;
 
 
 }
 
+void TetraStream::setIsInOrder(bool isinorder){
+	isInOrder_ = isinorder;
+}
 
 bool TetraStream::reset() {
 	loadBlock(0);
@@ -106,7 +110,7 @@ void TetraStream::loadBlock(int i){
 		//kmax = particle_grid_size_ - 1;
 	}
 
-	gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax);
+	gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
 
 	//for(int ffi =0; ffi < ((imax - imin + 1)*(jmax - jmin + 1)*(kmax - kmin + 1)); ffi ++){
 	//	printf("---%e\n", position_[ffi].x);
@@ -326,11 +330,12 @@ void TetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 	current_tetra_num = current_ind_tetra;
 }
 
-void TetraStream::setSingleVoxvolCorrection(GridManager * grid){
+void TetraStream::setCorrection(GridManager * grid){
 	this->grids_ = grid;
 	box = (REAL)(grids_->getEndPoint().x - grids_->getStartPoint().x);
 	ng = (REAL)grids_->getGridSize();
 	vox_vol = box * box * box / ng / ng / ng;
+	isPeriodical_ = true;
 }
 
 gadget_header TetraStream::getHeader(){

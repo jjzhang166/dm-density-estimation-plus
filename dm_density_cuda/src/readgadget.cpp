@@ -136,7 +136,11 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 			}
 		}
 	}else{
+		int temp_count = 0;
 		for(i = 0; i < (int)Npart; i++){
+			if(temp_count >= total_block_num){
+				break;
+			}
 			int ind;
 			file.read((char *) &ind, sizeof(int));
 			int ir = ind % grid_size;
@@ -147,6 +151,7 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 				if(jr <= jmax && ir <= imax && kr <= kmax
 					&& jr >= jmin && ir >= imin && kr >= kmin){
                         block_count[(ir - imin) + (jr - jmin) * ii + (kr - kmin) * ii * jj] = i;
+						temp_count ++;
                 }
 			}else{
 				int inn, jnn, knn;
@@ -160,6 +165,7 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 							if(jra <= jmax && ira <= imax && kra <= kmax
 								&& jra >= jmin && ira >= imin && kra >= kmin){
 								block_count[(ira - imin) + (jra - jmin) * ii + (kra - kmin) * ii * jj] = i;
+								temp_count ++;
 							}
 						}
 					}
