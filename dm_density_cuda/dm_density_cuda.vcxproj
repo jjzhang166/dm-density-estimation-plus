@@ -14,7 +14,8 @@
     <ClInclude Include="src\estimator.h" />
     <ClInclude Include="src\gadgetheader.h" />
     <ClInclude Include="src\gettimeofday_win.h" />
-    <ClInclude Include="src\grids.h" />
+    <ClInclude Include="src\grid.h" />
+    <ClInclude Include="src\gridmanager.h" />
     <ClInclude Include="src\kernel.h" />
     <ClInclude Include="src\processbar.h" />
     <ClInclude Include="src\readgadget.h" />
@@ -27,7 +28,7 @@
       <FileType>CppCode</FileType>
     </ClCompile>
     <ClCompile Include="src\gettimeofday_win.cpp" />
-    <ClCompile Include="src\grids.cpp" />
+    <ClCompile Include="src\gridmanager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <CudaCompile Include="src\tetrahedron.cu">
       <FileType>CppCode</FileType>

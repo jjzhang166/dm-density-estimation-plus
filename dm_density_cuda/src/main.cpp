@@ -25,7 +25,7 @@
 #include "unistd.h"
 #endif
 
-#include "grids.h"
+#include "gridmanager.h"
 #include "tetrahedron.h"
 #include "tetrastream.h"
 #include "estimator.h"
@@ -39,9 +39,11 @@ int inputmemgrid =16;						//the input memory grid size
 int gpu_mem_for_tetralist = 128*1024*1024;	//gpu memory for tetrahedron list
 string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
 string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
+string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
 bool isoutputres = false;					
 bool isVerbose = false;
 bool isInOrder = false;
+bool isVelocity = false;								//calculate velocity field?
 
 void printUsage(string pname){
 	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n %s\n %s\n", pname.c_str()
@@ -49,11 +51,13 @@ void printUsage(string pname){
 			, "[-s <subgridsize>]"
 			, "[-df <datafilename>]"
 			, "[-of <gridfilename>]"
+			, "[-vfile <velocityfieldfilename> only applied when use -vel]"
 			, "[-memgl <GPU memory for tetra list>]"
 			, "[-t <numbers of tetra in memory>]"
 			, "[-o] to output result"
 			, "[-order] the data is in order"
 			, "[-v] to show verbose"
+			, "[-vel] to calculate velocity field"
 			);
 }
 
@@ -91,6 +95,9 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-order") == 0){
 				isInOrder = true;
 				k = k -1;
+			}else if(strcmp(args[k], "-vel") == 0){
+				isVelocity = true;
+				k = k -1;
 			}else{
 				printUsage(args[0]);
 				exit(1);
@@ -117,9 +124,13 @@ int main(int argv, char * args[]){
 	printf("Grid File               = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
 	printf("GPU mem for tetra list  = %d\n", gpu_mem_for_tetralist);
+	if(isVelocity){
+		printf("Vel File               = %s\n", velofilename.c_str());
+	}
 	if(isInOrder){
 		printf("The data is already in right order for speed up...\n");
 	}
+
 	printf("*********************************************************************\n");
 
 	//tetrastream

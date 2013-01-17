@@ -14,7 +14,7 @@
 #include <vector>
 #include "tetrahedron.h"
 #include "readgadget.h"
-#include "grids.h"
+#include "gridmanager.h"
 using namespace std;
 
 /**

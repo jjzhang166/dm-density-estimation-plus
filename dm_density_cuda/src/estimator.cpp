@@ -20,7 +20,7 @@ using namespace std;
 
 #include "types.h"
 #include "tetrastream.h"
-#include "grids.h"
+#include "gridmanager.h"
 #include "estimator.h"
 #include "kernel.h"
 #include "processbar.h"

@@ -12,9 +12,6 @@
     <ClInclude Include="src\estimator.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\grids.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="src\tetrastream.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -39,15 +36,18 @@
     <ClInclude Include="src\processbar.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="src\grid.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gridmanager.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\tetrastream.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\grids.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\estimator.cpp">
@@ -60,6 +60,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\processbar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gridmanager.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

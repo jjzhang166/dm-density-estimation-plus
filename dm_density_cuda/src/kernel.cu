@@ -11,7 +11,7 @@ using namespace std;
 #include "kernel.h"
 #include "tetrahedron.h"
 #include "tetrastream.h"
-#include "grids.h"
+#include "gridmanager.h"
 
 #include "tetrahedron.cu"
 
