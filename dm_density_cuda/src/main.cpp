@@ -25,6 +25,7 @@
 #include "unistd.h"
 #endif
 
+//#include "grid.h"
 #include "gridmanager.h"
 #include "tetrahedron.h"
 #include "tetrastream.h"
@@ -32,6 +33,8 @@
 
 
 using namespace std;
+
+namespace main_space{
 
 int gridsize    = 128;						//total grid size
 int subgridsize = 16;						//how many grid could be stored in the memory
@@ -80,6 +83,9 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-of") == 0){
 				ss << args[k + 1];
 				ss >> gridfilename;
+			}else if(strcmp(args[k], "-vfile") == 0){
+				ss << args[k + 1];
+				ss >> velofilename;
 			}else if(strcmp(args[k], "-memgl") == 0){
 				ss << args[k + 1];
 				ss >> gpu_mem_for_tetralist;
@@ -107,6 +113,27 @@ void readParameters(int argv, char * args[]){
 	}
 }
 
+void normalizeVelocity(GridManager &grid, GridVelocityManager &gridvel){
+	int i,j,k;
+
+	int tgs = grid.getGridSize();
+	for (i = 0; i < tgs; i++) {
+		for (j = 0; j < tgs; j++) {
+			for (k = 0; k < tgs; k++) {
+				REAL den = grid.getValueByActualCoor(i, j, k);
+				Point vel = gridvel.getValueByActualCoor(i, j, k);
+				vel.x /= den;
+				vel.y /= den;
+				vel.z /= den;
+				gridvel.setValueByActualCoor(i,j,k,vel);
+			}
+		}
+	}
+}
+
+}
+
+using namespace main_space;
 int main(int argv, char * args[]){
 	double io_t = 0, calc_t = 0, total_t = 0;
 	timeval timediff;
@@ -134,7 +161,7 @@ int main(int argv, char * args[]){
 	printf("*********************************************************************\n");
 
 	//tetrastream
-	TetraStream tetraStream(filename, inputmemgrid);
+	TetraStream tetraStream(filename, inputmemgrid, isVelocity);
 	tetraStream.setIsInOrder(isInOrder);
 
 	//compute the startpoint and endpoint
@@ -149,24 +176,38 @@ int main(int argv, char * args[]){
 	endpoint.z = (REAL)header.BoxSize;
 
 	//gridmanager
-	GridManager grid(gridfilename, gridsize, subgridsize, startpoint, endpoint);
+	GridManager grid(gridfilename, gridsize, subgridsize, 0, startpoint, endpoint);
+	GridVelocityManager * gridvel = NULL;
+	if(isVelocity){
+		gridvel = new GridVelocityManager(velofilename, gridsize, subgridsize, startpoint, startpoint, endpoint);
+	}
 
 	//setup single vox_vol correction
 	tetraStream.setCorrection(&grid);
 
 	//estimator
-	Estimater estimater(&tetraStream, &grid, gpu_mem_for_tetralist);
+	Estimater estimater(&tetraStream, &grid, gridvel, gpu_mem_for_tetralist);
 	estimater.setVerbose(isVerbose);
+	estimater.setIsVelocity(isVelocity);
 
 	printf("*****************************COMPUTING ...***************************\n");
 	estimater.computeDensity();
 	estimater.getRunnintTime(io_t, calc_t);
+
+	//normalize the velocity
+	if(isVelocity){
+		normalizeVelocity(grid, *gridvel);
+	}
 
 	//save to file
 	gettimeofday(&timediff, NULL);
 	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 
 	grid.saveToFile();
+	if(isVelocity){
+		gridvel->saveToFile();
+		delete gridvel;
+	}
 
 	gettimeofday(&timediff, NULL);
 	t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -206,4 +247,3 @@ int main(int argv, char * args[]){
 	}
 	
 }
-

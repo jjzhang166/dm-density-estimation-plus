@@ -60,6 +60,12 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 	vol /= 6.0;
 	volume = abs(vol);
 
+	if(volume != 0.0){
+		invVolume = (REAL) 1.0 / volume;
+	}else{
+		invVolume = 0.0;
+	}
+
 	//compute min and max
 	computeMaxMin();
 	
@@ -92,13 +98,11 @@ CUDA_CALLABLE_MEMBER double Tetrahedron::getVolume(Point &v1, Point &v2, Point &
 	return vol;
 }
 
-CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point &p){
+CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point &p, double &d0, double &d1, double &d2, double &d3, double &d4){
 	if(p.x > maxx() || p.y > maxy() || p.z > maxz()
 	|| p.x < minx() || p.y < miny() || p.z < minz()){
 		return false;
 	}
-	//double m[4][4];
-	double d0=0.0, d1=0.0, d2=0.0, d3=0.0, d4=0.0;
 
 	//c2m(v1, v2, v3, v4, m);		//change the det to be det / 10^11
 	d0 = getVolume(v1, v2, v3, v4);//det4d(m);
@@ -121,6 +125,12 @@ CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point &p){
 	}else{
 		return (d1 <= 0) && (d2 <= 0) && (d3 <= 0) && (d4 <= 0);
 	}
+}
+
+CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point &p){
+	//double m[4][4];
+	double d0=0.0, d1=0.0, d2=0.0, d3=0.0, d4=0.0;
+	return isInTetra(p, d0, d1, d2, d3, d4);
 }
 
 
@@ -163,7 +173,15 @@ CUDA_CALLABLE_MEMBER Tetrahedron & Tetrahedron::operator=(const Tetrahedron & rh
 	this->v2 = rhs.v2;
 	this->v3 = rhs.v3;
 	this->v4 = rhs.v4;
+
+	this->velocity1 = rhs.velocity1;
+	this->velocity2 = rhs.velocity2;
+	this->velocity3 = rhs.velocity3;
+	this->velocity4 = rhs.velocity4;
+
 	this->volume = rhs.volume;
+	this->invVolume = rhs.invVolume;
+
 	this->maxx_ = rhs.maxx_;
 	this->maxy_ = rhs.maxy_;
 	this->maxz_ = rhs.maxz_;

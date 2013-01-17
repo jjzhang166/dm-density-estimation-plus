@@ -15,12 +15,6 @@
     <ClInclude Include="src\tetrastream.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\tetrahedron.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\kernel.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="src\types.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -36,10 +30,19 @@
     <ClInclude Include="src\processbar.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\grid.h">
+    <ClInclude Include="src\gridmanager.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\gridmanager.h">
+    <ClInclude Include="src\kernel.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tetrahedron.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\griddef.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grid.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -62,14 +65,11 @@
     <ClCompile Include="src\processbar.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\gridmanager.cpp">
+    <ClCompile Include="src\tetrahedron.cu">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\tetrahedron.cu">
-      <Filter>src</Filter>
-    </CudaCompile>
     <CudaCompile Include="src\kernel.cu">
       <Filter>src</Filter>
     </CudaCompile>

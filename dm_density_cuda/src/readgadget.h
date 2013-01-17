@@ -21,12 +21,16 @@ public:
 
 	void readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical = true, bool isOrdered = false);
 
+	void readBlock(Point * &posblock, Point * &velocityblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, 
+			bool isPeriodical = true, bool isOrdered = false);
+
 private:
 	uint32_t * ids;
 	string filename_;
 	int grid_size;
 
-	Point readPos(std::fstream &file, int count);
+	Point readPos(std::fstream &file, long count);
+	Point readVel(std::fstream &file, long count);
 
 	void readIndex(std::fstream &file, int *block,
 			int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical = true, bool isOrdered = false);

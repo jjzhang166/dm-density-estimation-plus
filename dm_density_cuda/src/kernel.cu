@@ -17,32 +17,41 @@ using namespace std;
 
 using namespace std;
 
-int sub_grid_size_;
-int num_tetra_ = 0;
+namespace kernel_space{
+	int sub_grid_size_;
+	int num_tetra_ = 0;
 
-Tetrahedron * dev_tetras;						//the tetrahedrons in the GPU memory
-Tetrahedron * tetras_v;							//the tetrahedrons in the CPU memory
-GridManager * gridmanager;						//grid manager
-TetraStream * tetrastream;						//tetrahedron stream
-REAL * dev_grids;								//the grids in the GPU memory
-int * dev_tetra_mem;							//each element specifies the total tetras a block have
-int * dev_tetra_select;							//tetra hedron selected in this list
-long TETRA_LIST_MEM_LIM = 128*1024*1024;		//128 for the memory lists
-int current_tetra_list_ind = 0;					//the current grid block, which is already calculated tetrahedron selection 
-int * tetramem;
-int * tetramem_list;							//the tetramemory list
+	Tetrahedron * dev_tetras;						//the tetrahedrons in the GPU memory
+	Tetrahedron * tetras_v;							//the tetrahedrons in the CPU memory
+	GridManager * gridmanager;						//grid manager
+	TetraStream * tetrastream;						//tetrahedron stream
 
-//test
-//int testmemtttt = 0;
+	REAL * dev_grids;								//the grids in the GPU memory
+	Point * dev_grid_velocity;						//velocity grids
+	int * dev_tetra_mem;							//each element specifies the total tetras a block have
+	int * dev_tetra_select;							//tetra hedron selected in this list
+
+	long TETRA_LIST_MEM_LIM = 128*1024*1024;		//128 for the memory lists
+	int current_tetra_list_ind = 0;					//the current grid block, which is already calculated tetrahedron selection 
+
+	int * tetramem;
+	int * tetramem_list;							//the tetramemory list
+
+	GridVelocityManager * grid_velocity = NULL;
+	bool is_Velocity = false;
+}
+
+using namespace kernel_space;
 
 __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	int gsize, int sub_gsize, 
 	int * tetra_mem, int * tetra_selection, int sub_ind,  int numsubgridsize,
-	REAL box = 32000, REAL x0 = 0, REAL y0 = 0, REAL z0 = 0){
+	REAL box = 32000, REAL x0 = 0, REAL y0 = 0, REAL z0 = 0, bool isvelocity = false, 
+	Point * dev_grid_velocity = NULL){
 
 	int loop_i = 0;
 	int i, j, k;
-
+	double d0=0.0, d1=0.0, d2=0.0, d3=0.0, d4=0.0;
 
 	i = blockIdx.x * blockDim.x + threadIdx.x;
 	j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -78,10 +87,27 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 		p.z = k / (REAL) ng * box + z0 + dx2;
 		
 
-		if(tetra->isInTetra(p)){
+		if(tetra->isInTetra(p, d0, d1, d2, d3, d4)){
 			//testing
-			//dgrids[i + j * sgs + k * sgs * sgs] += 1.0e-11f;
-			dgrids[i + j * sgs + k * sgs * sgs] += 1.0 / tetra->volume;
+			
+			//REAL ivol = 1.0 / tetra->volume;
+			dgrids[i + j * sgs + k * sgs * sgs] += tetra->invVolume;
+
+			if(isvelocity){
+				//interpolate on the velocity
+				Point vel;
+				vel.x = (d1/d0 * tetra->velocity1.x + d2/d0 * tetra->velocity2.x + 
+						d3/d0 * tetra->velocity3.x + d4/d0 * tetra->velocity4.x) * tetra->invVolume;
+
+				vel.y = (d1/d0 * tetra->velocity1.y + d2/d0 * tetra->velocity2.y + 
+						d3/d0 * tetra->velocity3.y + d4/d0 * tetra->velocity4.y) * tetra->invVolume;
+
+				vel.z = (d1/d0 * tetra->velocity1.z + d2/d0 * tetra->velocity2.z + 
+						d3/d0 * tetra->velocity3.z + d4/d0 * tetra->velocity4.z) * tetra->invVolume;
+				dev_grid_velocity[i + j * sgs + k * sgs * sgs].x += vel.x;
+				dev_grid_velocity[i + j * sgs + k * sgs * sgs].y += vel.y;
+				dev_grid_velocity[i + j * sgs + k * sgs * sgs].z += vel.z;
+			}
 		}
 	}
 }
@@ -229,7 +255,10 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 }
 
 //initialize the CUDA
-cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, int mem_for_tetralist){
+cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, int mem_for_tetralist, GridVelocityManager * gridvelocity_, bool isVelocity_){
+	is_Velocity = isVelocity_;
+	grid_velocity = gridvelocity_;
+
 	//int grid_size;
 	TETRA_LIST_MEM_LIM = mem_for_tetralist;
 
@@ -264,6 +293,15 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, 
         fprintf(stderr, "cudaMalloc failed -- allocating grids memory!");
         return cudaStatus;
     }
+
+	if(is_Velocity){
+		// Allocate GPU buffers for grids velocity.
+		cudaStatus = cudaMalloc((void**)&dev_grid_velocity, sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(Point));
+		if (cudaStatus != cudaSuccess) {
+			fprintf(stderr, "cudaMalloc failed -- allocating grids memory for velocity!");
+			return cudaStatus;
+		}
+	}
 
 	// Allocate GPU tetra memory for subgrids.
 	int nsub = gridmanager->getSubGridNum();
@@ -452,12 +490,22 @@ cudaError_t calculateGridWithCuda(){
     fprintf(stderr, "cudaMemcpy failed -- copying subgrids!\n");
         return cudaStatus;
     }
+
+
+	if(is_Velocity){
+		cudaStatus = cudaMemcpy(dev_grid_velocity, grid_velocity->getSubGrid(), sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(Point), cudaMemcpyHostToDevice);
+		if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "cudaMemcpy failed -- copying subgrids of velocity!\n");
+			return cudaStatus;
+		}
+	}
+
 	//<<<1, size>>>
 	Point p0 = gridmanager->getPoint(0,0,0);
 	//<<<gridsize, blocksize>>>
 	tetraSplatter<<<gridsize, blocksize>>>(dev_tetras, num_tetra_, dev_grids, gridmanager->getGridSize(), gridmanager->getSubGridSize(),
 		dev_tetra_mem, dev_tetra_select, gridmanager->getCurrentInd(), gridmanager->getSubGridNum(),
-		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x, p0.x, p0.y, p0.z);
+		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x, p0.x, p0.y, p0.z, is_Velocity, dev_grid_velocity);
 
 	cudaStatus = cudaThreadSynchronize();
 	if( cudaStatus != cudaSuccess){
@@ -471,6 +519,14 @@ cudaError_t calculateGridWithCuda(){
         return cudaStatus;
     }
 
+	if(is_Velocity){
+		cudaStatus = cudaMemcpy(grid_velocity->getSubGrid(), dev_grid_velocity, sub_grid_size_ * sub_grid_size_ * sub_grid_size_ * sizeof(Point), cudaMemcpyDeviceToHost);
+		if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "cudaMemcpy failed -- copying subgrids of velocity back!\n");
+			return cudaStatus;
+		}
+	}
+
 	return cudaSuccess;
 }
 
@@ -480,6 +536,9 @@ void finishCUDA(){
 	cudaFree(dev_tetras);
 	cudaFree(dev_tetra_mem);
 	cudaFree(dev_tetra_select);
+	if(is_Velocity){
+		cudaFree(dev_grid_velocity);
+	}
 }
 // Helper function for using CUDA to add vectors in parallel.
 

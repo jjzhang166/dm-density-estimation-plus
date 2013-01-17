@@ -7,7 +7,9 @@
 #include "tetrastream.h"
 #include "gridmanager.h"
 
-cudaError_t initialCUDA(TetraStream * tetrastream, GridManager * gridmanager, int mem_for_tetralist);
+cudaError_t initialCUDA(TetraStream * tetrastream, GridManager * gridmanager, int mem_for_tetralist, 
+	GridVelocityManager * gridvelocity_ = NULL, bool isVelocity_ = false);
+
 void finishCUDA();
 
 cudaError_t computeTetraMemWithCuda();
@@ -15,4 +17,5 @@ cudaError_t computeTetraMemWithCuda();
 cudaError_t computeTetraSelectionWithCuda(bool & hasmore);
 
 cudaError_t calculateGridWithCuda();
+
 #endif

@@ -14,7 +14,7 @@
     <ClInclude Include="src\estimator.h" />
     <ClInclude Include="src\gadgetheader.h" />
     <ClInclude Include="src\gettimeofday_win.h" />
-    <ClInclude Include="src\grid.h" />
+    <ClInclude Include="src\griddef.h" />
     <ClInclude Include="src\gridmanager.h" />
     <ClInclude Include="src\kernel.h" />
     <ClInclude Include="src\processbar.h" />
@@ -28,13 +28,10 @@
       <FileType>CppCode</FileType>
     </ClCompile>
     <ClCompile Include="src\gettimeofday_win.cpp" />
-    <ClCompile Include="src\gridmanager.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <CudaCompile Include="src\tetrahedron.cu">
+    <ClInclude Include="src\grid.h">
       <FileType>CppCode</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CudaCompile>
+    </ClInclude>
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\processbar.cpp" />
     <ClCompile Include="src\readgadget.cpp" />
     <ClCompile Include="src\tetrastream.cpp" />
@@ -43,6 +40,11 @@
     <CudaCompile Include="src\kernel.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>
+    <ClCompile Include="src\tetrahedron.cu">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E9D4AEF9-1B62-43D6-B229-6A06F9B9F5AA}</ProjectGuid>

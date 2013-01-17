@@ -38,12 +38,19 @@ public:
 	Point v3;
 	Point v4;
 
+	Point velocity1;
+	Point velocity2;
+	Point velocity3;
+	Point velocity4;
+
+		
+	REAL volume;
+	REAL invVolume;							// the inverse of the volume
+
 	//test wheter the point is in this tetra
 	CUDA_CALLABLE_MEMBER bool isInTetra(Point &p);
-	REAL volume;
+	CUDA_CALLABLE_MEMBER bool isInTetra(Point &p, double &d0, double &d1, double &d2, double &d3, double &d4);
 
-	//CUDA_CALLABLE_MEMBER double det4d(double m[4][4]);
-	//CUDA_CALLABLE_MEMBER void c2m(Point p1, Point p2, Point p3, Point p4, double m[4][4]);
 
 	CUDA_CALLABLE_MEMBER REAL minx();
 	CUDA_CALLABLE_MEMBER REAL miny();

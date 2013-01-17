@@ -26,24 +26,31 @@ using namespace std;
 #include "processbar.h"
 
 
-
-Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
+void Estimater::initialize(TetraStream * tetrastream, GridManager * gridmanager){
 	tetrastream_ = tetrastream;
 	gridmanager_ = gridmanager;
 	good_ = true;
 	finished_ = false;
 	gpu_tetra_list_mem_lim =  128*1024*1024;		//128M
 	isVerbose_ = false;
+	isVelocity_ = false;
+}
+
+Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
+	initialize(tetrastream, gridmanager);
 }
 
 Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim){
-	tetrastream_ = tetrastream;
-	gridmanager_ = gridmanager;
-	good_ = true;
-	finished_ = false;
+	initialize(tetrastream, gridmanager);
 	gpu_tetra_list_mem_lim = tetra_list_mem_lim;
-	isVerbose_ = false;
 }
+
+Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager,  GridVelocityManager * gridvelocity, int tetra_list_mem_lim){
+	initialize(tetrastream, gridmanager);
+	gridvelocity_ = gridvelocity;
+	gpu_tetra_list_mem_lim = tetra_list_mem_lim;
+}
+
 
 void Estimater::getRunnintTime(double &iotime, double &calctime){
 	iotime += this->iotime_;
@@ -78,7 +85,7 @@ void Estimater::computeDensity(){
 	if(isVerbose_)
 		printf("Initialing CUDA devices ...\n");
 
-	if(initialCUDA(tetrastream_, gridmanager_, gpu_tetra_list_mem_lim) != cudaSuccess){
+	if(initialCUDA(tetrastream_, gridmanager_, gpu_tetra_list_mem_lim, gridvelocity_, isVelocity_) != cudaSuccess){
 		return;
 	}
 
@@ -151,6 +158,9 @@ void Estimater::computeDensity(){
 			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
 				process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
 				gridmanager_->loadGrid(loop_i);
+				if(isVelocity_){
+					gridvelocity_->loadGrid(loop_i);
+				}
 				calculateGridWithCuda();
 			}
 
@@ -195,3 +205,6 @@ bool Estimater::isGood(){
 	return good_;
 }
 
+void Estimater::setIsVelocity(bool isvel){
+	isVelocity_ = isvel;
+}

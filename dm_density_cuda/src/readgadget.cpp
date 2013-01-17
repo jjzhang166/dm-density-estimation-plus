@@ -88,6 +88,44 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
 	delete block_count;
 }
 
+void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, 
+			bool isPeriodical, bool isOrdered){
+	int ii = imax - imin + 1;
+	int jj = jmax - jmin + 1;
+	int kk = kmax - kmin + 1;
+
+	int total_cts = ii * jj * kk;
+
+	int * block_count = new int[total_cts];
+	//fill_n(total_cts, total_cts, 0);
+	int lop_i;
+	for(lop_i = 0; lop_i < total_cts; lop_i++){
+		block_count[lop_i] = 0;
+	}
+
+	//read the positions
+	int i, j, k;
+
+	fstream file(filename_.c_str(), ios_base::in | ios_base::binary);
+	readIndex(file, block_count, imin, jmin, kmin, imax, jmax, kmax, isPeriodical, isOrdered);
+
+	//int kkkk = block_count[511];
+	for(i = 0; i < ii; i++){
+		for(j = 0; j < jj; j++){
+			for(k = 0; k < kk; k++){
+				Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
+				posblock[i + j * ii + k * ii * jj] = apos;
+
+				apos = readVel(file, block_count[i + j * ii + k * ii * jj]);
+				velocityblock[i + j * ii + k * ii * jj] = apos;
+			}
+		}
+	}
+	file.close();
+	delete block_count;
+
+}
+
 void GSnap::readIndex(std::fstream &file, int *block_count,
 		int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical, bool isOrdered){
 	int i;
@@ -299,10 +337,24 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 	}
 }
 
-Point GSnap::readPos(std::fstream &file, int count){
+Point GSnap::readPos(std::fstream &file, long count){
 	Point retp; 
 
 	streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+			+ sizeof(uint32_t) + count * sizeof(REAL) * 3;
+	file.seekg(spos, ios_base::beg);
+
+	file.read((char *) &retp.x, sizeof(REAL));
+	file.read((char *) &retp.y, sizeof(REAL));
+	file.read((char *) &retp.z, sizeof(REAL));
+	return retp;
+}
+
+Point GSnap::readVel(std::fstream &file, long count){
+	Point retp; 
+
+	streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
 			+ sizeof(uint32_t) + count * sizeof(REAL) * 3;
 	file.seekg(spos, ios_base::beg);
 

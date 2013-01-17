@@ -15,7 +15,9 @@ using namespace std;
 #include "readgadget.h"
 
 //inputmemgridsize should be a divisor of the total_grid_size
-TetraStream::TetraStream(string filename, int inputmemgridsize) {
+TetraStream::TetraStream(string filename, int inputmemgridsize, bool isVelocity) {
+	isVelocity_ = isVelocity;
+
 	filename_ = filename;
 	mem_grid_size_ = inputmemgridsize;
 	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
@@ -28,10 +30,18 @@ TetraStream::TetraStream(string filename, int inputmemgridsize) {
 
 	current_ind_tetra = 0;
 	current_ind_block = 0;
+
 	tetras_ = new Tetrahedron[mem_tetra_size_];
 	position_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
+	if(isVelocity_){
+		velocity_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
+	}
+
 	for(int i = 0; i < (mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1); i++){
 		position_[i].x = position_[i].y = position_[i].z = 0.0;
+		if(isVelocity_){
+			velocity_[i].x = velocity_[i].y = velocity_[i].z = 0.0;
+		}
 	}
 
 	total_tetra_grid_num_ = particle_grid_size_ / mem_grid_size_ *
@@ -42,7 +52,6 @@ TetraStream::TetraStream(string filename, int inputmemgridsize) {
 
 	isPeriodical_ = false;
 	isInOrder_ = false;
-
 
 }
 
@@ -59,6 +68,9 @@ TetraStream::~TetraStream() {
 	delete position_;
 	delete gsnap_;
 	delete tetras_;
+	if(isVelocity_){
+		delete velocity_;
+	}
 }
 
 int TetraStream::getTotalBlockNum(){
@@ -110,7 +122,11 @@ void TetraStream::loadBlock(int i){
 		//kmax = particle_grid_size_ - 1;
 	}
 
-	gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
+	if(!isVelocity_){
+		gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
+	}else{
+		gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
+	}
 
 	//for(int ffi =0; ffi < ((imax - imin + 1)*(jmax - jmin + 1)*(kmax - kmin + 1)); ffi ++){
 	//	printf("---%e\n", position_[ffi].x);
@@ -230,6 +246,13 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 	tetra_.v2 = position_[ind2];
 	tetra_.v3 = position_[ind3];
 	tetra_.v4 = position_[ind4];
+
+	if(isVelocity_){
+		tetra_.velocity1 = velocity_[ind1];
+		tetra_.velocity2 = velocity_[ind2];
+		tetra_.velocity3 = velocity_[ind3];
+		tetra_.velocity4 = velocity_[ind4];
+	}
 	tetra_.computeVolume();
 
 	//add the tetrahedrons

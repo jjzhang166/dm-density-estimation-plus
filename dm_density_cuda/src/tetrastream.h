@@ -23,7 +23,7 @@ using namespace std;
  */
 class TetraStream {
 public:
-	TetraStream(std::string filename, int memgridsize);
+	TetraStream(std::string filename, int memgridsize, bool isVelocity = false);
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
 	int getBlockNumTetra();		//get number of tetrahedrons in memory
@@ -47,6 +47,7 @@ private:
 	int current_tetra_num;		// how many available tetras are there in the current block
 
 	Point * position_;								// the position datas
+	Point * velocity_;								// velocities
 	//std::vector<Tetrahedron> tetras_;				// the tetrahedrons
 	Tetrahedron * tetras_;
 	//std::vector<Tetrahedron>::iterator tetra_iter_; // the iterator for tetra
@@ -75,6 +76,7 @@ private:
 
 	bool isPeriodical_;
 	bool isInOrder_;
+	bool isVelocity_;
 };
 
 #endif /* TETRASTREAM_H_ */
