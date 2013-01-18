@@ -16,6 +16,7 @@ using namespace std;
 #include "griddef.h"
 #include "types.h"
 
+
 template <class GRIDTYPE>
 void Grids<GRIDTYPE>::initialize(string filename, int gridsize, int subgridsize, GRIDTYPE init_v){
 	filename_ = filename;
@@ -29,7 +30,12 @@ void Grids<GRIDTYPE>::initialize(string filename, int gridsize, int subgridsize,
 	subgrid_num = subgrid_num * subgrid_num * subgrid_num;
 	int loop_j;
 	for(loop_j = 0; loop_j < subgrid_num; loop_j ++){
-		grid_ = new GRIDTYPE[subgridsize_ * subgridsize_ * subgridsize_];
+		try{
+			grid_ = new GRIDTYPE[subgridsize_ * subgridsize_ * subgridsize_];
+		}catch(bad_alloc& ba){
+			cerr << "bad_alloc caught: " << ba.what() << ", when allocation memory for grids!" << endl;
+			exit(1);
+		}
 
 		int loop_i;
 		//clear
