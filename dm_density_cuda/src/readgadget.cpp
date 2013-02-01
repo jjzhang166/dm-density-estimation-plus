@@ -7,6 +7,8 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 using namespace std;
 

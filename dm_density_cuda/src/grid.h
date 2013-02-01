@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
 
 using namespace std;
 
@@ -53,7 +55,7 @@ void Grids<GRIDTYPE>::initialize(string filename, int gridsize, int subgridsize,
 }
 
 template <class GRIDTYPE>
-Grids<GRIDTYPE>::Grids<GRIDTYPE>(string filename, int gridsize, int subgridsize, GRIDTYPE init_v){
+Grids<GRIDTYPE>::Grids(string filename, int gridsize, int subgridsize, GRIDTYPE init_v){
 	initialize( filename, gridsize, subgridsize, init_v);
 	
 	boxStartPoint_.x = 0;
@@ -70,7 +72,7 @@ Grids<GRIDTYPE>::Grids<GRIDTYPE>(string filename, int gridsize, int subgridsize,
 }
 
 template <class GRIDTYPE>
-Grids<GRIDTYPE>::Grids<GRIDTYPE>(std::string filename, int gridsize, int subgridsize, GRIDTYPE init_v,
+Grids<GRIDTYPE>::Grids(std::string filename, int gridsize, int subgridsize, GRIDTYPE init_v,
 		Point boxStartPoint, Point boxEndPoint){
 	
 	initialize( filename, gridsize, subgridsize, init_v);

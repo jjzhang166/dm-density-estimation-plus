@@ -22,8 +22,10 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include "gettimeofday_win.h"
 #else
-#include "unistd.h"
+#include <unistd.h>
+#include <sys/time.h>
 #endif
+
 
 //#include "grid.h"
 #include "gridmanager.h"

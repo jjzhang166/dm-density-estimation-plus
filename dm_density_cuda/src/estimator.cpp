@@ -11,6 +11,7 @@
 #include "gettimeofday_win.h"
 #else
 #include "unistd.h"
+#include <sys/time.h>
 #endif
 
 #include "cuda_runtime.h"
