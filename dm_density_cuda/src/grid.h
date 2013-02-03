@@ -283,6 +283,9 @@ void Grids<GRIDTYPE>::saveToFile(){
 
 	//write the header
 	gridFile.write((char *) & grid_header, sizeof(gadget_header));
+    
+    //printf("Header size: %d\n", sizeof(gadget_header));
+
 	GRIDTYPE * tempsubgrid_ = new GRIDTYPE[subgridsize_ * subgridsize_ * subgridsize_];
 	int tgs = getGridSize();
 	int count = 0;
@@ -290,8 +293,22 @@ void Grids<GRIDTYPE>::saveToFile(){
 		for (j = 0; j < tgs; j++) {
 			for (k = 0; k < tgs; k++) {
 				GRIDTYPE v = getValueByActualCoor(i, j, k);
-				tempsubgrid_[count] = v;
+				//test
+               
+                //float testv = (float)v;
+                //if(testv != 0.0){
+                //    printf("%f %d %d %d\n", testv, i, j, k);
+                //}
+              
+
+                tempsubgrid_[count] = v;
 				count ++;
+
+                //test
+                //float testv = (float)tempsubgrid_[count];
+                //if(testv != 0.0)
+                //       printf("%f %d %d %d\n", testv, i, j, k);
+
 				if(count >= subgridsize_ * subgridsize_ * subgridsize_){
 					count =0;
 					gridFile.write((char *) tempsubgrid_, sizeof(GRIDTYPE) * subgridsize_ * subgridsize_ * subgridsize_);

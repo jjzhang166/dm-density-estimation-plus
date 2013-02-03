@@ -130,7 +130,7 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int j
 
 void GSnap::readIndex(std::fstream &file, int *block_count,
 		int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical, bool isOrdered){
-	int i;
+	//int i = 0;
 	int ii = imax - imin + 1;
 	int jj = jmax - jmin + 1;
 	int kk = kmax - kmin + 1;
@@ -171,12 +171,13 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 					file.seekg(spos + poscount, ios_base::beg);
 					int ind;
 					file.read((char *) &ind, sizeof(int));
-					block_count[(ix - imin) + (iy - jmin) * ii + (iz - kmin) * ii * jj] = i;
+					block_count[(ix - imin) + (iy - jmin) * ii + (iz - kmin) * ii * jj] = ind;
 				}
 			}
 		}
 	}else{
 		int temp_count = 0;
+        int i;
 		for(i = 0; i < (int)Npart; i++){
 			if(temp_count >= total_block_num){
 				break;

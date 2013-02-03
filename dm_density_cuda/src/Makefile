@@ -3,7 +3,7 @@ GPPSRC=readgadget.cpp processbar.cpp main.cpp tetrastream.cpp
 
 all:
 	nvcc -c ${NVCCSRC}
-	g++ -c ${GPPSRC}
+	g++ -c -Wall ${GPPSRC}
 	nvcc -o ../bin/dmdens *.o
 
 clean:

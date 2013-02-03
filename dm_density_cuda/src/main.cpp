@@ -51,7 +51,8 @@ bool isInOrder = false;
 bool isVelocity = false;								//calculate velocity field?
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s \n %s \n %s \n %s \n %s \n %s \n %s \n %s\n %s\n", pname.c_str()
+	fprintf(stderr, "Usage: %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
+            , pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
 			, "[-df <datafilename>]"
@@ -59,10 +60,10 @@ void printUsage(string pname){
 			, "[-vfile <velocityfieldfilename> only applied when use -vel]"
 			, "[-memgl <GPU memory for tetra list>]"
 			, "[-t <numbers of tetra in memory>]"
-			, "[-o] to output result"
-			, "[-order] the data is in order"
+			, "[-o] to output result in texts"
+			, "[-order] if the data is in order"
 			, "[-v] to show verbose"
-			, "[-vel] to calculate velocity field"
+			, "[-vel] if calculate velocity field"
 			);
 }
 
@@ -181,7 +182,8 @@ int main(int argv, char * args[]){
 	GridManager grid(gridfilename, gridsize, subgridsize, 0, startpoint, endpoint);
 	GridVelocityManager * gridvel = NULL;
 	if(isVelocity){
-		gridvel = new GridVelocityManager(velofilename, gridsize, subgridsize, startpoint, startpoint, endpoint);
+	    //test	
+        gridvel = new GridVelocityManager(velofilename, gridsize, subgridsize, startpoint, startpoint, endpoint);
 	}
 
 	//setup single vox_vol correction
@@ -193,7 +195,8 @@ int main(int argv, char * args[]){
 	estimater.setIsVelocity(isVelocity);
 
 	printf("*****************************COMPUTING ...***************************\n");
-	estimater.computeDensity();
+	//test remove computing
+    estimater.computeDensity();
 	estimater.getRunnintTime(io_t, calc_t);
 
 	//normalize the velocity
@@ -207,7 +210,8 @@ int main(int argv, char * args[]){
 
 	grid.saveToFile();
 	if(isVelocity){
-		gridvel->saveToFile();
+		//test
+        gridvel->saveToFile();
 		delete gridvel;
 	}
 

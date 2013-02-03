@@ -70,14 +70,14 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 	}
 	int endind = tetra_mem[sub_ind];
 
+    REAL dx2 = box/gsize/2.0f;
+
 	//ntetra
 	//for(loop_i = 0; loop_i < ntetra; loop_i ++){
 	for(loop_i = startind; loop_i < endind; loop_i ++){
 		Tetrahedron * tetra = &dtetra[tetra_selection[loop_i]];
 		
 		REAL ng = gsize;
-
-		REAL dx2 = box/ng/2;
 		int sgs = sub_gsize;
 
 		//calculate the actual coordinate
