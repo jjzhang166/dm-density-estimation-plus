@@ -54,7 +54,7 @@ namespace main_space{
     double boxsize = 32000.0;
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
+	fprintf(stderr, "Usage: %s\n %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
             , pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
