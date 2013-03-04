@@ -288,15 +288,18 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 		}
 		tetra_num += temp_num;
 
+        
+        int outputGridSize = grids_->getGridSize();
+        double outputBoxSize = grids_->getEndPoint().x - grids_->getStartPoint().x;
 		for(int i = 0; i < tetra_num; i++){
 			Tetrahedron &t = tetras_p[i];
-			//single vox_vol 
-			int xindmin = (int)( t.minx() / box * grids_->getGridSize());
-			int xindmax = (int)( t.maxx() / box * grids_->getGridSize());
-			int yindmin = (int)( t.miny() / box * grids_->getGridSize());
-			int yindmax = (int)( t.maxy() / box * grids_->getGridSize());
-			int zindmin = (int)( t.minz() / box * grids_->getGridSize());
-			int zindmax = (int)( t.maxz() / box * grids_->getGridSize());
+			//single vox_vol
+			int xindmin = (int)((t.minx() - getEndPoint().x) / outputBoxSize * outputGridSize);
+			int xindmax = (int)((t.maxx() - getEndPoint().x) / outputBoxSize * outputGridSize);
+			int yindmin = (int)((t.miny() - getEndPoint().y) / outputBoxSize * outputGridSize);
+			int yindmax = (int)((t.maxy() - getEndPoint().y) / outputBoxSize * outputGridSize);
+			int zindmin = (int)((t.minz() - getEndPoint().z) / outputBoxSize * outputGridSize);
+			int zindmax = (int)((t.maxz() - getEndPoint().z) / outputBoxSize * outputGridSize);
 			int n_samples = (xindmax - xindmin + 1) * (yindmax - yindmin + 1) * (zindmax - zindmin + 1);
 			if(n_samples == 1){
 				grids_->setValueByActualCoor(xindmin, yindmin, zindmin, 6.0f / vox_vol);
@@ -355,9 +358,10 @@ void TetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 
 void TetraStream::setCorrection(GridManager * grid){
 	this->grids_ = grid;
-	box = (REAL)(grids_->getEndPoint().x - grids_->getStartPoint().x);
+	double boxOfGrids = (REAL)(grids_->getEndPoint().x - grids_->getStartPoint().x);
+    box = this->gsnap_.BoxSize;
 	ng = (REAL)grids_->getGridSize();
-	vox_vol = box * box * box / ng / ng / ng;
+	vox_vol = boxOfGrids * boxOfGrids * boxOfGrids / ng / ng / ng;
 	isPeriodical_ = true;
 }
 

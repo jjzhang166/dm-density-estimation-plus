@@ -45,6 +45,7 @@ private:
 	int mem_tetra_size_;		// the total tetras in the memory
 	int total_tetra_grid_num_;	// how many tetra grids are there
 	int current_tetra_num;		// how many available tetras are there in the current block
+    
 
 	Point * position_;								// the position datas
 	Point * velocity_;								// velocities

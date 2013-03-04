@@ -38,17 +38,20 @@ using namespace std;
 
 namespace main_space{
 
-int gridsize    = 128;						//total grid size
-int subgridsize = 16;						//how many grid could be stored in the memory
-int inputmemgrid =16;						//the input memory grid size
-int gpu_mem_for_tetralist = 128*1024*1024;	//gpu memory for tetrahedron list
-string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
-string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
-string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
-bool isoutputres = false;					
-bool isVerbose = false;
-bool isInOrder = false;
-bool isVelocity = false;								//calculate velocity field?
+    int gridsize    = 128;						//total grid size
+    int subgridsize = 16;						//how many grid could be stored in the memory
+    int inputmemgrid =16;						//the input memory grid size
+    int gpu_mem_for_tetralist = 128*1024*1024;	//gpu memory for tetrahedron list
+    string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
+    string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
+    string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
+    bool isoutputres = false;					
+    bool isVerbose = false;
+    bool isInOrder = false;
+    bool isVelocity = false;								//calculate velocity field?
+    bool isSetBox = false;                       //set up a box for the grids
+    Point setStartPoint;
+    double boxsize = 32000.0;
 
 void printUsage(string pname){
 	fprintf(stderr, "Usage: %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
@@ -64,6 +67,7 @@ void printUsage(string pname){
 			, "[-order] if the data is in order"
 			, "[-v] to show verbose"
 			, "[-vel] if calculate velocity field"
+            , "[-box <x0> <y0> <z0> <boxsize>] setup the start point, and the boxsize. The box should be inside the data's box, otherwise some unpredictable side effects will comes out"
 			);
 }
 
@@ -107,6 +111,21 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-vel") == 0){
 				isVelocity = true;
 				k = k -1;
+			}else if(strcmp(args[k], "-box") == 0){
+				isSetBox = true;
+                k++;
+				ss << args[k];
+				ss >> setStartPoint.x;
+                k++;
+                ss << args[k];
+				ss >> setStartPoint.y;
+                k++;
+                ss << args[k];
+				ss >> setStartPoint.z;
+                k++;
+                ss << args[k];
+				ss >> boxsize;
+                k--;
 			}else{
 				printUsage(args[0]);
 				exit(1);
@@ -154,12 +173,16 @@ int main(int argv, char * args[]){
 	printf("Grid File               = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
 	printf("GPU mem for tetra list  = %d\n", gpu_mem_for_tetralist);
+    if(isSetBox){
+        printf("Box                    = %f %f %f %f", setStartPoint.x, setStartPoint.y, setStartPoint.z, boxsize);
+    }
 	if(isVelocity){
 		printf("Vel File               = %s\n", velofilename.c_str());
 	}
 	if(isInOrder){
 		printf("The data is already in right order for speed up...\n");
 	}
+
 
 	printf("*********************************************************************\n");
 
@@ -170,13 +193,22 @@ int main(int argv, char * args[]){
 	//compute the startpoint and endpoint
 	Point startpoint;
 	Point endpoint;
-	startpoint.x = 0;
-	startpoint.y = 0;
-	startpoint.z = 0;
-	gadget_header header = tetraStream.getHeader();
-	endpoint.x = (REAL)header.BoxSize;
-	endpoint.y = (REAL)header.BoxSize;
-	endpoint.z = (REAL)header.BoxSize;
+    gadget_header header = tetraStream.getHeader();
+    if(!isSetBox){
+        startpoint.x = 0;
+        startpoint.y = 0;
+        startpoint.z = 0;
+        endpoint.x = (REAL)header.BoxSize;
+        endpoint.y = (REAL)header.BoxSize;
+        endpoint.z = (REAL)header.BoxSize;
+    }else{
+        startpoint.x = setStartPoint.x;
+        startpoint.y = setStartPoint.y;
+        startpoint.z = setStartPoint.z;
+        endpoint.x = startpoint.x + boxsize;
+        endpoint.y = startpoint.y + boxsize;
+        endpoint.z = startpoint.z + boxsize;
+    }
 
 	//gridmanager
 	GridManager grid(gridfilename, gridsize, subgridsize, 0, startpoint, endpoint);
