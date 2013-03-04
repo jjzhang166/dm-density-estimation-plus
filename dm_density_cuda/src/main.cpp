@@ -174,7 +174,8 @@ int main(int argv, char * args[]){
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
 	printf("GPU mem for tetra list  = %d\n", gpu_mem_for_tetralist);
     if(isSetBox){
-        printf("Box                    = %f %f %f %f", setStartPoint.x, setStartPoint.y, setStartPoint.z, boxsize);
+        printf("Box                    = %f %f %f %f\n", 
+                        setStartPoint.x, setStartPoint.y, setStartPoint.z, boxsize);
     }
 	if(isVelocity){
 		printf("Vel File               = %s\n", velofilename.c_str());

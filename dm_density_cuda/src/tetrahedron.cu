@@ -119,11 +119,12 @@ CUDA_CALLABLE_MEMBER bool Tetrahedron::isInTetra(Point &p, double &d0, double &d
 	//c2m(v1, v2, v3, p, m);
 	d4 = getVolume(v1, v2, v3, p);
 
+    double z0 = d0 * EPSILON;
 
-	if(d0 > 0){
-		return (d1 >= 0) && (d2 >= 0) && (d3 >= 0) && (d4 >= 0);
+	if(d0 > z0){
+		return (d1 >= z0) && (d2 >= z0) && (d3 >= z0) && (d4 >= z0);
 	}else{
-		return (d1 <= 0) && (d2 <= 0) && (d3 <= 0) && (d4 <= 0);
+		return (d1 <= -z0) && (d2 <= -z0) && (d3 <= -z0) && (d4 <= -z0);
 	}
 }
 
