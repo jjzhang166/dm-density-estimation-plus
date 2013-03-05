@@ -72,20 +72,18 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 
     REAL dx2 = box/gsize/2.0f;
 
+    REAL ng = gsize;
+	int sgs = sub_gsize;
+    //calculate the actual coordinate
+	Point p;//getPoint(i, j, k);
+	p.x = i / (REAL) ng * box + x0 + dx2; 
+	p.y = j / (REAL) ng * box + y0 + dx2;
+	p.z = k / (REAL) ng * box + z0 + dx2;
+
 	//ntetra
 	//for(loop_i = 0; loop_i < ntetra; loop_i ++){
 	for(loop_i = startind; loop_i < endind; loop_i ++){
 		Tetrahedron * tetra = &dtetra[tetra_selection[loop_i]];
-		
-		REAL ng = gsize;
-		int sgs = sub_gsize;
-
-		//calculate the actual coordinate
-		Point p;//getPoint(i, j, k);
-		p.x = i / (REAL) ng * box + x0 + dx2; 
-		p.y = j / (REAL) ng * box + y0 + dx2;
-		p.z = k / (REAL) ng * box + z0 + dx2;
-		
 
 		if(tetra->isInTetra(p, d0, d1, d2, d3, d4)){
 			//testing
@@ -115,7 +113,7 @@ __global__ void tetraSplatter(Tetrahedron * dtetra, int ntetra, REAL * dgrids,
 // numsubgrid is the gridsize / subgridsize
 // get a actual coordinate of the i, j, k
 __device__ Point getPoint(int ind, int i, int j, int k, int subgridsize, 
-		int gridsize, int numsubgrid, float box){
+		int gridsize, int numsubgrid, float box, float x0, float y0, float z0){
 	int ai, aj, ak;
 
 	int i0 = (ind % numsubgrid) * subgridsize;
@@ -189,7 +187,8 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 
 //compute how many tetrahedrons are in touch with a certain subblock of the density grid
 __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem, 
-		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box){
+		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box,
+        float x0, float y0, float z0){
 	int loop_i = 0;
 	int ind;
 	float dx2 = box / gridsize / 2.0;
@@ -201,8 +200,8 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 	int subsubgridsize = gridsize / subgridsize;
 
 	Point v1, v8;
-	v1 = getPoint(ind, 0, 0, 0,subgridsize, gridsize, subsubgridsize, box);
-	v8 = getPoint(ind, subgridsize ,subgridsize, subgridsize, subgridsize, gridsize, subsubgridsize, box);
+	v1 = getPoint(ind, 0, 0, 0,subgridsize, gridsize, subsubgridsize, box, x0, y0, z0);
+	v8 = getPoint(ind, subgridsize ,subgridsize, subgridsize, subgridsize, gridsize, subsubgridsize, box, x0, y0, z0);
 
 	for(loop_i = 0; loop_i < ntetra; loop_i ++){
 		Tetrahedron * tetra = &(dtetra[loop_i]);
@@ -217,7 +216,7 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 //compute the actual list of tetrahedrons thar are in touch with subblock
 __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int * tetra_select, 
 		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box,
-		int start_ind, int end_ind){
+		int start_ind, int end_ind, float x0, float y0, float z0){
 	int loop_i = 0;
 	int ind;
 	float dx2 = box / gridsize / 2.0;
@@ -240,8 +239,8 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 	int total = tetra_mem[ind] - startind;
 
 	Point v1, v8;
-	v1 = getPoint(ind, 0, 0, 0,subgridsize, gridsize, subsubgridsize, box);
-	v8 = getPoint(ind, subgridsize ,subgridsize, subgridsize, subgridsize, gridsize, subsubgridsize, box);
+	v1 = getPoint(ind, 0, 0, 0,subgridsize, gridsize, subsubgridsize, box, x0, y0, z0);
+	v8 = getPoint(ind, subgridsize ,subgridsize, subgridsize, subgridsize, gridsize, subsubgridsize, box, x0, y0, z0);
 
 	for(loop_i = 0; (loop_i < ntetra) && (count < total); loop_i ++){
 		Tetrahedron * tetra = &dtetra[loop_i];
@@ -336,7 +335,11 @@ cudaError_t computeTetraMemWithCuda(){
 	computeTetraMem<<<gridsize, blocksize>>>(dev_tetras, dev_tetra_mem, 
 		num_tetra_, gridmanager->getSubGridSize(), gridmanager->getGridSize(), 
 		gridmanager->getSubGridNum(), 
-		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x);
+		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x,
+        gridmanager->getStartPoint().x,  
+        gridmanager->getStartPoint().y,  
+        gridmanager->getStartPoint().z
+    );
 
 	cudaStatus = cudaThreadSynchronize();
 	if( cudaStatus != cudaSuccess){
@@ -451,7 +454,11 @@ cudaError_t computeTetraSelectionWithCuda(bool & hasmore){
 		num_tetra_, gridmanager->getSubGridSize(), gridmanager->getGridSize(), 
 		gridmanager->getSubGridNum(), 
 		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x,
-		start_index_tetra, current_tetra_list_ind);
+		start_index_tetra, current_tetra_list_ind,
+        gridmanager->getStartPoint().x,  
+        gridmanager->getStartPoint().y,  
+        gridmanager->getStartPoint().z
+   );
 
 	cudaStatus = cudaThreadSynchronize();
 	if( cudaStatus != cudaSuccess){
