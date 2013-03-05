@@ -114,18 +114,21 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-box") == 0){
 				isSetBox = true;
                 k++;
-				ss << args[k];
-				ss >> setStartPoint.x;
-                k++;
-                ss << args[k];
-				ss >> setStartPoint.y;
-                k++;
-                ss << args[k];
-				ss >> setStartPoint.z;
-                k++;
-                ss << args[k];
+				ss << args[k] << " ";
+				//ss >> setStartPoint.x;
+                //k++;
+                ss << args[k + 1] << " ";
+				//ss >> setStartPoint.y;
+                //k++;
+                ss << args[k + 2] << " ";
+				//ss >> setStartPoint.z;
+                //k++;
+                //ss << args[k + 3] << " ";
 				ss >> boxsize;
-                k--;
+                ss >> setStartPoint.z;
+                ss >> setStartPoint.y;
+                ss >> setStartPoint.x;
+                k += 2;
 			}else{
 				printUsage(args[0]);
 				exit(1);
