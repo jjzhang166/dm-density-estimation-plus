@@ -131,9 +131,9 @@ __device__ Point getPoint(int ind, int i, int j, int k, int subgridsize,
 	fy = (float) aj / (float) gridsize;
 	fz = (float) ak / (float) gridsize;
 
-	retP.x = fx * box;
-	retP.y = fy * box;
-	retP.z = fz * box;
+	retP.x = fx * box + x0;
+	retP.y = fy * box + y0;
+	retP.z = fz * box + z0;
 	return retP;
 }
 
