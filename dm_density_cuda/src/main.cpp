@@ -123,11 +123,12 @@ void readParameters(int argv, char * args[]){
                 ss << args[k + 2] << " ";
 				//ss >> setStartPoint.z;
                 //k++;
-                //ss << args[k + 3] << " ";
-				ss >> boxsize;
-                ss >> setStartPoint.z;
-                ss >> setStartPoint.y;
+                ss << args[k + 3] << " ";
+				//ss >> boxsize;
                 ss >> setStartPoint.x;
+                ss >> setStartPoint.y;
+                ss >> setStartPoint.z;
+                ss >> boxsize;
                 k += 2;
 			}else{
 				printUsage(args[0]);
