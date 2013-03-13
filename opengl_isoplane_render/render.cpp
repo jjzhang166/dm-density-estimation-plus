@@ -19,6 +19,32 @@ GLuint textureIni;  //initial empty texture
 int * argc;
 char **argv;
 
+void getWarmColor(float v, float &r, float &g, float &b){
+    r = -1.8966 * v*v*v + 1.2049 * v*v + 1.1463 * v + 0.2253;
+    g = -2.713 * v*v + 2.5221 * v + 0.2499;
+    b = 2.3924 * v*v*v - 5.264 * v*v + 2.2936 * v + 0.7214;
+    
+    if(r > 1.0) r = 1.0;
+    if(r < 0.0) r = 0.0;
+    if(g > 1.0) g = 1.0;
+    if(g < 0.0) g = 0.0;
+    if(b > 1.0) b = 1.0;
+    if(b < 0.0) b = 0.0;
+}
+
+void getJetColor(float value, float &r, float &g, float &b) {
+    float fourValue = 4 * value;
+    r = min(fourValue - 1.5, -fourValue + 4.5);
+    g = min(fourValue - 0.5, -fourValue + 3.5);
+    b = min(fourValue + 0.5, -fourValue + 2.5);
+    if(r > 1.0) r = 1.0;
+    if(r < 0.0) r = 0.0;
+    if(g > 1.0) g = 1.0;
+    if(g < 0.0) g = 0.0;
+    if(b > 1.0) b = 1.0;
+    if(b < 0.0) b = 0.0;
+}
+
 void getcolorImge(float *value, float * colorimg){
     float r, g, b;
     float max = 0.0, min = 1.0e20;
@@ -33,10 +59,8 @@ void getcolorImge(float *value, float * colorimg){
     
     float x = log(max) - log(min);
     for(int i = 0; i < windowSize * windowSize; i++){
-        r = (log(value[i]) - log(min)) / x;
-        b = (1 - r);
-        b = b * b;
-        g = r * b;
+        float v = (log(value[i]) - log(min)) / x;
+        getJetColor(v, r, g, b);
         colorimg[3 * i] = r;
         colorimg[3 * i + 1] = g;
         colorimg[3 * i + 2] = b;
@@ -155,10 +179,6 @@ float * Render::getPlane(REAL isoval){
             glVertex2f(triangles[k].b.x, triangles[k].b.y);
             glVertex2f(triangles[k].c.x, triangles[k].c.y);
             glEnd();
-            //printf("%d\n", k);
-            //printf("%f %f %e\n",triangles[k].a.x, triangles[k].a.y, triangles[k].val1.x);
-            //printf("%f %f %e\n",triangles[k].b.x, triangles[k].b.y, triangles[k].val1.x);
-            //printf("%f %f %e\n",triangles[k].c.x, triangles[k].c.y, triangles[k].val1.x);
          
         }
        
@@ -166,19 +186,6 @@ float * Render::getPlane(REAL isoval){
         
         //glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers());
     }
-    
-    /*glBegin(GL_TRIANGLES);
-    glColor3f(0.3,0.5,0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(viewSize, 0, 0);
-    glVertex3f(0, viewSize, 0);
-    //glVertex3f(10402.908203, -235.477020,isoval);
-    //glVertex3f(viewSize/2, -viewSize/2,isoval);
-    //glVertex3f(0, viewSize/2,isoval);
-    //glVertex3f(-1, -1,0);
-    //glVertex3f(1, -1 ,0);
-    //glVertex3f(0, 1, 0);
-    glEnd();*/
     
     glFinish();
    

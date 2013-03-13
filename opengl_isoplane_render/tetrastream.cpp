@@ -19,9 +19,6 @@ TetraStream::TetraStream(string filename, int inputmemgridsize, bool isVelocity)
 	isVelocity_ = isVelocity;
 
 	filename_ = filename;
-	mem_grid_size_ = inputmemgridsize;
-	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
-			* (mem_grid_size_) * 8; //8 is for the periodical condition
 
 	gsnap_ = new GSnap(filename_);
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
@@ -30,7 +27,14 @@ TetraStream::TetraStream(string filename, int inputmemgridsize, bool isVelocity)
 
 	current_ind_tetra = 0;
 	current_ind_block = 0;
+    
+    printf("Particle Data Grid Size %d\n", particle_grid_size_);
 
+    mem_grid_size_ = inputmemgridsize;
+	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
+        * (mem_grid_size_) * 8; //8 is for the periodical condition
+
+    
 	tetras_ = new Tetrahedron[mem_tetra_size_];
 	position_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
 	if(isVelocity_){

@@ -44,7 +44,7 @@ using namespace std;
 
 namespace main_space{
 
-    int inputmemgrid =16;						//the input memory grid size
+    int inputmemgrid = 16;						//the input memory grid size
     string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
     string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
     string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
