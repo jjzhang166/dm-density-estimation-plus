@@ -159,17 +159,12 @@ float * Render::getPlane(REAL isoval){
     glEnableClientState (GL_VERTEX_ARRAY);
     glEnableClientState (GL_COLOR_ARRAY);
     
-    //printf("%d\n", isoplane_->getTotalBlockNum());
-    
     for(int i = 0; i < isoplane_->getTotalBlockNum(); i++){
         
         Triangle * triangles = isoplane_->getIsoPlane(i);
         GLfloat * vetexarray = (GLfloat *) triangles;
         glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
         glColorPointer (3, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[2]));
-        
-        //printf("strange\n");
-        //printf("%d\n", isoplane_->getTriangleNumbers());
         
         /*for(int k = 0; k < isoplane_->getTriangleNumbers(); k += 1){
             glBegin(GL_TRIANGLES);
@@ -180,8 +175,6 @@ float * Render::getPlane(REAL isoval){
             glVertex2f(triangles[k].c.x, triangles[k].c.y);
             glEnd();
         }*/
-       
-        //printf("ok....\n");
         
         glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers() * 3);
     }
@@ -198,8 +191,6 @@ float * Render::getPlane(REAL isoval){
     glPixelStorei(GL_PACK_ALIGNMENT, 4);  
     fbuffer->bindTex();
     glGetTexImage(GL_TEXTURE_2D,0,GL_RED,GL_FLOAT,image_);
-    //for(int i = 0; i < imagesize_ * imagesize_; i++)
-    //    if(image_[i] > 0) printf("%e \n", image_[i]);
     fbuffer->unbindTex();
     return image_;
     
