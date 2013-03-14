@@ -1,8 +1,8 @@
 #MACOS
 CC=g++
 
-LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
-
+#LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
+LFLAGS= -lGL -lglut -lGLEW
 IFLAG= -I /usr/include/GL/
 
 all: obj
