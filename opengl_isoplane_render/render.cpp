@@ -59,9 +59,15 @@ void getcolorImge(float *value, float * colorimg){
         }
     }
     
+	//printf("%f %f\n", min, max);
+	if(min == max){
+		min = max / 1.0e5;	
+	}
+
     float x = log(max) - log(min);
     for(int i = 0; i < windowSize * windowSize; i++){
         float v = (log(value[i]) - log(min)) / x;
+        //printf("%f\n",v);
         getJetColor(v, r, g, b);
         colorimg[3 * i] = r;
         colorimg[3 * i + 1] = g;
@@ -172,24 +178,40 @@ float * Render::getPlane(REAL isoval){
         glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
         glColorPointer (3, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[2]));
         
-        /*for(int k = 0; k < isoplane_->getTriangleNumbers(); k += 1){
+        for(int k = 0; k < isoplane_->getTriangleNumbers(); k += 1){
             glBegin(GL_TRIANGLES);
-            glColor3f(triangles[k].val1.x, triangles[k].val1.y, triangles[k].val1.z);
+            glColor3f(triangles[k].val1.x * 1e8, triangles[k].val1.y, triangles[k].val1.z);
             //glColor3f(0.5,0.0,0);
             glVertex2f(triangles[k].a.x, triangles[k].a.y);
             glVertex2f(triangles[k].b.x, triangles[k].b.y);
             glVertex2f(triangles[k].c.x, triangles[k].c.y);
             glEnd();
-        }*/
+			printf("%d\n", k);
+            printf("%f %f %e\n",triangles[k].a.x, triangles[k].a.y, triangles[k].val1.x);
+            printf("%f %f %e\n",triangles[k].b.x, triangles[k].b.y, triangles[k].val1.x);
+            printf("%f %f %e\n",triangles[k].c.x, triangles[k].c.y, triangles[k].val1.x);
+        }
         
-        glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers() * 3);
+        //glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers() * 3);
     }
     
     glFinish();
+
+	/*glBegin(GL_TRIANGLES);
+    glColor3f(0.3, 0.0,0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(viewSize, 0, 0);
+    glVertex3f(0, viewSize, 0);
+    glVertex3f(10402.908203, -235.477020,0);
+    glVertex3f(viewSize/2, -viewSize/2,0);
+    glVertex3f(0, viewSize/2,0);
+    //glVertex3f(-1, -1,0);
+    //glVertex3f(1, -1 ,0);
+    //glVertex3f(0, 1, 0);
+    glEnd();*/
    
     glDisableClientState (GL_VERTEX_ARRAY);
     glDisableClientState (GL_COLOR_ARRAY);
-    
 
     fbuffer->unbindBuf();
     
@@ -197,6 +219,11 @@ float * Render::getPlane(REAL isoval){
     glPixelStorei(GL_PACK_ALIGNMENT, 4);  
     fbuffer->bindTex();
     glGetTexImage(GL_TEXTURE_2D,0,GL_RED,GL_FLOAT,image_);
+
+	//for(int i = 0; i < 512; i++){
+	//	printf("%e\n", image_[i]);	
+	//}
+
     fbuffer->unbindTex();
     return image_;
     
@@ -252,7 +279,8 @@ void rendsenc(){
     glTexCoord2i(1, 0); glVertex3f( 2, -2, 0);
     glEnd();
     
-    /*glBegin(GL_TRIANGLES);
+	/*glBindTexture(GL_TEXTURE_2D, 0);
+    glBegin(GL_TRIANGLES);
     glColor3f(1,0,0);
     glVertex3f(0,1,0);
     glVertex3f(-1,0,0);
