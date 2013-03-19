@@ -178,7 +178,7 @@ float * Render::getPlane(REAL isoval){
         glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
         glColorPointer (3, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[2]));
         
-        for(int k = 0; k < isoplane_->getTriangleNumbers(); k += 1){
+        /*for(int k = 0; k < isoplane_->getTriangleNumbers(); k += 1){
             glBegin(GL_TRIANGLES);
             glColor3f(triangles[k].val1.x * 1e8, triangles[k].val1.y, triangles[k].val1.z);
             //glColor3f(0.5,0.0,0);
@@ -190,9 +190,9 @@ float * Render::getPlane(REAL isoval){
             printf("%f %f %e\n",triangles[k].a.x, triangles[k].a.y, triangles[k].val1.x);
             printf("%f %f %e\n",triangles[k].b.x, triangles[k].b.y, triangles[k].val1.x);
             printf("%f %f %e\n",triangles[k].c.x, triangles[k].c.y, triangles[k].val1.x);
-        }
+        }*/
         
-        //glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers() * 3);
+        glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers() * 3);
     }
     
     glFinish();
