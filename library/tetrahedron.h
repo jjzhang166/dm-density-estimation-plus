@@ -28,8 +28,9 @@ public:
 	CUDA_CALLABLE_MEMBER Point();
     CUDA_CALLABLE_MEMBER const Point operator+(const Point &other) const;
     CUDA_CALLABLE_MEMBER const Point operator-(const Point &other) const;
-    CUDA_CALLABLE_MEMBER const REAL operator*(const Point &other) const;
-
+    CUDA_CALLABLE_MEMBER const Point operator*(const REAL &other) const;
+    CUDA_CALLABLE_MEMBER const Point operator/(const REAL &other) const;
+    CUDA_CALLABLE_MEMBER const REAL dot(const Point &other) const;
 };
 
 class Tetrahedron{
