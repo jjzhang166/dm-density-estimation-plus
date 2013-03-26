@@ -223,8 +223,8 @@ int main(int argv, char * args[]){
         gridvel = new GridVelocityManager(velofilename, gridsize, subgridsize, startpoint, startpoint, endpoint);
 	}
 
-	//setup single vox_vol correction
-	tetraStream.setCorrection(&grid);
+	//setup pierodical correction, NO "VOX_VOL" correction
+	tetraStream.setCorrection();
 
 	//estimator
 	Estimater estimater(&tetraStream, &grid, gridvel, gpu_mem_for_tetralist);
