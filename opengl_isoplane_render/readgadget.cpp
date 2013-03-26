@@ -340,11 +340,11 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 	}
 }
 
-Point GSnap::readPos(std::fstream &file, long count){
+Point GSnap::readPos(std::fstream &file, long ptr){
 	Point retp; 
 
 	streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-			+ sizeof(uint32_t) + count * sizeof(REAL) * 3;
+			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
 	file.seekg(spos, ios_base::beg);
 
 	file.read((char *) &retp.x, sizeof(REAL));
@@ -353,12 +353,12 @@ Point GSnap::readPos(std::fstream &file, long count){
 	return retp;
 }
 
-Point GSnap::readVel(std::fstream &file, long count){
+Point GSnap::readVel(std::fstream &file, long ptr){
 	Point retp; 
 
 	streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
-			+ sizeof(uint32_t) + count * sizeof(REAL) * 3;
+			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
 	file.seekg(spos, ios_base::beg);
 
 	file.read((char *) &retp.x, sizeof(REAL));
@@ -366,6 +366,22 @@ Point GSnap::readVel(std::fstream &file, long count){
 	file.read((char *) &retp.z, sizeof(REAL));
 	return retp;
 }
+
+void GSnap::readPos(std::fstream &file, Point * pos, long ptr, long count){
+    streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
+	file.seekg(spos, ios_base::beg);
+	file.read((char *) pos, sizeof(REAL) * count);
+    
+}
+void GSnap::readVel(std::fstream &file, Point * vel, long ptr, long count){
+    streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
+			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
+    file.seekg(spos, ios_base::beg);
+    file.read((char *) vel, sizeof(REAL) * count);
+}
+
 
 GSnap::~GSnap() {
 	if (ids != NULL)
