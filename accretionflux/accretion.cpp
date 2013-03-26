@@ -3,7 +3,7 @@
 
 using namespace std;
 
-double accreation_sphere_rate(int counts, Point * posdata, Point * veldata, double mass, Point &halocenter, double r1, double r2){
+double accretion_sphere_rate(int counts, Point * posdata, Point * veldata, double mass, Point &halocenter, double r1, double r2){
     double volum = 4.0 * PI / 3.0 * (r2 * r2 * r2 - r1 * r1 * r1);
     double accr = 0.0;
     for(int i = 0; i < counts; i ++){
@@ -15,5 +15,14 @@ double accreation_sphere_rate(int counts, Point * posdata, Point * veldata, doub
         }
     }
     return accr * mass / volum * 4.0 * PI * r1 * r1;
+}
+
+
+double accretion_tetra_rate(
+                    const TetraStream &tetrastream, 
+                    double mass, 
+                    Point &halocenter, 
+                    double r){
+    return 0;
 }
 

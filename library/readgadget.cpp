@@ -371,7 +371,7 @@ void GSnap::readPos(std::fstream &file, Point * pos, long ptr, long count){
     streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
 	file.seekg(spos, ios_base::beg);
-	file.read((char *) pos, sizeof(REAL) * count);
+	file.read((char *) pos, sizeof(Point) * count);
     
 }
 void GSnap::readVel(std::fstream &file, Point * vel, long ptr, long count){
@@ -379,7 +379,7 @@ void GSnap::readVel(std::fstream &file, Point * vel, long ptr, long count){
 			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
 			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
     file.seekg(spos, ios_base::beg);
-    file.read((char *) vel, sizeof(REAL) * count);
+    file.read((char *) vel, sizeof(Point) * count);
 }
 
 
