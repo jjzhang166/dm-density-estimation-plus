@@ -10,8 +10,8 @@ all: obj
 	@echo success
 
 obj:
-	$(CC) -c -Wall main.cpp buffers.cpp isoplane.cpp ${LIB}\processbar.cpp render.cpp\
-		   tetrastream.cpp isoplancut.cpp ${LIB}\readgadget.cpp ${LIB}\tetrahedron.cpp triangle.cpp\
+	$(CC) -c -Wall main.cpp buffers.cpp isoplane.cpp ${LIB}/processbar.cpp render.cpp\
+		   ${LIB}/tetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp ${LIB}/tetrahedron.cpp triangle.cpp\
 		   $(IFLAG)  
 
 clean:
