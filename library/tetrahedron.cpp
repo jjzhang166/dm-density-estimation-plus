@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
 
 using namespace std;
 
@@ -169,6 +169,7 @@ CUDA_CALLABLE_MEMBER Point::Point(const Point &point){
 }
 
 
+
 CUDA_CALLABLE_MEMBER Tetrahedron & Tetrahedron::operator=(const Tetrahedron & rhs){
 	this->v1 = rhs.v1;
 	this->v2 = rhs.v2;
@@ -197,7 +198,10 @@ CUDA_CALLABLE_MEMBER Tetrahedron::Tetrahedron(const Tetrahedron & rhs){
 	this->v2 = rhs.v2;
 	this->v3 = rhs.v3;
 	this->v4 = rhs.v4;
+    
 	this->volume = rhs.volume;
+	this->invVolume = rhs.invVolume;
+    
 	this->maxx_ = rhs.maxx_;
 	this->maxy_ = rhs.maxy_;
 	this->maxz_ = rhs.maxz_;

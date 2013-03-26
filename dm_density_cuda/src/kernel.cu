@@ -13,7 +13,7 @@ using namespace std;
 #include "tetrastream.h"
 #include "gridmanager.h"
 
-#include "tetrahedron.cu"
+#include <tetrahedron.cpp>
 
 using namespace std;
 

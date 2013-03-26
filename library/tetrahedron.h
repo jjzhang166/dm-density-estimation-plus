@@ -16,6 +16,7 @@
 #else
 #define CUDA_CALLABLE_MEMBER
 #endif 
+using namespace std;
 
 class Point{
 public:
