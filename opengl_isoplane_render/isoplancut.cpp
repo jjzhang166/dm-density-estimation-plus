@@ -1,6 +1,7 @@
+#include "tetracut.h"
 #include "isoplane.h"
 
-bool iso_cut_line(REAL _isoval, Point &v1, Point &v2, Point2d &trianglev){
+/*bool iso_cut_line(REAL _isoval, Point &v1, Point &v2, Point2d &trianglev){
     
     //--- Check if the isodensity lies between the two vertices
     //printf("%f %f %f\n", v1.z, v2.z, _isoval);
@@ -28,17 +29,37 @@ bool testTriangle(Point2d &a, Point2d &b, Point2d &c, Point2d &d){
     else
         return false;
 }
+*/
 
 void getTriangles(REAL isoval, int & count,
                   Triangle * triangles,
                   Tetrahedron &tetra){
-    
-    Point2d verts[6];
     Point zero;
     zero.x = 0;
     zero.y = 0;
     zero.z = 0;
-    int vertCount = 0;
+
+    IsoCutter cutter;
+    cutter.setTetrahedron(tetra);
+    cutter.setValues(tetra.v1.z, tetra.v2.z, tetra.v3.z, tetra.v4.z);
+    int num = cutter.cut(isoval);
+    Triangle3d rettetra;
+    for(int i = 0; i < num; i++){
+        rettetra = cutter.getTrangle(i);
+        triangles[count].a = rettetra.a;
+        triangles[count].b = rettetra.b;
+        triangles[count].c = rettetra.c;
+        triangles[count].val1 = zero;
+        triangles[count].val2 = zero;
+        triangles[count].val3 = zero;
+        triangles[count].val1.x = tetra.invVolume;
+        triangles[count].val2.x = tetra.invVolume;
+        triangles[count].val3.x = tetra.invVolume;
+        count ++;
+
+    }
+    /*Point2d verts[6];
+      int vertCount = 0;
     
     if(iso_cut_line(isoval, tetra.v1, tetra.v2, verts[vertCount])){
         vertCount ++;
@@ -116,7 +137,7 @@ void getTriangles(REAL isoval, int & count,
                 }
             }
         }
-    }
+    }*/
 }
 
 int TetraIsoPlane::convertTetras2IsoPlane(REAL isovalue,

@@ -258,3 +258,13 @@ CUDA_CALLABLE_MEMBER REAL Point::dot(const Point &other) const{
     return result.x + result.y + result.z;
 }
 
+CUDA_CALLABLE_MEMBER const Point Point::cross(const Point &b) const{
+    Point a = *this;
+    Point res;
+    res.x = a.y * b.z - a.z * b.y;
+    res.y = a.z * b.x - a.x * b.z;
+    res.z = a.x * b.y - a.y * b.x;
+
+    return res;
+}
+

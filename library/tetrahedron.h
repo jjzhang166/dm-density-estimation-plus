@@ -31,6 +31,7 @@ public:
     CUDA_CALLABLE_MEMBER const Point operator*(const REAL &other) const;
     CUDA_CALLABLE_MEMBER const Point operator/(const REAL &other) const;
     CUDA_CALLABLE_MEMBER REAL dot(const Point &other) const;
+    CUDA_CALLABLE_MEMBER const Point cross(const Point &other) const;
 };
 
 class Tetrahedron{
