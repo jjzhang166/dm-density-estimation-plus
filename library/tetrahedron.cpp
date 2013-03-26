@@ -215,3 +215,29 @@ CUDA_CALLABLE_MEMBER Point::Point(){
 	y = 0;
 	z = 0;
 }
+
+
+CUDA_CALLABLE_MEMBER const Point Point::operator+(const Point &other) const{
+    Point result = *this;
+    result.x += other.x;
+    result.y += other.y;
+    result.z += other.z;
+    return result;
+}
+
+CUDA_CALLABLE_MEMBER const Point Point::operator-(const Point &other) const{
+    Point result = *this;
+    result.x -= other.x;
+    result.y -= other.y;
+    result.z -= other.z;
+    return result;
+}
+
+CUDA_CALLABLE_MEMBER const REAL Point::operator*(const Point &other) const{
+    Point result = *this;
+    result.x *= other.x;
+    result.y *= other.y;
+    result.z *= other.z;
+    return result.x + result.y + result.z;
+}
+
