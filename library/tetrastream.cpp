@@ -260,13 +260,12 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 	tetra_.computeVolume();
 
 	//add the tetrahedrons
-	/*if(grids_ == NULL){
+	if(!isPeriodical_){
 		tetras_[current_ind_tetra] = (tetra_);
 		current_ind_tetra ++;
 	}
 	//correction
-	else*/
-    if(isPeriodical_){
+	else{
 		//periodical correction:
 		int tetra_num = 1;
 		int temp_num = 0;
