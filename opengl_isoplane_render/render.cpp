@@ -189,7 +189,7 @@ float * Render::getPlane(REAL isoval){
         int num_triangles;
         while(isoplane_-> hasNext()){
             Triangle * triangles = isoplane_->getNextIsoPlaneBlock(num_triangles);
-            printf("%d\n",num_triangles);
+            //printf("%d\n",num_triangles);
             GLfloat * vetexarray = (GLfloat *) triangles;
             glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
             glColorPointer (3, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[2]));

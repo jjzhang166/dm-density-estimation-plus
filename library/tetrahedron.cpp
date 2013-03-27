@@ -396,6 +396,13 @@ CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrah
 	tetra_.v2 = positionArray[t.ind2];
 	tetra_.v3 = positionArray[t.ind3];
 	tetra_.v4 = positionArray[t.ind4];
+
+    if(isVelocity_){
+     	tetra_.velocity1 = velocityArray[t.ind1];
+	    tetra_.velocity2 = velocityArray[t.ind2];
+	    tetra_.velocity3 = velocityArray[t.ind3];
+	    tetra_.velocity4 = velocityArray[t.ind4];       
+    }
     
     //printf("%d %d %d %d\n", t.ind1, t.ind2, t.ind3, t.ind4);    
     tetra_.computeVolume();
