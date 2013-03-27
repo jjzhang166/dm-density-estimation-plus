@@ -57,7 +57,7 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVel
 	isPeriodical_ = false;
 	isInOrder_ = false;
     
-    indTetraManager_.setBoxSize(box);
+    indTetraManager_.setBoxSize(getHeader().BoxSize);
     indTetraManager_.setIsVelocity(isVelocity_);
     indTetraManager_.setVelArray(velocity_);
     indTetraManager_.setPosArray(position_);

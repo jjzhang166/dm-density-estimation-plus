@@ -150,13 +150,14 @@ int TetraIsoPlane::convertTetras2IsoPlane(REAL isovalue,
     for(int i = 0; i < nums; i++){
         int temp_num_tetra = tetramanager.getNumPeriodical(tetras[i]);
         Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[i]);
+        //int j = 0;
         for(int j = 0; j<temp_num_tetra; j++){
-            Tetrahedron & tetra_ = period_tetras[j];
-            printf("\n");
-            printf("%f %f %f \n", tetra_.v1.x, tetra_.v1.y, tetra_.v1.z);
-            printf("%f %f %f \n", tetra_.v2.x, tetra_.v2.y, tetra_.v2.z);
-            printf("%f %f %f \n", tetra_.v3.x, tetra_.v3.y, tetra_.v3.z);
-            printf("%f %f %f \n", tetra_.v4.x, tetra_.v4.y, tetra_.v4.z);
+            //Tetrahedron & tetra_ = period_tetras[j];
+            //printf("%d\n", temp_num_tetra);
+            //printf("%f %f %f \n", tetra_.v1.x, tetra_.v1.y, tetra_.v1.z);
+            //printf("%f %f %f \n", tetra_.v2.x, tetra_.v2.y, tetra_.v2.z);
+            //printf("%f %f %f \n", tetra_.v3.x, tetra_.v3.y, tetra_.v3.z);
+            //printf("%f %f %f \n", tetra_.v4.x, tetra_.v4.y, tetra_.v4.z);
 
             getTriangles(isovalue, count, triangles, period_tetras[j]);
         }
