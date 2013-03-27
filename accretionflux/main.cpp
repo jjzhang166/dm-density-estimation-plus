@@ -4,7 +4,7 @@ using namespace std;
 
 string filename_ =  "/Users/lyang/data/run_200";
 Point halocenter;
-double r = 400;
+double r = 600;
 double dr = 10;
 
 int main(){ 
@@ -45,9 +45,19 @@ int main(){
                     halocenter,
                     r, 
                     r+dr);
+    
+    TetraStreamer streamer(filename_, 70, true, true, false);
+    double ar_tetra = accretion_tetra_rate( 
+                    streamer,  
+                    mass, 
+                    halocenter,
+                    r);
 
     printf("Measure in radius %f, with thickness %f. Accretion rate is %e\n", 
                     r, dr, ar_sphere);
+    printf("Measure in LTFE %f. Area is %f. Accretion rate is %e\n", 
+                    r, 4*PI*r*r, ar_tetra);
+
 
     file.close();
     

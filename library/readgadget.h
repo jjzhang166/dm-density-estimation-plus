@@ -14,15 +14,25 @@
 
 class GSnap {
 public:
-	GSnap(std::string filename);
+    //if store all the data in the memory
+	GSnap(std::string filename, bool isHighMem = true);
 	~GSnap();
 	gadget_header header;
 	uint32_t Npart;
 
-	void readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical = true, bool isOrdered = false);
+	void readPosBlock(Point * &posblock, 
+                    int imin, int jmin, int kmin, 
+                    int imax, int jmax, int kmax, 
+                    bool isPeriodical = true, 
+                    bool isOrdered = false
+                    );
 
-	void readBlock(Point * &posblock, Point * &velocityblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, 
-			bool isPeriodical = true, bool isOrdered = false);
+	void readBlock(Point * &posblock, Point * &velocityblock, 
+                    int imin, int jmin, int kmin, 
+                    int imax, int jmax, int kmax, 
+			        bool isPeriodical = true, 
+                    bool isOrdered = false
+                   );
     
     // read a point, from position ptr
     Point readPos(std::fstream &file, long ptr);
@@ -34,13 +44,21 @@ public:
 
 
 private:
-	uint32_t * ids;
+	//uint32_t * ids;
 	string filename_;
 	int grid_size;
 
+    bool isHighMem_;
+    
+    Point * allpos_;
+    Point * allvel_;
+    uint32_t * allind_;
+    
 
 	void readIndex(std::fstream &file, int *block,
-			int imin, int jmin, int kmin, int imax, int jmax, int kmax, bool isPeriodical = true, bool isOrdered = false);
+			int imin, int jmin, int kmin, int imax, 
+            int jmax, int kmax, bool isPeriodical = true, 
+            bool isOrdered = false);
 };
 
 #endif /* READGADGET_H_ */

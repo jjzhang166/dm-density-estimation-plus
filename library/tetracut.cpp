@@ -24,8 +24,8 @@ void IsoCutter::setValues(
 
 bool IsoCutter::iso_cut_line(REAL _isoval, Point &p1, Point &p2, REAL v1, REAL v2, Point &retp){
     //--- Check if the isodensity lies between the two value
-    //printf("%f %f %f\n", v1.z, v2.z, _isoval);
-    if (((v1 - _isoval) * (v2 - _isoval) <= 0) && (v1 != v2)) {
+    //printf("%f %f %f\n", v1, v2, _isoval);
+    if (((v1 - _isoval) * (v2 - _isoval) <= 0) && ((v1 > v2) || (v2 > v1))) {
         //--- Parameter
         REAL t_par;
         //--- Get two point parametric curve of the line along the two vertices

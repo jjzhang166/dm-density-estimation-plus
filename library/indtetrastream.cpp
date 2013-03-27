@@ -21,6 +21,7 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVel
 	filename_ = filename;
 
 	gsnap_ = new GSnap(filename_);
+    //printf("what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
 	total_parts_ = gsnap_->Npart;
 	current_tetra_num = 0;

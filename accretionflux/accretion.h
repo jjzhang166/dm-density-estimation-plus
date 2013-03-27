@@ -2,7 +2,7 @@
 #define __LY__ACCRETION_SPHERE__
 #include "types.h"
 #include "tetrahedron.h"
-#include "tetrastream.h"
+#include "indtetrastream.h"
     double accretion_sphere_rate(
                     int counts, 
                     Point * posdata, 
@@ -15,7 +15,7 @@
     
     
     double accretion_tetra_rate(
-                    const TetraStream &tetrastream, 
+                    TetraStreamer &tetrastreamer, 
                     double mass, 
                     Point &halocenter, 
                     double r);
