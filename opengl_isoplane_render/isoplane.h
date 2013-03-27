@@ -2,13 +2,13 @@
 #define __ISOPLANE__
 #include "types.h"
 #include "tetrahedron.h"
-#include "tetrastream.h"
+#include "indtetrastream.h"
 #include "triangle.h"
 
 class TetraIsoPlane{
 public:
     // memgridsize is the same 
-    TetraIsoPlane(TetraStream * tetraStream);
+    TetraIsoPlane(IndTetraStream * tetraStream);
     ~TetraIsoPlane();
     Triangle * getCurrentIsoPlane();
     Triangle * getIsoPlane(int i);  // get the i-th block isoplane
@@ -19,10 +19,14 @@ public:
     
 private:
     Triangle * isoplane_;
-    TetraStream * tetraStream_;
+    IndTetraStream * tetraStream_;
     int isoPlane_Size_;
     int currentIsoPlane_Size_;
     REAL isovalue_;
-    int convertTetras2IsoPlane(REAL isovalue, Triangle *, Tetrahedron *, int nums); //returns the number of tetrahedrons in the isoplane
+    int convertTetras2IsoPlane(REAL isovalue, 
+                    Triangle *, 
+                    IndTetrahedron *,
+                    IndTetrahedronManager & tetramanager,
+                    int nums); //returns the number of tetrahedrons in the isoplane
 };
 #endif

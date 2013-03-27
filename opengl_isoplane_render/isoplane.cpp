@@ -1,8 +1,8 @@
 #include "triangle.h"
-#include "tetrastream.h"
+#include "indtetrastream.h"
 #include "isoplane.h"
 
-TetraIsoPlane::TetraIsoPlane(TetraStream * tetraStream){
+TetraIsoPlane::TetraIsoPlane(IndTetraStream * tetraStream){
     tetraStream_ = tetraStream;
     int gridsize = tetraStream->getBlockSize();
     isoPlane_Size_ = 6 * (gridsize) * (gridsize)
@@ -38,7 +38,10 @@ void TetraIsoPlane::setIsoValue(REAL isovalue){
 
 void TetraIsoPlane::loadIsoplane(int i){
     tetraStream_->loadBlock(i);
-    currentIsoPlane_Size_ = convertTetras2IsoPlane(isovalue_, isoplane_,
-                           tetraStream_->getCurrentBlock(),
-                           tetraStream_->getBlockNumTetra());
+    currentIsoPlane_Size_ = convertTetras2IsoPlane(
+                        isovalue_, 
+                        isoplane_,
+                        tetraStream_->getCurrentBlock(),
+                        tetraStream_->getCurrentIndTetraManager(),
+                        tetraStream_->getBlockNumTetra());
 }

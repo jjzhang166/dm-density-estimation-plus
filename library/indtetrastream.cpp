@@ -64,9 +64,9 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVel
     
     //write tetrahedrons
     //tetrahedron grids are not changed during the work
-	convertToTetrahedron(mem_grid_size_ + 1,
-                         mem_grid_size_ + 1,
-                         mem_grid_size_ + 1);
+	//convertToTetrahedron(mem_grid_size_ + 1,
+    //                     mem_grid_size_ + 1,
+    //                     mem_grid_size_ + 1);
     
 }
 
@@ -142,10 +142,14 @@ void IndTetraStream::loadBlock(int i){
 	}else{
 		gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
 	}
+    
+    convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
 	current_ind_block = i;
 }
 
-void IndTetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {		tetras_[current_ind_tetra].ind1 = ind1;
+void IndTetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {		
+    
+    tetras_[current_ind_tetra].ind1 = ind1;
     tetras_[current_ind_tetra].ind2 = ind2;
     tetras_[current_ind_tetra].ind3 = ind3;
     tetras_[current_ind_tetra].ind4 = ind4;
@@ -207,3 +211,11 @@ gadget_header IndTetraStream::getHeader(){
 IndTetrahedronManager& IndTetraStream::getCurrentIndTetraManager(){
     return indTetraManager_;
 }
+
+Point * IndTetraStream::getPositionBlock(){
+    return position_;
+}
+Point * IndTetraStream::getVelocityBlock(){
+    return velocity_;
+}
+

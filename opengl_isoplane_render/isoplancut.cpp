@@ -141,12 +141,18 @@ void getTriangles(REAL isoval, int & count,
 }
 
 int TetraIsoPlane::convertTetras2IsoPlane(REAL isovalue,
-        Triangle * triangles, Tetrahedron * tetras,
-                                          int nums){
+        Triangle * triangles,
+        IndTetrahedron * tetras,
+        IndTetrahedronManager & tetramanager,
+        int nums){
     int count  = 0;
     //printf("%d\n", nums);
     for(int i = 0; i < nums; i++){
-        getTriangles(isovalue, count, triangles, tetras[i]);
+        int temp_num_tetra = tetramanager.getNumPeriodical(tetras[i]);
+        Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[i]);
+        for(int j = 0; j<temp_num_tetra; j++){
+            getTriangles(isovalue, count, triangles, period_tetras[0]);
+        }
     }
     //printf("%d\n", count);
     return count;

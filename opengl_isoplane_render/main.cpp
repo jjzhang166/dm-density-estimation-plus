@@ -35,7 +35,7 @@
 
 //#include "grid.h"
 #include "tetrahedron.h"
-#include "tetrastream.h"
+#include "indtetrastream.h"
 #include "isoplane.h"
 #include "render.h"
 
@@ -159,7 +159,7 @@ int main(int argv, char * args[]){
 
     printf("*********************************************************************\n");
 
-	TetraStream tetraStream(filename, inputmemgrid, isVelocity);
+	IndTetraStream tetraStream(filename, inputmemgrid, isVelocity);
 	tetraStream.setIsInOrder(isInOrder);
 	tetraStream.setCorrection();
     TetraIsoPlane isoplane(&tetraStream);
