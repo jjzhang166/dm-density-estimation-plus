@@ -92,4 +92,34 @@ private:
 	bool isVelocity_;
 };
 
+
+//this class has a lot of funtional similarity with TetraStream, but this one takes
+//only small memeory
+class TetraStreamer{
+public:
+    TetraStreamer(std::string filename, int memgridsize,
+                  bool isVelocity = false,
+                  bool isCorrection = true,
+                  bool isInOrder = false,
+                  int limit_tetracount = 500000);
+    ~TetraStreamer();
+    
+    bool hasNext();
+    Tetrahedron * getNext(int& num_tetras_);
+    
+    void reset();
+
+private:
+    IndTetraStream * indstream_;
+    
+    int current_block_id_;
+    int current_tetra_id_;  //current indtetra_id in current block
+    int total_block_num_;
+    int total_tetra_num_;   //total indtetra_num in current block
+    
+    Tetrahedron * tetras_;  //tetrahedrons for returning the blocks
+    IndTetrahedron * indtetras_;
+    int tetra_count_;       //the tetrahedron count in the array
+    int limit_tetracount_;
+};
 #endif /* TETRASTREAM_H_ */

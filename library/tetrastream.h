@@ -1,3 +1,10 @@
+
+/**
+ * DISCLAIMER:
+ * This class almost ABSOLOTE, recomend use "TetraStreamer" defined in indtetrastream.h instead
+ */
+
+
 /*
  * tetrastream.h
  *
@@ -15,6 +22,8 @@
 #include "tetrahedron.h"
 #include "readgadget.h"
 using namespace std;
+
+
 
 /**
  * Get the tetrahedrons in a stream

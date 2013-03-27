@@ -162,6 +162,8 @@ int main(int argv, char * args[]){
 	IndTetraStream tetraStream(filename, inputmemgrid, isVelocity);
 	tetraStream.setIsInOrder(isInOrder);
 	tetraStream.setCorrection();
+
+
     TetraIsoPlane isoplane(&tetraStream);
     //printf("IsoPlane ok\n");
 	Render render(imagesize, boxsize, &isoplane, &argv, args);
