@@ -1,9 +1,11 @@
 /*
- * tetrastream.h
+ * indtetrastream.h
  *
- * This file defines TetraStream class, which takes a datafile as the input, load
- * as many data to the memory as the form of Tetrahedron. Output a Tetrahedron or
- * a point to the array of Tetrahedrons in current memory.
+ * This file defines IndTetraStream class, which is a low memory 
+ * conterpart of TetraStream. The tetrahedrons used in this stream
+ * is the IndTetraHedron, so that the output will only takes small
+ * amount of memory.
+ *
  *  Created on: Dec 17, 2012
  *      Author: lyang
  */
@@ -20,26 +22,34 @@ using namespace std;
  * Get the tetrahedrons in a stream
  * The basic idea is reading the large number of particle datas in blocks
  */
-class TetraStream {
+class IndTetraStream {
 public:
-	TetraStream(std::string filename, int memgridsize, bool isVelocity = false);
+	IndTetraStream(std::string filename, int memgridsize, bool isVelocity = false);
+    
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
 	int getBlockNumTetra();		//get number of tetrahedrons in memory
-	gadget_header getHeader();	//get the header
-	Tetrahedron * getCurrentBlock();	//return the current tetrahedron block
-	Tetrahedron * getBlock(int i);		//return the i-th tetrahedron block
+    
+    Point * getPositionBlock();
+    Point * getVelocityBlock();
+	gadget_header getHeader();          //get the header
+	IndTetrahedron * getCurrentBlock();	//return the current tetrahedron block
+	IndTetrahedron * getBlock(int i);	//return the i-th tetrahedron block
 	int getCurrentInd();				//return the current block id
+    
+                                        //get the current tetrahedron manager
+                                        //which include the velocity block,
+                                        //and position block
+    IndTetrahedronManager& getCurrentIndTetraManager();
+    
 	void loadBlock(int i);				//load the i-th block
 	bool reset();						//return to the 0-th block
-	void setCorrection();	//set up single voxvol correction and periodical correction, if not set to be null
-	void setIsInOrder(bool isinorder);		//set up whether the data is in order?
-	~TetraStream();
     
-    //splite a tetrahedron based on the periodical condition
-    static void splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize);
-    static void splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize);
-    static void splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize);
+    // currently takes no action here
+	void setCorrection();
+    
+	void setIsInOrder(bool isinorder);		//set up whether the data is in order?
+	~IndTetraStream();
 
 private:
 	std::string filename_;
@@ -53,7 +63,10 @@ private:
 
 	Point * position_;								// the position datas
 	Point * velocity_;								// velocities
-	Tetrahedron * tetras_;
+    
+	IndTetrahedron * tetras_;
+    IndTetrahedronManager indTetraManager_;
+    
     void convertToTetrahedron(int ii, int jj, int kk);	// convert the vertex data to tetrahedron
 														// ii, jj, kk is max-min+1
 
@@ -70,12 +83,6 @@ private:
 	//single vox_vol correction
 	//GridManager * grids_;
 	REAL box;
-	//REAL ng;
-	//REAL vox_vol;
-    void splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1);
-	void splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1);
-	void splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1);
-    
 
 	bool isPeriodical_;
 	bool isInOrder_;

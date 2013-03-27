@@ -141,8 +141,8 @@ void TetraStream::loadBlock(int i){
 	current_ind_block = i;
 }
 
-void TetraStream::splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1){
-	static Point * vertexs[4];
+void TetraStream::splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
+    static Point * vertexs[4];
 	static Point * temp_;
 	vertexs[0] = &(tetra.v1);
 	vertexs[1] = &(tetra.v2);
@@ -157,26 +157,30 @@ void TetraStream::splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1){
 			}
 		}
 	}
-	vertexs[3]->x += box;
-	if(vertexs[3]->x - vertexs[2]->x > box / 2.0){
-		vertexs[2]->x += box;
-		if(vertexs[2]->x - vertexs[1]->x > box / 2.0){
-			vertexs[1]->x += box;
+	vertexs[3]->x += boxsize;
+	if(vertexs[3]->x - vertexs[2]->x > boxsize / 2.0){
+		vertexs[2]->x += boxsize;
+		if(vertexs[2]->x - vertexs[1]->x > boxsize / 2.0){
+			vertexs[1]->x += boxsize;
 		}
 	}
 	tetra.computeVolume();
-
+    
 	tetra1 = tetra;
-	tetra1.v1.x -= box;
-	tetra1.v2.x -= box;
-	tetra1.v3.x -= box;
-	tetra1.v4.x -= box;
+	tetra1.v1.x -= boxsize;
+	tetra1.v2.x -= boxsize;
+	tetra1.v3.x -= boxsize;
+	tetra1.v4.x -= boxsize;
 	tetra1.computeMaxMin();
-
 }
 
-void TetraStream::splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1){
-	static Point * vertexs[4];
+void TetraStream::splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1){
+	splitTetraX(tetra, tetra1, box);
+}
+
+
+void TetraStream::splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
+    static Point * vertexs[4];
 	static Point * temp_;
 	vertexs[0] = &(tetra.v1);
 	vertexs[1] = &(tetra.v2);
@@ -191,26 +195,30 @@ void TetraStream::splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1){
 			}
 		}
 	}
-	vertexs[3]->y += box;
-	if(vertexs[3]->y - vertexs[2]->y > box / 2.0){
-		vertexs[2]->y += box;
-		if(vertexs[2]->y - vertexs[1]->y > box / 2.0){
-			vertexs[1]->y += box;
+	vertexs[3]->y += boxsize;
+	if(vertexs[3]->y - vertexs[2]->y > boxsize / 2.0){
+		vertexs[2]->y += boxsize;
+		if(vertexs[2]->y - vertexs[1]->y > boxsize / 2.0){
+			vertexs[1]->y += boxsize;
 		}
 	}
 	tetra.computeVolume();
-
+    
 	tetra1 = tetra;
-	tetra1.v1.y -= box;
-	tetra1.v2.y -= box;
-	tetra1.v3.y -= box;
-	tetra1.v4.y -= box;
+	tetra1.v1.y -= boxsize;
+	tetra1.v2.y -= boxsize;
+	tetra1.v3.y -= boxsize;
+	tetra1.v4.y -= boxsize;
 	tetra1.computeMaxMin();
-
 }
 
-void TetraStream::splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1){
-	static Point * vertexs[4];
+void TetraStream::splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1){
+    splitTetraY(tetra, tetra1, box);
+}
+
+
+void TetraStream::splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
+    static Point * vertexs[4];
 	static Point * temp_;
 	vertexs[0] = &(tetra.v1);
 	vertexs[1] = &(tetra.v2);
@@ -225,22 +233,25 @@ void TetraStream::splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1){
 			}
 		}
 	}
-	vertexs[3]->z += box;
-	if(vertexs[3]->z - vertexs[2]->z > box / 2.0){
-		vertexs[2]->z += box;
-		if(vertexs[2]->z - vertexs[1]->z > box / 2.0){
-			vertexs[1]->z += box;
+	vertexs[3]->z += boxsize;
+	if(vertexs[3]->z - vertexs[2]->z > boxsize / 2.0){
+		vertexs[2]->z += boxsize;
+		if(vertexs[2]->z - vertexs[1]->z > boxsize / 2.0){
+			vertexs[1]->z += boxsize;
 		}
 	}
 	tetra.computeVolume();
-
+    
 	tetra1 = tetra;
-	tetra1.v1.z -= box;
-	tetra1.v2.z -= box;
-	tetra1.v3.z -= box;
-	tetra1.v4.z -= box;
+	tetra1.v1.z -= boxsize;
+	tetra1.v2.z -= boxsize;
+	tetra1.v3.z -= boxsize;
+	tetra1.v4.z -= boxsize;
 	tetra1.computeMaxMin();
+}
 
+void TetraStream::splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1){
+    splitTetraZ(tetra, tetra1, box);
 }
 
 void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
