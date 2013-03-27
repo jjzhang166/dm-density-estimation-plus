@@ -162,7 +162,22 @@ int main(int argv, char * args[]){
 	IndTetraStream tetraStream(filename, inputmemgrid, isVelocity);
 	tetraStream.setIsInOrder(isInOrder);
 	tetraStream.setCorrection();
+    
+    //test
+    /*TetraStreamer streamer(filename, inputmemgrid, isVelocity, true, isInOrder);
+    while(streamer.hasNext()){
+        int nums;
+        Tetrahedron * tetras;
+        tetras = streamer.getNext(nums);
+        for(int i= 0; i < nums; i++){
+            printf("%d %f     \n", i, tetras[i].volume);
+            printf("%f %f %f\n",tetras[i].v1.x, tetras[i].v1.y, tetras[i].v1.z);
+            printf("%f %f %f\n",tetras[i].v2.x, tetras[i].v2.y, tetras[i].v2.z);
+            printf("%f %f %f\n",tetras[i].v3.x, tetras[i].v3.y, tetras[i].v3.z);
+            printf("%f %f %f\n",tetras[i].v4.x, tetras[i].v4.y, tetras[i].v4.z);
 
+        }
+    }*/
 
     TetraIsoPlane isoplane(&tetraStream);
     //printf("IsoPlane ok\n");
