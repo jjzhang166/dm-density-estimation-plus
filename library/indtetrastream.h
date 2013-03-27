@@ -80,6 +80,9 @@ private:
 			int isize, int jsize, int ksize);// add a tetra to the vector
 	GSnap * gsnap_;
 
+    //utility for add all the tetrahedron in a single vox
+    void addTetraAllVox(int i, int j, int k, int ii, int jj, int kk);
+
 	//single vox_vol correction
 	//GridManager * grids_;
 	REAL box;

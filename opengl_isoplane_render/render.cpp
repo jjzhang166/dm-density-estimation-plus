@@ -8,6 +8,9 @@
 
 #include <cmath>
 
+#include <unistd.h>
+#include <sys/time.h>
+
 #include "types.h"
 #include "render.h"
 #include "buffers.h"
@@ -150,7 +153,15 @@ Render::Render(int imagesize, REAL boxsize, TetraIsoPlane * isoplane,
     
 }
 
+double Render::getRenderTime(){
+    return rendertime_;
+}
+
+
 float * Render::getPlane(REAL isoval){
+    timeval timediff;
+    double t1, t0 = 0;
+
     isoplane_ -> setIsoValue(isoval);
     fbuffer->bindBuf();
     
@@ -171,31 +182,37 @@ float * Render::getPlane(REAL isoval){
     glEnableClientState (GL_VERTEX_ARRAY);
     glEnableClientState (GL_COLOR_ARRAY);
     
+    rendertime_ = 0;
     for(int i = 0; i < isoplane_->getTotalBlockNum(); i++){
         
-        Triangle * triangles = isoplane_->getIsoPlane(i);
-        GLfloat * vetexarray = (GLfloat *) triangles;
-        glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
-        glColorPointer (3, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[2]));
-        
-        /*for(int k = 0; k < isoplane_->getTriangleNumbers(); k += 1){
-            glBegin(GL_TRIANGLES);
-            glColor3f(triangles[k].val1.x * 1e8, triangles[k].val1.y, triangles[k].val1.z);
-            //glColor3f(0.5,0.0,0);
-            glVertex2f(triangles[k].a.x, triangles[k].a.y);
-            glVertex2f(triangles[k].b.x, triangles[k].b.y);
-            glVertex2f(triangles[k].c.x, triangles[k].c.y);
-            glEnd();
-			printf("%d\n", k);
-            printf("%f %f %e\n",triangles[k].a.x, triangles[k].a.y, triangles[k].val1.x);
-            printf("%f %f %e\n",triangles[k].b.x, triangles[k].b.y, triangles[k].val1.x);
-            printf("%f %f %e\n",triangles[k].c.x, triangles[k].c.y, triangles[k].val1.x);
-        }*/
-        
-        glDrawArrays(GL_TRIANGLES, 0, isoplane_->getTriangleNumbers() * 3);
+        isoplane_->loadIsoplane(i);
+        int num_triangles;
+        while(isoplane_-> hasNext()){
+            Triangle * triangles = isoplane_->getNextIsoPlaneBlock(num_triangles);
+            printf("%d\n",num_triangles);
+            GLfloat * vetexarray = (GLfloat *) triangles;
+            glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
+            glColorPointer (3, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[2]));
+  
+            gettimeofday(&timediff, NULL);
+            t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+
+            glDrawArrays(GL_TRIANGLES, 0, num_triangles * 3);
+
+            gettimeofday(&timediff, NULL);
+	        t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+            rendertime_ += (t1 - t0);
+        }
     }
+
+    gettimeofday(&timediff, NULL);
+    t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
     
     glFinish();
+    
+    gettimeofday(&timediff, NULL);
+	t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+    rendertime_ += (t1 - t0);
 
 	/*glBegin(GL_TRIANGLES);
     glColor3f(0.3, 0.0,0);
@@ -292,8 +309,22 @@ void rendsenc(){
 }
 
 float * Render::showPlane(REAL isoval){
+    printf("Start rendering ...\n");
+    timeval timediff;
+    double t1, t0, t_total = 0;
+
+    gettimeofday(&timediff, NULL);
+    t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+
     getPlane(isoval);
     getcolorImge(image_, colorImg_);
+
+    gettimeofday(&timediff, NULL);
+    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+    t_total = t1 - t0;
+    printf("Total time %f, rendering time %f, uses %f%% for rendering.\n", 
+                    t_total, rendertime_, rendertime_/t_total * 100);
+
     
     //set up glut
     glutDisplayFunc(&rendsenc);

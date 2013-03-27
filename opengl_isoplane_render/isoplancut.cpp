@@ -140,28 +140,25 @@ void getTriangles(REAL isoval, int & count,
     }*/
 }
 
-int TetraIsoPlane::convertTetras2IsoPlane(REAL isovalue,
-        Triangle * triangles,
-        IndTetrahedron * tetras,
-        IndTetrahedronManager & tetramanager,
-        int nums){
-    int count  = 0;
-    //printf("%d\n", nums);
-    for(int i = 0; i < nums; i++){
-        int temp_num_tetra = tetramanager.getNumPeriodical(tetras[i]);
-        Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[i]);
-        //int j = 0;
-        for(int j = 0; j<temp_num_tetra; j++){
-            //Tetrahedron & tetra_ = period_tetras[j];
-            //printf("%d\n", temp_num_tetra);
-            //printf("%f %f %f \n", tetra_.v1.x, tetra_.v1.y, tetra_.v1.z);
-            //printf("%f %f %f \n", tetra_.v2.x, tetra_.v2.y, tetra_.v2.z);
-            //printf("%f %f %f \n", tetra_.v3.x, tetra_.v3.y, tetra_.v3.z);
-            //printf("%f %f %f \n", tetra_.v4.x, tetra_.v4.y, tetra_.v4.z);
+void TetraIsoPlane::convertTetras2IsoPlane(){
+    
+    Triangle * triangles = isoplane_;
+    IndTetrahedronManager& tetramanager = tetraStream_->getCurrentIndTetraManager();;
 
-            getTriangles(isovalue, count, triangles, period_tetras[j]);
+    int count  = 0;
+
+    while((count < isoplane_mem_size_ - 1) && (current_tetra_num_ < total_tetra_num_)){
+        int temp_num_tetra = tetramanager.getNumPeriodical(tetras[current_tetra_num_]);
+        Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[current_tetra_num_]);
+        for(int j = 0; j<temp_num_tetra; j++){
+            getTriangles(isovalue_, count, triangles, period_tetras[j]);
+            if(count >= isoplane_mem_size_ - 1){
+                break;
+            }
         }
+        current_tetra_num_ ++;
+        //printf("%d %d\n", count, current_tetra_num_);
     }
-    //printf("%d\n", count);
-    return count;
+    
+    currentIsoPlane_Size_ = count;
 }

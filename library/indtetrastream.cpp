@@ -64,9 +64,9 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVel
     
     //write tetrahedrons
     //tetrahedron grids are not changed during the work
-	//convertToTetrahedron(mem_grid_size_ + 1,
-    //                     mem_grid_size_ + 1,
-    //                     mem_grid_size_ + 1);
+	convertToTetrahedron(mem_grid_size_ + 1,
+                         mem_grid_size_ + 1,
+                         mem_grid_size_ + 1);
     
 }
 
@@ -143,7 +143,10 @@ void IndTetraStream::loadBlock(int i){
 		gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
 	}
     
-    convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
+    //current_tetra_num = 6 * (imax - imin) * (jmax - imin) * (kmax - kmin); 
+    //printf(">>>%d %d\n", 6 * (imax - imin) * (jmax - jmin) * (kmax - kmin), 6*mem_grid_size_*mem_grid_size_*mem_grid_size_);
+    //convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
+
 	current_ind_block = i;
 }
 
@@ -167,6 +170,29 @@ void IndTetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
 	addTetra(ind1, ind2, ind3, ind4);
 }
 
+void IndTetraStream::addTetraAllVox(int i, int j, int k, int ii, int jj, int kk){
+    //1
+    addTetra(i, j, k, i, j + 1, k, i, j, k + 1, i + 1, j, k + 1,
+    		ii, jj, kk);
+				//2
+	addTetra(i, j, k, i, j + 1, k, i + 1, j, k + 1, i + 1, j, k,
+						ii, jj, kk);
+				//3
+    addTetra(i, j, k + 1, i, j + 1, k + 1, i + 1, j, k + 1, i,
+						j + 1, k, ii, jj, kk);
+				//4
+	addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1, i,
+						j + 1, k + 1, ii, jj, kk);
+				//5
+	addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1,
+						i + 1, j + 1, k, ii, jj, kk);
+				//6
+	addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k, i + 1,
+						j, k, ii, jj, kk);
+
+}
+
+
 void IndTetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 	current_ind_tetra = 0;
 	int i, j, k;		//loop variables
@@ -174,29 +200,23 @@ void IndTetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 	for (k = 0; k < kk-1; k++) {
 		for (j = 0; j < jj-1; j++) {
 			for (i = 0; i < ii-1; i++) {
-				//1
-				addTetra(i, j, k, i, j + 1, k, i, j, k + 1, i + 1, j, k + 1,
-						ii, jj, kk);
-				//2
-				addTetra(i, j, k, i, j + 1, k, i + 1, j, k + 1, i + 1, j, k,
-						ii, jj, kk);
-				//3
-				addTetra(i, j, k + 1, i, j + 1, k + 1, i + 1, j, k + 1, i,
-						j + 1, k, ii, jj, kk);
-				//4
-				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1, i,
-						j + 1, k + 1, ii, jj, kk);
-				//5
-				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1,
-						i + 1, j + 1, k, ii, jj, kk);
-				//6
-				addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k, i + 1,
-						j, k, ii, jj, kk);
-
+                addTetraAllVox(i, j, k, ii, jj, kk);
 			}
 		}
 	}
+
+	//for (k = 0; k < kk-1; k++) {
+	//	for (j = 0; j < jj-1; j++) {
+	//		for (i = 0; i < ii-1; i++) {
+    //            addTetraAllVox(i, j, k, ii, jj, kk);
+	//		}
+   	//	}
+	//}
+
+
 	current_tetra_num = current_ind_tetra;
+    //printf("%d\n", current_tetra_num);
+
 }
 
 void IndTetraStream::setCorrection(/*GridManager * grid*/){

@@ -15,12 +15,16 @@ public:
     //just return the redering result
     float * getPlane(REAL isoval);
 
+    //return the running time for rendering
+    double getRenderTime();
+
 private:
     TetraIsoPlane * isoplane_;
     int imagesize_;
     REAL boxsize_;
     float * image_;
     float * colorImg_;
+    double rendertime_;
 
 };
 

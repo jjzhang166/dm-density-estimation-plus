@@ -8,14 +8,19 @@
 class TetraIsoPlane{
 public:
     // memgridsize is the same 
-    TetraIsoPlane(IndTetraStream * tetraStream);
+    TetraIsoPlane(IndTetraStream * tetraStream, int isoplane_mem_size = 1000000);
     ~TetraIsoPlane();
-    Triangle * getCurrentIsoPlane();
-    Triangle * getIsoPlane(int i);  // get the i-th block isoplane
-    int getTriangleNumbers();        // return the triangle numbers in current isoplane
-    int getTotalBlockNum();          // has more tetrahedrons to cut?
-    void setIsoValue(REAL isovalue);
+
+    // each time, use loadIsoPlane, the output will be stored in a stream. 
+    // use hasNext, and getNextIsoPlaneBlock to get all isoplane block
     void loadIsoplane(int i);        // load the i-th block isovalue
+    bool hasNext();
+    Triangle * getNextIsoPlaneBlock(int & num_triangles);
+    //Triangle * getIsoPlane(int i);  // get the i-th block isoplane
+
+    int getTotalBlockNum();          // has more tetrahedrons to cut?
+    int getTriangleNumbers();        // return the triangle numbers in current isoplane
+    void setIsoValue(REAL isovalue);
     
 private:
     Triangle * isoplane_;
@@ -23,10 +28,16 @@ private:
     int isoPlane_Size_;
     int currentIsoPlane_Size_;
     REAL isovalue_;
-    int convertTetras2IsoPlane(REAL isovalue, 
-                    Triangle *, 
-                    IndTetrahedron *,
-                    IndTetrahedronManager & tetramanager,
-                    int nums); //returns the number of tetrahedrons in the isoplane
+
+    int isoplane_mem_size_;
+    
+    void convertTetras2IsoPlane(); //returns the number of tetrahedrons in the isoplane
+    
+    //these variables will be reset when calling loadIsoplane
+    int total_tetra_num_;
+    int current_tetra_num_;
+    //IndTetrahedronManager * tetramanager_;
+    IndTetrahedron * tetras;
+    
 };
 #endif
