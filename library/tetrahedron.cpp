@@ -396,6 +396,13 @@ CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrah
 	tetra_.v2 = positionArray[t.ind2];
 	tetra_.v3 = positionArray[t.ind3];
 	tetra_.v4 = positionArray[t.ind4];
+    
+    printf("%d %d %d %d\n", t.ind1, t.ind2, t.ind3, t.ind4);
+    printf("%f %f %f \n", tetra_.v1.x, tetra_.v1.y, tetra_.v1.z);
+    printf("%f %f %f \n", tetra_.v2.x, tetra_.v2.y, tetra_.v2.z);
+    printf("%f %f %f \n", tetra_.v3.x, tetra_.v3.y, tetra_.v3.z);
+    printf("%f %f %f \n", tetra_.v4.x, tetra_.v4.y, tetra_.v4.z);
+    
     tetra_.computeVolume();
     
     //periodical correction:
