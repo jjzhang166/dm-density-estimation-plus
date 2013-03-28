@@ -24,7 +24,7 @@ public:
     //If gridsize == -1, then set up the gridsize to be (Npart)^(1/3)
     //parttype =? six kinds
 	GSnap(std::string filename, bool isHighMem = true,
-          int parttype =1, int gridsize = 512);
+          int parttype =1, int gridsize = -1);
 	~GSnap();
 	gadget_header header;
 	uint32_t Npart;
