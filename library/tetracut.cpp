@@ -7,7 +7,7 @@ IsoCutter::IsoCutter(){
     num_tris_ = 0;
 }
 
-void IsoCutter::setTetrahedron(const Tetrahedron &tetra){
+void IsoCutter::setTetrahedron(Tetrahedron *tetra){
     tetra_ = tetra;
 }
 
@@ -67,6 +67,11 @@ bool IsoCutter::testTriangle(const Point &a, const Point &b, const Point &c, con
 
 
 int IsoCutter::cut(REAL isoval){
+    if((isoval < v1_ && isoval < v2_ && isoval < v3_ && isoval < v4_) ||
+       (isoval > v1_ && isoval > v2_ && isoval > v3_ && isoval > v4_)){
+        return 0;
+    }
+
     Point verts[6];
     Point zero;
     zero.x = 0;
@@ -74,66 +79,74 @@ int IsoCutter::cut(REAL isoval){
     zero.z = 0;
     int vertCount = 0;
     
-    if(iso_cut_line(isoval, tetra_.v1, tetra_.v2, v1_, v2_, verts[vertCount])){
+    //return 0;
+    
+    if(iso_cut_line(isoval, tetra_->v1, tetra_->v2, v1_, v2_, verts[vertCount])){
         vertCount ++;
     }
     
-    if(iso_cut_line(isoval, tetra_.v1, tetra_.v3, v1_, v3_, verts[vertCount])){
+    if(iso_cut_line(isoval, tetra_->v1, tetra_->v3, v1_, v3_, verts[vertCount])){
         vertCount ++;
     }
     
-    if(iso_cut_line(isoval, tetra_.v1, tetra_.v4, v1_, v4_, verts[vertCount])){
+    if(iso_cut_line(isoval, tetra_->v1, tetra_->v4, v1_, v4_, verts[vertCount])){
         vertCount ++;
     }
     
-    if(iso_cut_line(isoval, tetra_.v2, tetra_.v3, v2_, v3_, verts[vertCount])){
+    if(iso_cut_line(isoval, tetra_->v2, tetra_->v3, v2_, v3_, verts[vertCount])){
         vertCount ++;
     }
     
-    if(iso_cut_line(isoval, tetra_.v2, tetra_.v4, v2_, v4_, verts[vertCount])){
+    if(iso_cut_line(isoval, tetra_->v2, tetra_->v4, v2_, v4_, verts[vertCount])){
         vertCount ++;
     }
     
-    if(iso_cut_line(isoval, tetra_.v3, tetra_.v4, v3_, v4_, verts[vertCount])){
+    if(iso_cut_line(isoval, tetra_->v3, tetra_->v4, v3_, v4_, verts[vertCount])){
         vertCount ++;
     }
     
     num_tris_ = 0;
+    //return num_tris_;
+    
     if(vertCount == 3){
         t1_.a = verts[0];
         t1_.b = verts[1];
         t1_.c = verts[2];
         num_tris_ ++;
         return num_tris_;
-    }
-    if(vertCount >= 4){
-        int a, b, c, d;
-        for(a = 0; a < 4; a++){
-            for(b = a + 1; b < 4; b ++){
-                for(c = 0; c < 4; c ++){
-                    for(d = c + 1; d < 4; d++){
-                        if(a != c && b != c && a!=d && b!=d){
-                            if(testTriangle(verts[a], verts[b], verts[c], verts[d])){
-                                t1_.a = verts[a];
-                                t1_.b = verts[b];
-                                t1_.c = verts[c];
-                                num_tris_ ++;
-                                t2_.a = verts[a];
-                                t2_.b = verts[b];
-                                t2_.c = verts[d];
-                                num_tris_ ++;
-                                return num_tris_;
-                            }
+    }else if(vertCount >= 4){
+        int a=0, b=1, c=2, d=3;
+        if(!testTriangle(verts[a], verts[b], verts[c], verts[d])){
+            a=0; b=2; c=1; d=3;
+            if(!testTriangle(verts[a], verts[b], verts[c], verts[d])){
+                a=0; b=3; c=2; d=1;
+                if(!testTriangle(verts[a], verts[b], verts[c], verts[d])){
+                    a=1; b=2; c=0; d=3;
+                    if(!testTriangle(verts[a], verts[b], verts[c], verts[d])){
+                        a=1; b=3; c=0; d=2;
+                        if(!testTriangle(verts[a], verts[b], verts[c], verts[d])){
+                            a=2; b=3; c=1; d=0;
                         }
                     }
                 }
             }
         }
+        
+            
+        t1_.a = verts[a];
+        t1_.b = verts[b];
+        t1_.c = verts[c];
+        num_tris_ ++;
+        t2_.a = verts[a];
+        t2_.b = verts[b];
+        t2_.c = verts[d];
+        num_tris_ ++;
+        return num_tris_;
     }
     return num_tris_;
 }
 
-Triangle3d IsoCutter::getTrangle(int i){
+Triangle3d& IsoCutter::getTrangle(int i){
     if(i == 0){
         return t1_;
     }else if(i == 1){

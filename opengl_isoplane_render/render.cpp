@@ -322,8 +322,9 @@ float * Render::showPlane(REAL isoval){
     gettimeofday(&timediff, NULL);
     t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
     t_total = t1 - t0;
-    printf("Total time %f, rendering time %f, uses %f%% for rendering.\n", 
-                    t_total, rendertime_, rendertime_/t_total * 100);
+    printf("Total time %f, rendering time %f, uses %f%% for rendering.\nCutting time %f, uses %f%% for cutting\n", 
+                    t_total, rendertime_, rendertime_/t_total * 100, isoplane_->getCutTime(), 
+                    isoplane_->getCutTime()/t_total*100);
 
     
     //set up glut

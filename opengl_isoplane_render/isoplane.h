@@ -21,8 +21,13 @@ public:
     int getTotalBlockNum();          // has more tetrahedrons to cut?
     int getTriangleNumbers();        // return the triangle numbers in current isoplane
     void setIsoValue(REAL isovalue);
+    double getCutTime(){
+        return cuttingtime_;
+    };
     
 private:
+    double cuttingtime_;
+
     Triangle * isoplane_;
     IndTetraStream * tetraStream_;
     int isoPlane_Size_;

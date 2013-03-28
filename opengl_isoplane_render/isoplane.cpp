@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <sys/time.h>
+
 #include "triangle.h"
 #include "indtetrastream.h"
 #include "isoplane.h"
@@ -13,6 +16,7 @@ TetraIsoPlane::TetraIsoPlane(IndTetraStream * tetraStream, int isoplane_mem_size
     current_tetra_num_ = 0;
     tetras = NULL;
     isoplane_mem_size_ = isoplane_mem_size + 1;
+    cuttingtime_ = 0;
 }
 
 TetraIsoPlane::~TetraIsoPlane(){
@@ -27,7 +31,11 @@ bool TetraIsoPlane::hasNext(){
     }
 }
 Triangle * TetraIsoPlane::getNextIsoPlaneBlock(int & num_triangles){
+
     convertTetras2IsoPlane();
+    
+
+
     num_triangles = currentIsoPlane_Size_;
     return isoplane_;
 }
