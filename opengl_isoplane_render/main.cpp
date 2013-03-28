@@ -184,7 +184,7 @@ int main(int argv, char * args[]){
 	Render render(imagesize, boxsize, &isoplane, &argv, args);
     //printf("Main ok\n");
     //render.showPlane(1000);
-    render.showPlane(26000);
+    render.showPlane(26300);
 
     
     return 0;

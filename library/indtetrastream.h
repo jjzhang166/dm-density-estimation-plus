@@ -34,7 +34,7 @@ public:
      * the data into memory.
      */
 	IndTetraStream(std::string filename, int memgridsize, 
-                    bool isVelocity = false, bool isAllData = true);
+                    bool isVelocity = false, bool isAllData = false);
     
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
