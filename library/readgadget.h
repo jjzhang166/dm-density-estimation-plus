@@ -14,8 +14,11 @@
 
 class GSnap {
 public:
-    //if store all the data in the memory
-	GSnap(std::string filename, bool isHighMem = true);
+    //isHighMem - if store all the data in the memory.
+    //If gridsize == -1, then set up the gridsize to be (Npart)^(1/3)
+    //parttype =? six kinds
+	GSnap(std::string filename, bool isHighMem = true,
+          int parttype =1, int gridsize = -1);
 	~GSnap();
 	gadget_header header;
 	uint32_t Npart;
@@ -61,6 +64,9 @@ private:
 	int grid_size;
 
     bool isHighMem_;
+    
+    //total number of particles in the gadget file
+    int totalparts;
     
     Point * allpos_;
     Point * allvel_;

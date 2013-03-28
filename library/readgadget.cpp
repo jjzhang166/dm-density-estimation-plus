@@ -23,11 +23,8 @@ struct sort_pred {
 };
 
 
-GSnap::GSnap(string filename, bool isHighMem) {
-	//vel = NULL;
-	//pos = NULL;
-	//ids = NULL;
-	Npart = 0;
+GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
+    Npart = 0;
 	filename_ = filename;
 
 	uint32_t record0, record1;
@@ -48,49 +45,67 @@ GSnap::GSnap(string filename, bool isHighMem) {
 		return;
 	}
 
-	Npart = header.npart[1];
-	grid_size = (int)ceil(pow(Npart, 1.0/3.0));
-
+    if(gridsize == -1){
+        Npart = header.npart[1];
+        grid_size = (int)ceil(pow(Npart, 1.0/3.0));
+    }else{
+        grid_size = gridsize;
+        Npart = grid_size * grid_size * grid_size;
+    }
+    
+    int startind=0, endind=0;
+    for(int i = 0; i < N_TYPE; i++){
+        totalparts += header.npart[i];
+        if(i < parttype){
+            startind += header.npart[i];
+        }
+    }
+    endind = startind + header.npart[parttype];
+    
+    //printf("%d, %d, %d\n", startind, endind, totalparts);
+    //printf("%d %d %d %d %d %d\n", header.npartTotal[0],header.npartTotal[1], header.npartTotal[2],
+    //        header.npartTotal[3],header.npartTotal[4],header.npartTotal[5]);
 
     isHighMem_ = isHighMem;
     //isHighMem_ = false;
     //read all the data into memory
     if(isHighMem_){
         
-        allind_ = new uint32_t[Npart];
-        allpos_ = new Point[Npart];
-        allvel_ = new Point[Npart];
+        allind_ = new uint32_t[totalparts];
+        allpos_ = new Point[totalparts];
+        allvel_ = new Point[totalparts];
 
-        readPos(file, allpos_, 0, Npart);
-        readVel(file, allvel_, 0, Npart);
+        readPos(file, allpos_, 0, totalparts);
+        readVel(file, allvel_, 0, totalparts);
+        //printf("%d, %f %f %f\n", totalparts, allvel_[Npart - 1].x, allvel_[Npart - 1].y, allvel_[Npart - 1].z);
         
         //read indexs:
         streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
-			+ sizeof(uint32_t) + Npart * sizeof(REAL) * 3 + sizeof(uint32_t)
+			+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+			+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
 			+ sizeof(uint32_t);
 	    file.seekg(spos, ios_base::beg);
-        file.read((char *) allind_, sizeof(uint32_t) * Npart);
+        file.read((char *) allind_, sizeof(uint32_t) * totalparts);
+        //printf("%d\n", allind_[0]);
         
-        //sort the data
-        pair<int, int> * inds = new pair<int, int>[Npart];
-        for(unsigned int i = 0; i < Npart; i ++){
-            inds[i].first = allind_[i];
-            inds[i].second = i;
-        }
-        
-        sort(inds, inds+Npart, sort_pred());
         Point * temppos = allpos_;
         Point * tempvel = allvel_;
         allpos_ = new Point[Npart];
         allvel_ = new Point[Npart];
-        for(unsigned int i = 0; i < Npart; i ++){
-            //printf("%d %d\n", inds[i].first, inds[i].second);
-            allpos_[i] = temppos[inds[i].second];
-            allvel_[i] = tempvel[inds[i].second];
+        for(int i = 0; i < (int)Npart; i ++){
+            allpos_[i].x = -1;
         }
+        
+        for(int i = startind; i < endind; i ++){
+            temppos[i].x = fmod((float)temppos[i].x, (float)header.BoxSize);
+            temppos[i].y = fmod((float)temppos[i].y, (float)header.BoxSize);
+            temppos[i].z = fmod((float)temppos[i].z, (float)header.BoxSize);
+            allpos_[allind_[i]] = temppos[i];
+            allvel_[allind_[i]] = allvel_[i];
+            //printf("%f %f %f\n", allpos_[allind_[i]].x, allpos_[allind_[i]].y, allpos_[allind_[i]].z);
+        }
+        
         delete allind_;
-        delete inds;
         delete temppos;
         delete tempvel;
     }

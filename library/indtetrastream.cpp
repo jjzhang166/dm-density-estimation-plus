@@ -202,16 +202,16 @@ void IndTetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
                 ((k1+kmin)  % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
         
         ind2 = ((i2+imin) % particle_grid_size_) +
-            ((j2+jmin) % particle_grid_size_) * particle_grid_size_ +
-            ((k2+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+                ((j2+jmin) % particle_grid_size_) * particle_grid_size_ +
+                ((k2+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
         
         ind3 = ((i3+imin) % particle_grid_size_) +
-            ((j3+jmin) % particle_grid_size_) * particle_grid_size_ +
-            ((k3+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+                ((j3+jmin) % particle_grid_size_) * particle_grid_size_ +
+                ((k3+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
         
         ind4 = ((i4+imin) % particle_grid_size_) +
-            ((j4+jmin) % particle_grid_size_) * particle_grid_size_ +
-            ((k4+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+                ((j4+jmin) % particle_grid_size_) * particle_grid_size_ +
+                ((k4+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
     }
 	addTetra(ind1, ind2, ind3, ind4);
 }

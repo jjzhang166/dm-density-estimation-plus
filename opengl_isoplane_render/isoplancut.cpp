@@ -80,23 +80,31 @@ void TetraIsoPlane::convertTetras2IsoPlane(){
 
     //return;
     while((count < isoplane_mem_size_ - 1) && (current_tetra_num_ < total_tetra_num_)){
-        int temp_num_tetra = tetramanager.getNumPeriodical(tetras[current_tetra_num_]);
-        Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[current_tetra_num_]);
-        for(int j = 0; j<temp_num_tetra; j++){
+        //ignore the tetrahedrons that is not usable
+        if(tetramanager.posa(tetras[current_tetra_num_]).x < 0 ||
+           tetramanager.posb(tetras[current_tetra_num_]).x < 0 ||
+           tetramanager.posc(tetras[current_tetra_num_]).x < 0 ||
+           tetramanager.posd(tetras[current_tetra_num_]).x < 0){
+            //This tetrahedron is ignored
+        }else{
+        
+            int temp_num_tetra = tetramanager.getNumPeriodical(tetras[current_tetra_num_]);
+            Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[current_tetra_num_]);
+            for(int j = 0; j<temp_num_tetra; j++){
             
-            gettimeofday(&timediff, NULL);
-            t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+                gettimeofday(&timediff, NULL);
+                t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
             
-            getTriangles(isovalue_, count, triangles, period_tetras[j]);
+                getTriangles(isovalue_, count, triangles, period_tetras[j]);
             
-            gettimeofday(&timediff, NULL);
-            t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-            cuttingtime_ += t1 - t0;
+                gettimeofday(&timediff, NULL);
+                t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+                cuttingtime_ += t1 - t0;
             
-            if(count >= isoplane_mem_size_ - 1){
-                break;
+                if(count >= isoplane_mem_size_ - 1){
+                    break;
+                }
             }
-            
         }
         current_tetra_num_ ++;
         //printf("%d %d\n", count, current_tetra_num_);
