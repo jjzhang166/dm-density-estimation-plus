@@ -53,7 +53,8 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
         Npart = grid_size * grid_size * grid_size;
     }
     
-    int startind=0, endind=0;
+    startind=0;
+    endind=0;
     for(int i = 0; i < N_TYPE; i++){
         totalparts += header.npart[i];
         if(i < parttype){
@@ -101,7 +102,7 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
             temppos[i].y = fmod((float)temppos[i].y, (float)header.BoxSize);
             temppos[i].z = fmod((float)temppos[i].z, (float)header.BoxSize);
             allpos_[allind_[i]] = temppos[i];
-            allvel_[allind_[i]] = allvel_[i];
+            allvel_[allind_[i]] = tempvel[i];
             //printf("%f %f %f\n", allpos_[allind_[i]].x, allpos_[allind_[i]].y, allpos_[allind_[i]].z);
         }
         
@@ -135,7 +136,7 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
 	//fill_n(total_cts, total_cts, 0);
 	int lop_i;
 	for(lop_i = 0; lop_i < total_cts; lop_i++){
-		block_count[lop_i] = 0;
+		block_count[lop_i] = -1;
 	}
 
 	//read the positions
@@ -149,8 +150,15 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
 	for(i = 0; i < ii; i++){
 		for(j = 0; j < jj; j++){
 			for(k = 0; k < kk; k++){
-				Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
-				posblock[i + j * ii + k * ii * jj] = apos;
+                if(block_count[i + j * ii + k * ii * jj] != -1){
+                    Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
+                    posblock[i + j * ii + k * ii * jj].x = fmod((float)apos.x, (float)header.BoxSize);
+                    posblock[i + j * ii + k * ii * jj].y = fmod((float)apos.y, (float)header.BoxSize);
+                    posblock[i + j * ii + k * ii * jj].z = fmod((float)apos.z, (float)header.BoxSize);
+                }else{
+                    //mask this point as not usable
+                    posblock[i + j * ii + k * ii * jj].x = -1;
+                }
 			}
 		}
 	}
@@ -170,7 +178,7 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int j
 	//fill_n(total_cts, total_cts, 0);
 	int lop_i;
 	for(lop_i = 0; lop_i < total_cts; lop_i++){
-		block_count[lop_i] = 0;
+		block_count[lop_i] = -1;
 	}
 
 	//read the positions
@@ -183,11 +191,17 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int j
 	for(i = 0; i < ii; i++){
 		for(j = 0; j < jj; j++){
 			for(k = 0; k < kk; k++){
-				Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
-				posblock[i + j * ii + k * ii * jj] = apos;
+                if(block_count[i + j * ii + k * ii * jj] != -1){
+                    Point apos = readPos(file, block_count[i + j * ii + k * ii * jj]);
+                    posblock[i + j * ii + k * ii * jj].x = fmod((float)apos.x, (float)header.BoxSize);
+                    posblock[i + j * ii + k * ii * jj].y = fmod((float)apos.y, (float)header.BoxSize);
+                    posblock[i + j * ii + k * ii * jj].z = fmod((float)apos.z, (float)header.BoxSize);
 
-				apos = readVel(file, block_count[i + j * ii + k * ii * jj]);
-				velocityblock[i + j * ii + k * ii * jj] = apos;
+                    apos = readVel(file, block_count[i + j * ii + k * ii * jj]);
+                    velocityblock[i + j * ii + k * ii * jj] = apos;
+                }else{
+                    posblock[i + j * ii + k * ii * jj].x = -1;
+                }
 			}
 		}
 	}
@@ -217,47 +231,7 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
     }
     //printf("ok1.5\n");
 
-	if(isOrdered){
-		int ix, iy, iz;
-		for(ix = imin; ix <= imax; ix ++){
-			for(iy = jmin; iy <= jmax; iy ++){
-				for(iz = kmin; iz <= kmax; iz ++){
-					int ix0, iy0, iz0;
-					if( ix >= grid_size && isPeriodical){
-						ix0 = ix - grid_size;
-					}else{
-						ix0 = ix;
-					}
-
-					if( iy >= grid_size && isPeriodical){
-						iy0 = iy - grid_size;
-					}else{
-						iy0 = iy;
-					}
-
-					if( iz >= grid_size && isPeriodical){
-						iz0 = iz - grid_size;
-					}else{
-						iz0= iz;
-					}
-
-					int poscount = ix0 + iy0 * grid_size + iz0 * grid_size * grid_size;
-                    int ind;
-
-                    //printf("ok2\n");
-                    if(!isHighMem_){
-					    file.seekg(spos + poscount, ios_base::beg);
-                        file.read((char *) &ind, sizeof(int));
-                    }else{
-                        ind = poscount;//allind_[poscount];
-                    }
-                    //printf("ok2.5\n");
-
-					block_count[(ix - imin) + (iy - jmin) * ii + (iz - kmin) * ii * jj] = ind;
-				}
-			}
-		}
-	}else{
+    {
 		int temp_count = 0;
         int i; 
 		for(i = 0; i < (int)Npart; i++){
@@ -270,7 +244,6 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
             if(!isHighMem_){
                 file.read((char *) &ind, sizeof(int));              
             }else{
-                //printf("%d %d\n", i, Npart);
                 ind = i;//allind_[i];
             }
             //printf("ok3.5\n");

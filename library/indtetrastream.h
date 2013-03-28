@@ -29,12 +29,13 @@ using namespace std;
 class IndTetraStream {
 public:
 
-    /**
+    /********************************************************************
      * USE "isAllData" to avoid data COPYING. But need memory to store all
      * the data into memory.
-     */
+     * WARNING: isAllData can only work in high memory mode
+     ********************************************************************/
 	IndTetraStream(std::string filename, int memgridsize, 
-                    bool isVelocity = false, bool isAllData = false);
+                    bool isVelocity = false, bool isAllData = true);
     
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
