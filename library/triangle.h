@@ -1,5 +1,6 @@
 #ifndef __TRIANGLE__
 #define __TRIANGLE__
+#include <cstdlib>
 
 #include "tetrahedron.h"
 
