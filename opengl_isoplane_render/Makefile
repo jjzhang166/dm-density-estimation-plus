@@ -1,8 +1,8 @@
 #MACOS
 CC=g++
 LIB=../library
-#LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
-LFLAGS= -lGL -lglut -lGLEW
+LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
+#LFLAGS= -lGL -lglut -lGLEW
 IFLAG= -I /usr/include/GL/ -I${LIB}
 
 all: obj

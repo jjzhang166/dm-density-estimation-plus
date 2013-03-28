@@ -92,22 +92,29 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
         Point * temppos = allpos_;
         Point * tempvel = allvel_;
         allpos_ = new Point[Npart];
-        allvel_ = new Point[Npart];
+        //allvel_ = new Point[Npart];
         for(int i = 0; i < (int)Npart; i ++){
             allpos_[i].x = -1;
         }
+        
         
         for(int i = startind; i < endind; i ++){
             temppos[i].x = fmod((float)temppos[i].x, (float)header.BoxSize);
             temppos[i].y = fmod((float)temppos[i].y, (float)header.BoxSize);
             temppos[i].z = fmod((float)temppos[i].z, (float)header.BoxSize);
             allpos_[allind_[i]] = temppos[i];
-            allvel_[allind_[i]] = tempvel[i];
+            //allvel_[allind_[i]] = tempvel[i];
             //printf("%f %f %f\n", allpos_[allind_[i]].x, allpos_[allind_[i]].y, allpos_[allind_[i]].z);
         }
         
-        delete allind_;
         delete temppos;
+        
+        allvel_ = new Point[Npart];
+        for(int i = startind; i < endind; i ++){
+            allvel_[allind_[i]] = tempvel[i];
+        }
+        
+        delete allind_;
         delete tempvel;
     }
 
