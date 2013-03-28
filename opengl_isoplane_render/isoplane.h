@@ -25,6 +25,10 @@ public:
         return cuttingtime_;
     };
     
+    IndTetraStream * getIndStream(){
+        return tetraStream_;
+    };
+    
 private:
     double cuttingtime_;
 

@@ -15,10 +15,14 @@ using namespace std;
 #include "readgadget.h"
 
 //inputmemgridsize should be a divisor of the total_grid_size
-IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVelocity) {
+IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
+                               bool isVelocity, bool isAllData) {
 	isVelocity_ = isVelocity;
+    isAllData_ = isAllData;
 
 	filename_ = filename;
+    
+    iotime_ = 0;
 
 	gsnap_ = new GSnap(filename_);
     //printf("what's up\n");
@@ -37,17 +41,21 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVel
 
     
 	tetras_ = new IndTetrahedron[mem_tetra_size_];
-	position_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
-	if(isVelocity_){
-		velocity_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
-	}
+	
+    //if use all data, no need to build new pointers
+    if(!isAllData_){
+        position_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1)];
+        if(isVelocity_){
+            velocity_ = new Point[(mem_grid_size_ + 1) * (mem_grid_size_ + 1) *     (mem_grid_size_ + 1)];
+        }
+        for(int i = 0; i < (mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1); i++){
+            position_[i].x = position_[i].y = position_[i].z = 0.0;
+            if(isVelocity_){
+                velocity_[i].x = velocity_[i].y = velocity_[i].z = 0.0;
+            }
+        }
+    }
 
-	for(int i = 0; i < (mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1); i++){
-		position_[i].x = position_[i].y = position_[i].z = 0.0;
-		if(isVelocity_){
-			velocity_[i].x = velocity_[i].y = velocity_[i].z = 0.0;
-		}
-	}
 
 	total_tetra_grid_num_ = particle_grid_size_ / mem_grid_size_ *
 			particle_grid_size_ / mem_grid_size_ *
@@ -65,9 +73,15 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize, bool isVel
     
     //write tetrahedrons
     //tetrahedron grids are not changed during the work
-	convertToTetrahedron(mem_grid_size_ + 1,
+    //if use all the data, then tetrahedron index will change each load
+    if(!isAllData_){
+        convertToTetrahedron(mem_grid_size_ + 1,
                          mem_grid_size_ + 1,
                          mem_grid_size_ + 1);
+    }else{
+        position_ = gsnap_->getAllPos();
+        velocity_ = gsnap_->getAllVel();
+    }
     
 }
 
@@ -118,7 +132,8 @@ void IndTetraStream::loadBlock(int i){
 	if(i >= this->total_tetra_grid_num_){
 		return;
 	}
-	int imin, jmin, kmin, imax, jmax, kmax;
+    
+    current_ind_block = i;
 	int ngb = particle_grid_size_ / mem_grid_size_;
 	imin = i % ngb * mem_grid_size_;
 	jmin = i / ngb % ngb * mem_grid_size_;
@@ -138,17 +153,29 @@ void IndTetraStream::loadBlock(int i){
 		//kmax = particle_grid_size_ - 1;
 	}
 
-	if(!isVelocity_){
-		gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
-	}else{
-		gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
-	}
+    gettimeofday(&timediff, NULL);
+    t0_ = timediff.tv_sec + timediff.tv_usec / 1.0e6;
     
-    //current_tetra_num = 6 * (imax - imin) * (jmax - imin) * (kmax - kmin); 
+    //is use all data, no need load data each time.
+    if(!isAllData_){
+        if(!isVelocity_){
+            gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
+        }else{
+            gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
+        }
+    }else{
+        convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
+    }
+    
+    gettimeofday(&timediff, NULL);
+    t1_ = timediff.tv_sec + timediff.tv_usec / 1.0e6;
+    iotime_ += t1_ - t0_;
+    
+    //current_tetra_num = 6 * (imax - imin) * (jmax - imin) * (kmax - kmin);
     //printf(">>>%d %d\n", 6 * (imax - imin) * (jmax - jmin) * (kmax - kmin), 6*mem_grid_size_*mem_grid_size_*mem_grid_size_);
-    //convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
 
-	current_ind_block = i;
+
+
 }
 
 void IndTetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {		
@@ -164,10 +191,28 @@ void IndTetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
 		int i3, int j3, int k3, int i4, int j4, int k4,
 		int isize, int jsize, int ksize) {// add a tetra to the vectot
 	int ind1, ind2, ind3, ind4;
-	ind1 = (i1) + (j1) * isize + (k1) * isize * jsize;
-	ind2 = (i2) + (j2) * isize + (k2) * isize * jsize;
-	ind3 = (i3) + (j3) * isize + (k3) * isize * jsize;
-	ind4 = (i4) + (j4) * isize + (k4) * isize * jsize;
+    if(!isAllData_){
+        ind1 = (i1) + (j1) * isize + (k1) * isize * jsize;
+        ind2 = (i2) + (j2) * isize + (k2) * isize * jsize;
+        ind3 = (i3) + (j3) * isize + (k3) * isize * jsize;
+        ind4 = (i4) + (j4) * isize + (k4) * isize * jsize;
+    }else{
+        ind1 = ((i1+imin) % particle_grid_size_) +
+                ((j1+jmin)  % particle_grid_size_) * particle_grid_size_ +
+                ((k1+kmin)  % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+        
+        ind2 = ((i2+imin) % particle_grid_size_) +
+            ((j2+jmin) % particle_grid_size_) * particle_grid_size_ +
+            ((k2+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+        
+        ind3 = ((i3+imin) % particle_grid_size_) +
+            ((j3+jmin) % particle_grid_size_) * particle_grid_size_ +
+            ((k3+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+        
+        ind4 = ((i4+imin) % particle_grid_size_) +
+            ((j4+jmin) % particle_grid_size_) * particle_grid_size_ +
+            ((k4+kmin) % particle_grid_size_) * particle_grid_size_ * particle_grid_size_;
+    }
 	addTetra(ind1, ind2, ind3, ind4);
 }
 
@@ -230,6 +275,10 @@ gadget_header IndTetraStream::getHeader(){
 }
 
 IndTetrahedronManager& IndTetraStream::getCurrentIndTetraManager(){
+    indTetraManager_.setBoxSize(getHeader().BoxSize);
+    indTetraManager_.setIsVelocity(isVelocity_);
+    indTetraManager_.setVelArray(velocity_);
+    indTetraManager_.setPosArray(position_);
     return indTetraManager_;
 }
 

@@ -9,10 +9,19 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 
 #include "readgadget.h"
+
+struct sort_pred {
+    bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) {
+        return left.first < right.first;
+    }
+};
+
 
 GSnap::GSnap(string filename, bool isHighMem) {
 	//vel = NULL;
@@ -47,13 +56,10 @@ GSnap::GSnap(string filename, bool isHighMem) {
     //isHighMem_ = false;
     //read all the data into memory
     if(isHighMem_){
+        
         allind_ = new uint32_t[Npart];
         allpos_ = new Point[Npart];
         allvel_ = new Point[Npart];
-
-        //allind_[100] = 100;    
-        //printf("read %d\n", allind_[100]);
-
 
         readPos(file, allpos_, 0, Npart);
         readVel(file, allvel_, 0, Npart);
@@ -66,10 +72,27 @@ GSnap::GSnap(string filename, bool isHighMem) {
 	    file.seekg(spos, ios_base::beg);
         file.read((char *) allind_, sizeof(uint32_t) * Npart);
         
-        //printf("read %d\n", Npart);
-        //printf("%d\n", allind_[100]);
-        //printf("bad \n");
-
+        //sort the data
+        pair<int, int> * inds = new pair<int, int>[Npart];
+        for(unsigned int i = 0; i < Npart; i ++){
+            inds[i].first = allind_[i];
+            inds[i].second = i;
+        }
+        
+        sort(inds, inds+Npart, sort_pred());
+        Point * temppos = allpos_;
+        Point * tempvel = allvel_;
+        allpos_ = new Point[Npart];
+        allvel_ = new Point[Npart];
+        for(unsigned int i = 0; i < Npart; i ++){
+            //printf("%d %d\n", inds[i].first, inds[i].second);
+            allpos_[i] = temppos[inds[i].second];
+            allvel_[i] = tempvel[inds[i].second];
+        }
+        delete allind_;
+        delete inds;
+        delete temppos;
+        delete tempvel;
     }
 
 	file.close();
@@ -211,7 +234,7 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 					    file.seekg(spos + poscount, ios_base::beg);
                         file.read((char *) &ind, sizeof(int));
                     }else{
-                        ind = allind_[poscount];
+                        ind = poscount;//allind_[poscount];
                     }
                     //printf("ok2.5\n");
 
@@ -233,7 +256,7 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
                 file.read((char *) &ind, sizeof(int));              
             }else{
                 //printf("%d %d\n", i, Npart);
-                ind = allind_[i];
+                ind = i;//allind_[i];
             }
             //printf("ok3.5\n");
 
@@ -332,7 +355,7 @@ GSnap::~GSnap() {
         //printf("ok\n");
         delete allpos_;
         delete allvel_;
-        delete allind_;
+        //delete allind_;
         //printf("ok1\n");
     }
 	/*if (pos != NULL)

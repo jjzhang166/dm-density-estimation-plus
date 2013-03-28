@@ -103,6 +103,7 @@ class IndTetrahedronManager{
 public:
     //isVelocity: does velocity participated in the calculation?
     CUDA_CALLABLE_MEMBER IndTetrahedronManager(Point * parray = NULL, REAL box = 3200, bool isVelocity = false, Point * varray = NULL);
+
     CUDA_CALLABLE_MEMBER void setIsVelocity(bool isVelocity);
     CUDA_CALLABLE_MEMBER void setPosArray(Point * parray);
     CUDA_CALLABLE_MEMBER void setVelArray(Point * varray);

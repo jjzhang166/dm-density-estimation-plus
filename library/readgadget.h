@@ -33,15 +33,27 @@ public:
 			        bool isPeriodical = true, 
                     bool isOrdered = false
                    );
-    
-    // read a point, from position ptr
-    Point readPos(std::fstream &file, long ptr);
-	Point readVel(std::fstream &file, long ptr);
 
+    /*****************SLOW, COPY DATA***************************/
     // read a list of points, from position ptr
     void readPos(std::fstream &file, Point * pos, long ptr, long count);
 	void readVel(std::fstream &file, Point * vel, long ptr, long count);
+    /***********************************************************/
 
+
+    //recomended to use this version, if high memory
+    /******************RECOMENDED USE THIS**********************/
+    //Data are all sorted along indexes
+    //get all the position data
+    Point * getAllPos(){
+        return allpos_;
+    };
+
+    //get all the velocity data
+    Point * getAllVel(){
+        return allvel_;
+    }
+    /***********************************************************/
 
 private:
 	//uint32_t * ids;
@@ -53,7 +65,11 @@ private:
     Point * allpos_;
     Point * allvel_;
     uint32_t * allind_;
-    
+        
+    // read a point, from position ptr
+    Point readPos(std::fstream &file, long ptr);
+	Point readVel(std::fstream &file, long ptr);
+
 
 	void readIndex(std::fstream &file, int *block,
 			int imin, int jmin, int kmin, int imax, 

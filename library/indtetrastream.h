@@ -12,6 +12,10 @@
 
 #ifndef TETRASTREAM_H_
 #define TETRASTREAM_H_
+
+#include <unistd.h>
+#include <sys/time.h>
+
 #include <string>
 #include <vector>
 #include "tetrahedron.h"
@@ -24,15 +28,23 @@ using namespace std;
  */
 class IndTetraStream {
 public:
-	IndTetraStream(std::string filename, int memgridsize, bool isVelocity = false);
+
+    /**
+     * USE "isAllData" to avoid data COPYING. But need memory to store all
+     * the data into memory.
+     */
+	IndTetraStream(std::string filename, int memgridsize, 
+                    bool isVelocity = false, bool isAllData = true);
     
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
 	int getBlockNumTetra();		//get number of tetrahedrons in memory
-    
+   
     Point * getPositionBlock();
     Point * getVelocityBlock();
+    
 	gadget_header getHeader();          //get the header
+
 	IndTetrahedron * getCurrentBlock();	//return the current tetrahedron block
 	IndTetrahedron * getBlock(int i);	//return the i-th tetrahedron block
 	int getCurrentInd();				//return the current block id
@@ -50,9 +62,18 @@ public:
     
 	void setIsInOrder(bool isinorder);		//set up whether the data is in order?
 	~IndTetraStream();
+    
+    double getRunningTime(){
+        return iotime_;
+    };
 
 private:
 	std::string filename_;
+    
+    //current starting index
+    int imin, jmin, kmin, imax, jmax, kmax;
+
+
 	int mem_grid_size_;         // the grid_size are there in the memory
 	int total_parts_;			// total particle numbers
 	int particle_grid_size_;	// the total grid_size
@@ -90,6 +111,10 @@ private:
 	bool isPeriodical_;
 	bool isInOrder_;
 	bool isVelocity_;
+    bool isAllData_;
+    
+    double iotime_, t0_, t1_;
+    timeval timediff;;
 };
 
 
