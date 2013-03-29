@@ -52,13 +52,25 @@ namespace main_space{
     bool isVerbose = false;
     bool isInOrder = false;
     bool isVelocity = false;								//calculate velocity field?
+    
+    //load all the particles into memory?
+    bool isHighMem = true;
+    //return the all particle pointer?
+    bool isAllData = true;
+    
+    //if use -1, then use the particle gridsize as the gridsize
+    //otherwise use the user setting
+    int datagridsize = -1;
+    //the particle type in the gadget file
+    int parttype = 1;
+    
     bool isSetBox = false;                       //set up a box for the grids
     Point setStartPoint;
     double boxsize = 32000.0;
     int imagesize = 512;
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n %s\n"
+	fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
             , pname.c_str()
             , "[-imsize <imagesize>]"
 			, "[-df <datafilename>]"
@@ -69,6 +81,10 @@ void printUsage(string pname){
 			, "[-order] if the data is in order"
 			, "[-v] to show verbose"
 			, "[-vel] if calculate velocity field"
+            , "[-dgridsize] default: -1 to use the npart^(1/3) as gridsize"
+            , "[-parttype] default: 1. Use 0-NTYPE data in the gadgetfile"
+            , "[-lowmem] use low memory mode (don't load all part in mem)"
+            , "[-nalldata] only usable in highmem mode"
             , "[-box <x0> <y0> <z0> <boxsize>] setup the start point, and the boxsize. The box should be inside the data's box, otherwise some unpredictable side effects will comes out"
 			);
 }
@@ -107,6 +123,18 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-vel") == 0){
 				isVelocity = true;
 				k = k -1;
+			}else if(strcmp(args[k], "-dgridsize") == 0){
+                ss << args[k + 1];
+				ss >> datagridsize;
+			}else if(strcmp(args[k], "-parttype") == 0){
+                ss << args[k + 1];
+				ss >> parttype;
+			}else if(strcmp(args[k], "-lowmem") == 0){
+				isHighMem = false;
+				k = k -1;
+			}else if(strcmp(args[k], "-nalldata") == 0){
+				isAllData = false;
+				k = k -1;
 			}else if(strcmp(args[k], "-box") == 0){
 				isSetBox = true;
                 k++;
@@ -144,8 +172,15 @@ int main(int argv, char * args[]){
 	printf("*****************************PARAMETERES*****************************\n");
     printf("Render Image Size       = %d\n", imagesize);
 	printf("Data File               = %s\n", filename.c_str());
+    if(datagridsize == -1){
+        printf("DataGridsize            = [to be det by data]\n");
+    }else{
+        printf("DataGridsize            = %d\n", datagridsize);
+    }
+    printf("Particle Type           = %d\n", parttype);
 	printf("Grid File               = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
+    
     if(isSetBox){
         printf("Box                    = %f %f %f %f\n", 
                         setStartPoint.x, setStartPoint.y, setStartPoint.z, boxsize);
@@ -156,10 +191,18 @@ int main(int argv, char * args[]){
 	if(isInOrder){
 		printf("The data is already in right order for speed up...\n");
 	}
+    if(!isHighMem){
+        printf("Low Memory mode: slower in reading file...\n");
+    }else{
+        if(!isAllData){
+            printf("Use partial data each time, slower in data transfering...\n");
+        }
+    }
 
     printf("*********************************************************************\n");
 
-	IndTetraStream tetraStream(filename, inputmemgrid, isVelocity);
+	IndTetraStream tetraStream(filename, inputmemgrid, parttype,
+                               datagridsize, isVelocity, isHighMem, isAllData);
 	tetraStream.setIsInOrder(isInOrder);
 	tetraStream.setCorrection();
     

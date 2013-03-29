@@ -34,8 +34,14 @@ public:
      * the data into memory.
      * WARNING: isAllData can only work in high memory mode
      ********************************************************************/
-	IndTetraStream(std::string filename, int memgridsize, 
-                    bool isVelocity = false, bool isAllData = true);
+    //parttype - which type of the gadgetfile will be in use?
+    //gridsize = -1: use npart^(1/3) as gridsize. Otherwise use this
+	IndTetraStream(std::string filename, int memgridsize,
+                   int parttype = 1,
+                   int gridsize = -1,
+                   bool isVelocity = false,
+                   bool isHighMem = true,
+                   bool isAllData = true);
     
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
@@ -124,6 +130,9 @@ private:
 class TetraStreamer{
 public:
     TetraStreamer(std::string filename, int memgridsize,
+                  int parttype = 1, int gridsize = -1,
+                  bool isHighMem = false,
+                  bool isAllData = false,
                   bool isVelocity = false,
                   bool isCorrection = true,
                   bool isInOrder = false,

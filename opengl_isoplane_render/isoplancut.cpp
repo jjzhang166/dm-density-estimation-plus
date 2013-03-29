@@ -80,6 +80,19 @@ void TetraIsoPlane::convertTetras2IsoPlane(){
 
     //return;
     while((count < isoplane_mem_size_ - 1) && (current_tetra_num_ < total_tetra_num_)){
+
+        //test
+        /*if(tetramanager.posa(tetras[current_tetra_num_]).x >= 0 ||
+           tetramanager.posb(tetras[current_tetra_num_]).x >= 0 ||
+           tetramanager.posc(tetras[current_tetra_num_]).x >= 0 ||
+           tetramanager.posd(tetras[current_tetra_num_]).x >= 0){
+            printf("%d %d %d %d\n", tetras[current_tetra_num_].ind1, tetras[current_tetra_num_].ind2, tetras[current_tetra_num_].ind3, tetras[current_tetra_num_].ind4);
+            printf("%f %f %f\n", tetramanager.posa(tetras[current_tetra_num_]).x, tetramanager.posa(tetras[current_tetra_num_]).y, tetramanager.posa(tetras[current_tetra_num_]).z);
+            printf("%f %f %f\n", tetramanager.posb(tetras[current_tetra_num_]).x, tetramanager.posb(tetras[current_tetra_num_]).y, tetramanager.posb(tetras[current_tetra_num_]).z);
+            printf("%f %f %f\n", tetramanager.posc(tetras[current_tetra_num_]).x, tetramanager.posc(tetras[current_tetra_num_]).y, tetramanager.posc(tetras[current_tetra_num_]).z);
+            printf("%f %f %f\n", tetramanager.posd(tetras[current_tetra_num_]).x, tetramanager.posd(tetras[current_tetra_num_]).y, tetramanager.posd(tetras[current_tetra_num_]).z);
+        }*/
+        
         //ignore the tetrahedrons that is not usable
         if(tetramanager.posa(tetras[current_tetra_num_]).x < 0 ||
            tetramanager.posb(tetras[current_tetra_num_]).x < 0 ||

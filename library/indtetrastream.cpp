@@ -16,15 +16,22 @@ using namespace std;
 
 //inputmemgridsize should be a divisor of the total_grid_size
 IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
-                               bool isVelocity, bool isAllData) {
+                               int parttype, int gridsize,
+                               bool isVelocity, bool isHighMem,
+                               bool isAllData) {
 	isVelocity_ = isVelocity;
-    isAllData_ = isAllData;
+    if(isHighMem){
+        isAllData_ = isAllData;
+    }else{
+        isAllData_ = false;
+    }
 
 	filename_ = filename;
     
     iotime_ = 0;
 
-	gsnap_ = new GSnap(filename_);
+	gsnap_ = new GSnap(filename_, isHighMem, parttype, gridsize);
+    
     //printf("what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
 	total_parts_ = gsnap_->Npart;
@@ -296,11 +303,14 @@ TetraStreamer::~TetraStreamer(){
 }
  
 TetraStreamer::TetraStreamer(std::string filename, int memgridsize,
+                             int parttype, int gridsize,
+                             bool isHighMem,
+                             bool isAllData,
                              bool isVelocity,
                              bool isCorrection,
                              bool isInOrder,
                              int limit_tetracount){
-    indstream_ = new IndTetraStream(filename, memgridsize, isVelocity);
+    indstream_ = new IndTetraStream(filename, memgridsize, parttype, gridsize,isVelocity, isHighMem);
     
     if(isCorrection){
         indstream_->setCorrection();
