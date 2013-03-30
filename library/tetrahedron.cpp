@@ -404,7 +404,7 @@ CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrah
 	    tetra_.velocity4 = velocityArray[t.ind4];       
     }
     
-    //printf("%d %d %d %d\n", t.ind1, t.ind2, t.ind3, t.ind4);    
+    //printf("%d %d %d %d %f\n", t.ind1, t.ind2, t.ind3, t.ind4, box_);
     tetra_.computeVolume();
     
     //periodical correction:

@@ -56,7 +56,7 @@ namespace main_space{
     //load all the particles into memory?
     bool isHighMem = true;
     //return the all particle pointer?
-    bool isAllData = true;
+    bool isAllData = false;
     
     //if use -1, then use the particle gridsize as the gridsize
     //otherwise use the user setting
@@ -132,8 +132,8 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-lowmem") == 0){
 				isHighMem = false;
 				k = k -1;
-			}else if(strcmp(args[k], "-nalldata") == 0){
-				isAllData = false;
+			}else if(strcmp(args[k], "-alldata") == 0){
+				isAllData = true;
 				k = k -1;
 			}else if(strcmp(args[k], "-box") == 0){
 				isSetBox = true;
@@ -173,7 +173,7 @@ int main(int argv, char * args[]){
     printf("Render Image Size       = %d\n", imagesize);
 	printf("Data File               = %s\n", filename.c_str());
     if(datagridsize == -1){
-        printf("DataGridsize            = [to be det by data]\n");
+        printf("DataGridsize            = [to be determined by data]\n");
     }else{
         printf("DataGridsize            = %d\n", datagridsize);
     }
@@ -194,9 +194,13 @@ int main(int argv, char * args[]){
     if(!isHighMem){
         printf("Low Memory mode: slower in reading file...\n");
     }else{
+        printf("Block Memory Operation:\n");
         if(!isAllData){
-            printf("Use partial data each time, slower in data transfering...\n");
+            printf("    Use Memory Copy Mode -- but may be faster without regenerating the tetras...\n");
+        }else{
+            printf("    Without Memory Copying Mode -- but may be slower in regenerating tetras...");
         }
+
     }
 
     printf("*********************************************************************\n");
@@ -207,20 +211,31 @@ int main(int argv, char * args[]){
 	tetraStream.setCorrection();
     
     //test
-    /*TetraStreamer streamer(filename, inputmemgrid, isVelocity, true, isInOrder);
+    TetraStreamer streamer(filename,
+                           inputmemgrid,
+                           parttype,
+                           datagridsize,
+                           isHighMem,
+                           isAllData,
+                           isVelocity,
+                           true,
+                           isInOrder);
+    int count = 0;
     while(streamer.hasNext()){
         int nums;
         Tetrahedron * tetras;
         tetras = streamer.getNext(nums);
-        for(int i= 0; i < nums; i++){
-            printf("%d %f     \n", i, tetras[i].volume);
-            printf("%f %f %f\n",tetras[i].v1.x, tetras[i].v1.y, tetras[i].v1.z);
-            printf("%f %f %f\n",tetras[i].v2.x, tetras[i].v2.y, tetras[i].v2.z);
-            printf("%f %f %f\n",tetras[i].v3.x, tetras[i].v3.y, tetras[i].v3.z);
-            printf("%f %f %f\n",tetras[i].v4.x, tetras[i].v4.y, tetras[i].v4.z);
+        //for(int i= 0; i < nums; i++){
+        //    printf("%d %f     \n", i, tetras[i].volume);
+        //    printf("%f %f %f\n",tetras[i].v1.x, tetras[i].v1.y, tetras[i].v1.z);
+        //    printf("%f %f %f\n",tetras[i].v2.x, tetras[i].v2.y, tetras[i].v2.z);
+        //    printf("%f %f %f\n",tetras[i].v3.x, tetras[i].v3.y, tetras[i].v3.z);
+        //    printf("%f %f %f\n",tetras[i].v4.x, tetras[i].v4.y, tetras[i].v4.z);
 
-        }
-    }*/
+        //}
+        count += nums;
+    }
+    printf("%d\n", count);
 
     TetraIsoPlane isoplane(&tetraStream);
     //printf("IsoPlane ok\n");

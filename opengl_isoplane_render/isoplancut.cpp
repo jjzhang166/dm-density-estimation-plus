@@ -77,6 +77,8 @@ void TetraIsoPlane::convertTetras2IsoPlane(){
     int count  = 0;
     timeval timediff;
     double t1, t0 = 0;
+    //test
+    //static int tot_g = 0;
 
     //return;
     while((count < isoplane_mem_size_ - 1) && (current_tetra_num_ < total_tetra_num_)){
@@ -93,6 +95,9 @@ void TetraIsoPlane::convertTetras2IsoPlane(){
             printf("%f %f %f\n", tetramanager.posd(tetras[current_tetra_num_]).x, tetramanager.posd(tetras[current_tetra_num_]).y, tetramanager.posd(tetras[current_tetra_num_]).z);
         }*/
         
+        //test
+        //printf("%d %d\n", current_tetra_num_, total_tetra_num_);
+        
         //ignore the tetrahedrons that is not usable
         if(tetramanager.posa(tetras[current_tetra_num_]).x < 0 ||
            tetramanager.posb(tetras[current_tetra_num_]).x < 0 ||
@@ -102,8 +107,20 @@ void TetraIsoPlane::convertTetras2IsoPlane(){
         }else{
         
             int temp_num_tetra = tetramanager.getNumPeriodical(tetras[current_tetra_num_]);
+            
+            //test
+            //printf("%d\n", temp_num_tetra);
+            
             Tetrahedron * period_tetras = tetramanager.getPeroidTetras(tetras[current_tetra_num_]);
+            
             for(int j = 0; j<temp_num_tetra; j++){
+                
+                //test
+                /*printf("%d %f     \n", j, period_tetras[j].volume);
+                printf("%f %f %f\n",period_tetras[j].v1.x, period_tetras[j].v1.y, period_tetras[j].v1.z);
+                printf("%f %f %f\n",period_tetras[j].v2.x, period_tetras[j].v2.y, period_tetras[j].v2.z);
+                printf("%f %f %f\n",period_tetras[j].v3.x, period_tetras[j].v3.y, period_tetras[j].v3.z);
+                printf("%f %f %f\n",period_tetras[j].v4.x, period_tetras[j].v4.y, period_tetras[j].v4.z);*/
             
                 gettimeofday(&timediff, NULL);
                 t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -113,15 +130,23 @@ void TetraIsoPlane::convertTetras2IsoPlane(){
                 gettimeofday(&timediff, NULL);
                 t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
                 cuttingtime_ += t1 - t0;
+                
+                //test
+                //tot_g+=1;
             
                 if(count >= isoplane_mem_size_ - 1){
                     break;
                 }
             }
         }
+        
+
+        
         current_tetra_num_ ++;
-        //printf("%d %d\n", count, current_tetra_num_);
+        
     }
-    
+    //test
+    //printf("%d\n", tot_g);
+
     currentIsoPlane_Size_ = count;
 }

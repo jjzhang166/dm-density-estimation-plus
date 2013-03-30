@@ -302,15 +302,17 @@ TetraStreamer::~TetraStreamer(){
     delete tetras_;
 }
  
-TetraStreamer::TetraStreamer(std::string filename, int memgridsize,
-                             int parttype, int gridsize,
+TetraStreamer::TetraStreamer(std::string filename,
+                             int memgridsize,
+                             int parttype,
+                             int gridsize,
                              bool isHighMem,
                              bool isAllData,
                              bool isVelocity,
                              bool isCorrection,
                              bool isInOrder,
                              int limit_tetracount){
-    indstream_ = new IndTetraStream(filename, memgridsize, parttype, gridsize,isVelocity, isHighMem);
+    indstream_ = new IndTetraStream(filename, memgridsize, parttype, gridsize,isVelocity, isHighMem, isAllData);
     
     if(isCorrection){
         indstream_->setCorrection();
@@ -331,7 +333,7 @@ TetraStreamer::TetraStreamer(std::string filename, int memgridsize,
 bool TetraStreamer::hasNext(){
     if(current_block_id_ < total_block_num_ - 1){
         return true;
-    }else if(current_block_id_ == total_block_num_){
+    }else if(current_block_id_ == total_block_num_ - 1){
         if(current_tetra_id_ < total_tetra_num_){
             return true;
         }else{
@@ -344,32 +346,50 @@ bool TetraStreamer::hasNext(){
 
 Tetrahedron* TetraStreamer::getNext(int& num_tetras_){
     
-    IndTetrahedronManager& tetramanager = indstream_->
-        getCurrentIndTetraManager();
+    IndTetrahedronManager * tetramanager = &(indstream_->
+        getCurrentIndTetraManager());
     
     int count = 0;
     while((count < limit_tetracount_ - 8) &&
           (current_block_id_ < total_block_num_)){
     
-        if(current_tetra_id_ == total_tetra_num_){
+
+        if(current_tetra_id_ >= total_tetra_num_){
             current_block_id_ ++;
             if(current_block_id_ < total_block_num_){
                 current_tetra_id_ = 0;
                 indstream_->loadBlock(current_block_id_);
                 total_tetra_num_ = indstream_->getBlockNumTetra();
                 indtetras_ = indstream_->getCurrentBlock();
+                tetramanager = &(indstream_->getCurrentIndTetraManager());
             }else{
+                current_tetra_id_ = 0;
+                total_tetra_num_ = 0;
                 break;
             }
         }
         
-        int temp_num_tetra = tetramanager.getNumPeriodical(indtetras_[current_tetra_id_]);
-        Tetrahedron * period_tetras = tetramanager.getPeroidTetras(indtetras_[current_tetra_id_]);
+        //test
+        //printf("%d %d\n", current_tetra_id_, total_tetra_num_);
         
-        //this may add 8 tetrahedrons
-        for(int j = 0; j<temp_num_tetra; j++){
-            tetras_[count] = period_tetras[j];
-            count ++;
+        if(tetramanager->posa(indtetras_[current_tetra_id_]).x < 0 ||
+           tetramanager->posb(indtetras_[current_tetra_id_]).x < 0 ||
+           tetramanager->posc(indtetras_[current_tetra_id_]).x < 0 ||
+           tetramanager->posd(indtetras_[current_tetra_id_]).x < 0){
+            //This tetrahedron is ignored
+        }else{
+            int temp_num_tetra = tetramanager->getNumPeriodical(indtetras_[current_tetra_id_]);
+            
+            //test
+            //printf("%d\n", temp_num_tetra);
+            
+            Tetrahedron * period_tetras = tetramanager->getPeroidTetras(indtetras_[current_tetra_id_]);
+            
+            //this may add 8 tetrahedrons
+            for(int j = 0; j<temp_num_tetra; j++){
+                tetras_[count] = period_tetras[j];
+                count ++;
+            }
         }
         
         current_tetra_id_ ++;

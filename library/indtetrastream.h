@@ -36,7 +36,8 @@ public:
      ********************************************************************/
     //parttype - which type of the gadgetfile will be in use?
     //gridsize = -1: use npart^(1/3) as gridsize. Otherwise use this
-	IndTetraStream(std::string filename, int memgridsize,
+	IndTetraStream(std::string filename,
+                   int memgridsize,
                    int parttype = 1,
                    int gridsize = -1,
                    bool isVelocity = false,
@@ -129,8 +130,10 @@ private:
 //only small memeory
 class TetraStreamer{
 public:
-    TetraStreamer(std::string filename, int memgridsize,
-                  int parttype = 1, int gridsize = -1,
+    TetraStreamer(std::string filename,
+                  int memgridsize,
+                  int parttype = 1,
+                  int gridsize = -1,
                   bool isHighMem = false,
                   bool isAllData = false,
                   bool isVelocity = false,

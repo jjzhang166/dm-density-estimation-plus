@@ -33,9 +33,6 @@ bool TetraIsoPlane::hasNext(){
 Triangle * TetraIsoPlane::getNextIsoPlaneBlock(int & num_triangles){
 
     convertTetras2IsoPlane();
-    
-
-
     num_triangles = currentIsoPlane_Size_;
     return isoplane_;
 }

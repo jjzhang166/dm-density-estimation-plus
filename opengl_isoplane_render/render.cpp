@@ -60,6 +60,10 @@ void getcolorImge(float *value, float * colorimg){
         if(min > value[i] && value[i] > 0.0){
             min = value[i];
         }
+        //test
+        //if(value[i] == 0.0){
+        //    printf("%d %d %d", i, i%windowSize, i/windowSize);
+        //}
     }
     
 	//printf("%f %f\n", min, max);

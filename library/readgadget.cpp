@@ -231,17 +231,26 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
 void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int jmin, int kmin, int imax, int jmax, int kmax, 
 			bool isPeriodical, bool isOrdered){
     
+    int ii = imax - imin + 1;
+	int jj = jmax - jmin + 1;
+	int kk = kmax - kmin + 1;
+    
     if(isHighMem_){
         //copy block memory
-        for(int j = jmin; j < jmax; j++){
-            for(int k = kmin; k < kmax; k++){
-                int startind = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
-                int num = imax - imin + 1;
-                if(startind + num < (int)Npart){
-                    memcpy((char *)(posblock), (char *) (allpos_ + startind), num * sizeof(Point));
-                    memcpy((char *)(velocityblock), (char *) (allvel_ + startind), num * sizeof(Point));
+        
+        for(int j = jmin; j < jmax + 1; j++){
+            for(int k = kmin; k < kmax + 1; k++){
+                int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
+                int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
+                int num = ii;
+                //printf("%d %d %d\n", sindsr, num, Npart);
+                if(sindsr + num < (int)Npart){
+                    memcpy((char *)(posblock + sinddes), (char *) (allpos_ + sindsr), num * sizeof(Point));
+                    memcpy((char *)(velocityblock + sinddes), (char *) (allvel_ + sindsr), num * sizeof(Point));
                 }else{
-                    printf("Data missed.\n");
+                    memcpy((char *)(posblock + sinddes), (char *) (allpos_ + sindsr), (Npart - sindsr) * sizeof(Point));
+                    memcpy((char *)(velocityblock + sinddes + (Npart - sindsr)), (char *) (allvel_ + sindsr), (num + sindsr -Npart) * sizeof(Point));
+                    //printf("Data missed %d %d.\n", Npart - sindsr, num + sindsr -Npart);
                 }
                 
             }
@@ -249,9 +258,8 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int j
         return;
     }
     
-	int ii = imax - imin + 1;
-	int jj = jmax - jmin + 1;
-	int kk = kmax - kmin + 1;
+    
+
 
 	int total_cts = ii * jj * kk;
 
