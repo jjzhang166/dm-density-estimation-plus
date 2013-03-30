@@ -211,7 +211,7 @@ int main(int argv, char * args[]){
 	tetraStream.setCorrection();
     
     //test
-    TetraStreamer streamer(filename,
+    /*TetraStreamer streamer(filename,
                            inputmemgrid,
                            parttype,
                            datagridsize,
@@ -235,7 +235,7 @@ int main(int argv, char * args[]){
         //}
         count += nums;
     }
-    printf("%d\n", count);
+    printf("%d\n", count);*/
 
     TetraIsoPlane isoplane(&tetraStream);
     //printf("IsoPlane ok\n");
