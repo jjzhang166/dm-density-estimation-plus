@@ -12,7 +12,7 @@ all: obj
 	@echo success
 
 obj:
-	$(CC) -c -Wall ${LIB}/processbar.cpp\
+	$(CC) -c -G -Wall ${LIB}/processbar.cpp\
 			${LIB}/indtetrastream.cpp ${LIB}/readgadget.cpp \
 		   	${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
 		   	${LIB}/tetrastream.cpp testtetrastreamer.cpp $(IFLAG)  

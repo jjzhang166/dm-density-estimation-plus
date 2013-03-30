@@ -174,20 +174,21 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
             for(int k = kmin; k < kmax + 1; k++){
                 int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
                 int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
-                int num = ii;
                 //printf("%d %d %d\n", sindsr, num, Npart);
-                if(sindsr + num < (int)Npart){
-                    memcpy((char *)(posblock + sinddes), (char *) (allpos_ + sindsr), num * sizeof(Point));
-                }else{
-                    memcpy((char *)(posblock + sinddes), (char *) (allpos_ + sindsr), (Npart - sindsr) * sizeof(Point));
-                    memcpy((char *)(posblock + sinddes + (Npart - sindsr)), (char *) (allpos_ + sindsr), (num + sindsr -Npart) * sizeof(Point));
-                    //printf("Data missed %d %d.\n", Npart - sindsr, num + sindsr -Npart);
+                for(int l = 0; l < ii / grid_size; l++){
+                    memcpy((char *)(posblock + sinddes + l * grid_size),
+                           (char *) (allpos_ + sindsr),
+                           grid_size * sizeof(Point));
                 }
+                memcpy((char *)(posblock + sinddes + (int)(ii / grid_size) * grid_size),
+                       (char *) (allpos_ + sindsr),
+                       (ii % grid_size) * sizeof(Point));
                 
             }
         }
         return;
     }
+    
     
 
 
@@ -242,23 +243,28 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int j
             for(int k = kmin; k < kmax + 1; k++){
                 int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
                 int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
-                int num = ii;
                 //printf("%d %d %d\n", sindsr, num, Npart);
-                if(sindsr + num < (int)Npart){
-                    memcpy((char *)(posblock + sinddes), (char *) (allpos_ + sindsr), num * sizeof(Point));
-                    memcpy((char *)(velocityblock + sinddes), (char *) (allvel_ + sindsr), num * sizeof(Point));
-                }else{
-                    memcpy((char *)(posblock + sinddes), (char *) (allpos_ + sindsr), (Npart - sindsr) * sizeof(Point));
-                    memcpy((char *)(velocityblock + sinddes + (Npart - sindsr)), (char *) (allvel_ + sindsr), (num + sindsr -Npart) * sizeof(Point));
-                    //printf("Data missed %d %d.\n", Npart - sindsr, num + sindsr -Npart);
+                for(int l = 0; l < ii / grid_size; l++){
+                    memcpy((char *)(posblock + sinddes + l * grid_size),
+                           (char *) (allpos_ + sindsr),
+                           grid_size * sizeof(Point));
+                    
+                    memcpy((char *)(velocityblock + sinddes + l * grid_size),
+                           (char *) (allvel_ + sindsr),
+                           grid_size * sizeof(Point));
                 }
                 
+                memcpy((char *)(posblock + sinddes + (int)(ii / grid_size) * grid_size),
+                       (char *) (allpos_ + sindsr),
+                       (ii % grid_size) * sizeof(Point));
+                
+                memcpy((char *)(velocityblock + sinddes + (int)(ii / grid_size) * grid_size),
+                       (char *) (allvel_ + sindsr),
+                       (ii % grid_size) * sizeof(Point));
             }
         }
         return;
     }
-    
-    
 
 
 	int total_cts = ii * jj * kk;

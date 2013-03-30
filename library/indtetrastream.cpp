@@ -102,12 +102,16 @@ bool IndTetraStream::reset() {
 }
 
 IndTetraStream::~IndTetraStream() {
-	delete position_;
+
 	delete gsnap_;
 	delete tetras_;
-	if(isVelocity_){
-		delete velocity_;
-	}
+    
+    if(!isAllData_){
+        delete position_;
+        if(isVelocity_){
+            delete velocity_;
+        }
+    }
 }
 
 int IndTetraStream::getTotalBlockNum(){
