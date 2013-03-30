@@ -169,20 +169,32 @@ void GSnap::readPosBlock(Point * &posblock, int imin, int jmin, int kmin, int im
     
     if(isHighMem_){
         //copy block memory
-        
+        //printf("%d\n", ii);
         for(int j = jmin; j < jmax + 1; j++){
             for(int k = kmin; k < kmax + 1; k++){
                 int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
                 int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
                 //printf("%d %d %d\n", sindsr, num, Npart);
-                for(int l = 0; l < ii / grid_size; l++){
+                /*for(int l = 0; l < ii / grid_size; l++){
                     memcpy((char *)(posblock + sinddes + l * grid_size),
                            (char *) (allpos_ + sindsr),
                            grid_size * sizeof(Point));
                 }
                 memcpy((char *)(posblock + sinddes + (int)(ii / grid_size) * grid_size),
                        (char *) (allpos_ + sindsr),
-                       (ii % grid_size) * sizeof(Point));
+                       (ii % grid_size) * sizeof(Point));*/
+                if(imax < grid_size){
+                    memcpy((char *)(posblock + sinddes),
+                           (char *)(allpos_ + sindsr),
+                           ii * sizeof(Point));
+                }else{
+                    memcpy((char *)(posblock + sinddes),
+                           (char *)(allpos_ + sindsr),
+                           (grid_size - imin) * sizeof(Point));
+                    memcpy((char *)(posblock + sinddes + (grid_size - imin)),
+                           (char *)(allpos_ + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size),
+                           (imax + 1 - grid_size) * sizeof(Point));
+                }
                 
             }
         }
@@ -244,23 +256,28 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock, int imin, int j
                 int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
                 int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
                 //printf("%d %d %d\n", sindsr, num, Npart);
-                for(int l = 0; l < ii / grid_size; l++){
-                    memcpy((char *)(posblock + sinddes + l * grid_size),
-                           (char *) (allpos_ + sindsr),
-                           grid_size * sizeof(Point));
+                if(imax < grid_size){
+                    memcpy((char *)(posblock + sinddes),
+                           (char *)(allpos_ + sindsr),
+                           ii * sizeof(Point));
+                    memcpy((char *)(velocityblock + sinddes),
+                           (char *)(allvel_ + sindsr),
+                           ii * sizeof(Point));
+                }else{
+                    memcpy((char *)(posblock + sinddes),
+                           (char *)(allpos_ + sindsr),
+                           (grid_size - imin) * sizeof(Point));
+                    memcpy((char *)(posblock + sinddes + (grid_size - imin)),
+                           (char *)(allpos_ + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size),
+                           (imax + 1 - grid_size) * sizeof(Point));
                     
-                    memcpy((char *)(velocityblock + sinddes + l * grid_size),
-                           (char *) (allvel_ + sindsr),
-                           grid_size * sizeof(Point));
+                    memcpy((char *)(velocityblock + sinddes),
+                           (char *)(allvel_ + sindsr),
+                           (grid_size - imin) * sizeof(Point));
+                    memcpy((char *)(velocityblock + sinddes + (grid_size - imin)),
+                           (char *)(allvel_ + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size),
+                           (imax + 1 - grid_size) * sizeof(Point));
                 }
-                
-                memcpy((char *)(posblock + sinddes + (int)(ii / grid_size) * grid_size),
-                       (char *) (allpos_ + sindsr),
-                       (ii % grid_size) * sizeof(Point));
-                
-                memcpy((char *)(velocityblock + sinddes + (int)(ii / grid_size) * grid_size),
-                       (char *) (allvel_ + sindsr),
-                       (ii % grid_size) * sizeof(Point));
             }
         }
         return;

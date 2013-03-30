@@ -1,15 +1,15 @@
 #include "indtetrastream.h"
 
 int main(){
-    int inputmemgrid = 16;
+    int inputmemgrid = 4;
     int parttype = 1;
-    int datagridsize = 16;
+    int datagridsize = -1;
     bool isHighMem = true;
-    bool isAllData = false;
-    bool isVelocity = true;
+    bool isAllData = true;
+    bool isVelocity = false;
     bool isCorrection = true;
     bool isInOrder = false;
-    TetraStreamer streamer("multires_150",
+    TetraStreamer streamer(/*"/Users/lyang/data/32Mpc_S1_PM_000",//*/"multires_150",
                            inputmemgrid,
                            parttype,
                            datagridsize,

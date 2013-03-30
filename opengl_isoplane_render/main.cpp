@@ -198,7 +198,7 @@ int main(int argv, char * args[]){
         if(!isAllData){
             printf("    Use Memory Copy Mode -- but may be faster without regenerating the tetras...\n");
         }else{
-            printf("    Without Memory Copying Mode -- but may be slower in regenerating tetras...");
+            printf("    Without Memory Copying Mode -- but may be slower in regenerating tetras...\n");
         }
 
     }
