@@ -79,7 +79,9 @@ void Estimater::computeDensity(){
 	}else{
 		pbar_type = 0;
 	}
-	//ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum(), pbar_type);
+	ProcessBar process(tetrastream_->getIndTetraStream()
+                    ->getTotalBlockNum() * 
+                    gridmanager_-> getSubGridNum(), pbar_type);
 
 	int loop_i;
 
@@ -95,13 +97,13 @@ void Estimater::computeDensity(){
 	}
 
 	int tetra_ind = 0;
-	//int tetra_num_block = tetrastream_->getTotalBlockNum();
-	//process.start();
+	int tetra_num_block = tetrastream_->getIndTetraStream()->getTotalBlockNum();
+	process.start();
 
 	//for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
     while(tetrastream_->hasNext()){
-		//if(isVerbose_)
-		//	printf("Loading TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
+		if(isVerbose_)
+			printf("Loading TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
 
         int num_tetra_;
         Tetrahedron * tetras_;
@@ -109,12 +111,13 @@ void Estimater::computeDensity(){
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		//tetrastream_->loadBlock(tetra_ind);
         tetras_ = tetrastream_->getNext(num_tetra_);
+        tetra_ind = tetrastream_->getIndTetraStream()->getCurrentInd();
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		iotime_ += t2 - t1;
 		
-		//if(isVerbose_)
-		//	printf("LoadedTetraBlocks: %d/%d, takes time %f secs\n", tetra_ind + 1, tetra_num_block, t2 - t1);
+		if(isVerbose_)
+			printf("LoadedTetraBlocks: %d/%d, takes time %f secs\n", tetra_ind + 1, tetra_num_block, t2 - t1);
 
 		if(isVerbose_)
 			printf("Computing how many tetra memory need for GPU ... ");
@@ -165,7 +168,7 @@ void Estimater::computeDensity(){
 			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 
 			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
-				//process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
+				process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
 				gridmanager_->loadGrid(loop_i);
 				if(isVelocity_){
 					gridvelocity_->loadGrid(loop_i);
@@ -182,7 +185,7 @@ void Estimater::computeDensity(){
 
 	}
 	finished_ = true;
-	//process.end();
+	process.end();
 	finishCUDA();
 
 	//printf("Finished\n");
