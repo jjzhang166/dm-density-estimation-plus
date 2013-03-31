@@ -93,7 +93,7 @@ void readParameters(int argv, char * args[]){
 			if(strcmp(args[k], "-g") == 0){
 				ss << args[k + 1];
 				ss >> gridsize;
-			}else if(strcmp(args[k], "-tm")){
+			}else if(strcmp(args[k], "-tm") == 0){
                 ss << args[k+1];
                 ss >> tetra_num_limit; 
             }else if(strcmp(args[k], "-s") == 0){
