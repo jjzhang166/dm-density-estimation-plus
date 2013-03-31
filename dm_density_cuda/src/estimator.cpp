@@ -69,19 +69,17 @@ void Estimater::computeDensity(){
 	iotime_ = 0;
 	calctime_ = 0;
 	finished_ = false;
-	int pbar_type = 0;
+	//int pbar_type = 0;
 
 	//testing
 	//isVerbose_ = true;
 
-	if(isVerbose_){
-		pbar_type = 1;
-	}else{
-		pbar_type = 0;
-	}
-	ProcessBar process(tetrastream_->getIndTetraStream()
-                    ->getTotalBlockNum() * 
-                    gridmanager_-> getSubGridNum(), pbar_type);
+	//if(isVerbose_){
+	//	pbar_type = 1;
+	//}else{
+	//	pbar_type = 0;
+	//}
+	//ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum(), pbar_type);
 
 	int loop_i;
 
@@ -96,9 +94,9 @@ void Estimater::computeDensity(){
 		return;
 	}
 
-	int tetra_ind = 0;
-	int tetra_num_block = tetrastream_->getIndTetraStream()->getTotalBlockNum();
-	process.start();
+	//int tetra_ind = 0;
+	//int tetra_num_block = tetrastream_->getTotalBlockNum();
+	//process.start();
 
 	//for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
     while(tetrastream_->hasNext()){
