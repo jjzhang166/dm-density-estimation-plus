@@ -69,23 +69,25 @@ void Estimater::computeDensity(){
 	iotime_ = 0;
 	calctime_ = 0;
 	finished_ = false;
-	//int pbar_type = 0;
-
+	int pbar_type = 0;
+    
 	//testing
 	//isVerbose_ = true;
-
-	//if(isVerbose_){
-	//	pbar_type = 1;
-	//}else{
-	//	pbar_type = 0;
-	//}
-	//ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum(), pbar_type);
-
+    
+	if(isVerbose_){
+		pbar_type = 1;
+	}else{
+		pbar_type = 0;
+	}
+	ProcessBar process(tetrastream_->getIndTetraStream()
+                       ->getTotalBlockNum() *
+                       gridmanager_-> getSubGridNum(), pbar_type);
+    
 	int loop_i;
-
+    
 	if(isVerbose_)
 		printf("Initialing CUDA devices ...\n");
-
+    
 	if(initialCUDA(tetrastream_->getTetraContLimit(),
                    gridmanager_,
                    gpu_tetra_list_mem_lim,
@@ -93,16 +95,16 @@ void Estimater::computeDensity(){
                    isVelocity_) != cudaSuccess){
 		return;
 	}
-
-	//int tetra_ind = 0;
-	//int tetra_num_block = tetrastream_->getTotalBlockNum();
-	//process.start();
-
+    
+	int tetra_ind = 0;
+	int tetra_num_block = tetrastream_->getIndTetraStream()->getTotalBlockNum();
+	process.start();
+    
 	//for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
     while(tetrastream_->hasNext()){
 		if(isVerbose_)
 			printf("Loading TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
-
+        
         int num_tetra_;
         Tetrahedron * tetras_;
 		gettimeofday(&timediff, NULL);
@@ -116,10 +118,10 @@ void Estimater::computeDensity(){
 		
 		if(isVerbose_)
 			printf("LoadedTetraBlocks: %d/%d, takes time %f secs\n", tetra_ind + 1, tetra_num_block, t2 - t1);
-
+        
 		if(isVerbose_)
 			printf("Computing how many tetra memory need for GPU ... ");
-
+        
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		if(computeTetraMemWithCuda(tetras_, num_tetra_) != cudaSuccess)
@@ -130,8 +132,8 @@ void Estimater::computeDensity(){
 		
 		if(isVerbose_)
 			printf("Costs %f secs\n", t2 - t1);
-
-
+        
+        
 		bool hasnext = true;
 		while(hasnext){
 			if(isVerbose_)
@@ -144,7 +146,7 @@ void Estimater::computeDensity(){
 			gettimeofday(&timediff, NULL);
 			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			calctime_ += t2 - t1;
-
+            
 			if(isVerbose_){
 				if(hasnext){
 					printf("Cost %f secs. GPU memory insufficient, divided to multiple step.\n", t2 - t1);
@@ -152,19 +154,19 @@ void Estimater::computeDensity(){
 					printf("Cost %f secs.\n", t2 - t1);
 				}
 			}
-						
+            
 			int res_print_ = gridmanager_->getSubGridNum() / 50;
 			if(res_print_ == 0){
 				res_print_ = 1;
 			}
-
+            
 			if(isVerbose_){
 				printf("Looping over the grids... \n");
 			}
-
+            
 			gettimeofday(&timediff, NULL);
 			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-
+            
 			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
 				process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
 				gridmanager_->loadGrid(loop_i);
@@ -173,38 +175,38 @@ void Estimater::computeDensity(){
 				}
 				calculateGridWithCuda();
 			}
-
+            
 			gettimeofday(&timediff, NULL);
 			t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 			calctime_ += t2 - t1;
 			if(isVerbose_)
 				printf("Costs %f secs\n", t2 - t1);
 		}
-
+        
 	}
 	finished_ = true;
 	process.end();
 	finishCUDA();
-
+    
 	//printf("Finished\n");
-
-/*	int i, j, k, l;
-	for(l = 0; l < gridmanager_->getSubGridNum(); l ++){
-		gridmanager_->loadGrid(l);
-		int gs = gridmanager_->getSubGridSize();
-		for(i = 0; i < gs; i++){
-			for(j = 0; j < gs; j++){
-				for(k = 0; k < gs; k++){
-					REAL v = gridmanager_->getValue(k, j, i);
-					//printf("%f\n", v );
-					if(v > 0){
-						printf("Ind: %d ==> %e\n", k + j * gs + i * gs * gs, v);
-					}
-				}
-			}
-		}
-	}*/
-
+    
+    /*	int i, j, k, l;
+     for(l = 0; l < gridmanager_->getSubGridNum(); l ++){
+     gridmanager_->loadGrid(l);
+     int gs = gridmanager_->getSubGridSize();
+     for(i = 0; i < gs; i++){
+     for(j = 0; j < gs; j++){
+     for(k = 0; k < gs; k++){
+     REAL v = gridmanager_->getValue(k, j, i);
+     //printf("%f\n", v );
+     if(v > 0){
+     printf("Ind: %d ==> %e\n", k + j * gs + i * gs * gs, v);
+     }
+     }
+     }
+     }
+     }*/
+    
 }
 
 bool Estimater::isFinished(){
