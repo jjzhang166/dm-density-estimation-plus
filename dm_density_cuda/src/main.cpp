@@ -57,10 +57,11 @@ namespace main_space{
     bool isCorrection = true;
     int parttype = 1;
     int datagridsize = -1;
+    int tetra_num_limit = 500000;
     //bool isAllData;
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s\n%s\n %s\n %s\n %s\n %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
+	fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
             , pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
@@ -68,7 +69,8 @@ void printUsage(string pname){
 			, "[-of <gridfilename>]"
 			, "[-vfile <velocityfieldfilename> only applied when use -vel]"
 			, "[-memgl <GPU memory for tetra list>]"
-			, "[-t <numbers of tetra in memory>]"
+			, "[-t <numbers of ind tetras in memory>]"
+            , "[-tm <numbers of tetrahderons in memory>]"
 			, "[-parttype] default: 1. Use 0-NTYPE data in the gadgetfile"
             , "[-dgridsize] default: -1 to use the npart^(1/3) as gridsize"
             , "[-lowmem] use low memory mode (don't load all part in mem)"
@@ -91,7 +93,10 @@ void readParameters(int argv, char * args[]){
 			if(strcmp(args[k], "-g") == 0){
 				ss << args[k + 1];
 				ss >> gridsize;
-			}else if(strcmp(args[k], "-s") == 0){
+			}else if(strcmp(args[k], "-tm")){
+                ss << args[k+1];
+                ss >> tetra_num_limit; 
+            }else if(strcmp(args[k], "-s") == 0){
 				ss << args[k + 1];
 				ss >> subgridsize;
 			}else if(strcmp(args[k], "-df") == 0){
@@ -239,7 +244,8 @@ int main(int argv, char * args[]){
                               isAlldata,
                               isVelocity,
                               isCorrection,
-                              isInOrder);
+                              isInOrder,
+                              tetra_num_limit);
 	//tetraStream.setIsInOrder(isInOrder);
 
 	//compute the startpoint and endpoint
