@@ -57,9 +57,10 @@ namespace main_space{
     bool isCorrection = true;
     int parttype = 1;
     int datagridsize = -1;
+    //bool isAllData;
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s\n %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
+	fprintf(stderr, "Usage: %s\n%s\n %s\n %s\n %s\n %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
             , pname.c_str()
 			, "[-g <gridsize>]"
 			, "[-s <subgridsize>]"
@@ -68,7 +69,11 @@ void printUsage(string pname){
 			, "[-vfile <velocityfieldfilename> only applied when use -vel]"
 			, "[-memgl <GPU memory for tetra list>]"
 			, "[-t <numbers of tetra in memory>]"
-			, "[-o] to output result in texts"
+			, "[-parttype] default: 1. Use 0-NTYPE data in the gadgetfile"
+            , "[-dgridsize] default: -1 to use the npart^(1/3) as gridsize"
+            , "[-lowmem] use low memory mode (don't load all part in mem)"
+            , "[-nalldata] only usable in highmem mode"
+            , "[-o] to output result in texts"
 			, "[-order] if the data is in order"
 			, "[-v] to show verbose"
 			, "[-vel] if calculate velocity field"
@@ -116,7 +121,20 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-vel") == 0){
 				isVelocity = true;
 				k = k -1;
-			}else if(strcmp(args[k], "-box") == 0){
+			}else if(strcmp(args[k], "-dgridsize") == 0){
+                    ss << args[k + 1];
+                    ss >> datagridsize;
+            }else if(strcmp(args[k], "-parttype") == 0){
+                    ss << args[k + 1];
+                    ss >> parttype;
+            }else if(strcmp(args[k], "-lowmem") == 0){
+                    isHighMem = false;
+                    k = k -1;
+            }else if(strcmp(args[k], "-alldata") == 0){
+                    isAlldata = true;
+                    k = k -1;
+            }
+            else if(strcmp(args[k], "-box") == 0){
 				isSetBox = true;
                 k++;
 				ss << args[k] << " ";
@@ -192,7 +210,23 @@ int main(int argv, char * args[]){
 	if(isInOrder){
 		printf("The data is already in right order for speed up...\n");
 	}
+    if(datagridsize == -1){                    
+            printf("DataGridsize            = [to be determined by data]\n");              
+    }else{
+            printf("DataGridsize            = %d\n", datagridsize);
+    }
 
+        
+    if(!isHighMem){
+            printf("Low Memory mode: slower in reading file...\n");
+    }else{
+            printf("Block Memory Operation:\n");
+            if(!isAlldata){
+                    printf("    Use Memory Copy Mode -- but may be faster without regenerating the tetras...\n");
+            }else{
+                    printf("    Without Memory Copying Mode -- but may be slower in regenerating tetras...\n");
+            }
+    }
 
 	printf("*********************************************************************\n");
 
