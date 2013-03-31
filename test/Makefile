@@ -8,14 +8,15 @@ IFLAG= -I /usr/include/GL/ -I${LIB}
 all: obj
 	$(CC) testtetrastreamer.o indtetrastream.o readgadget.o \
 			tetracut.o triangle.o tetrastream.o tetrahedron.o\
-		   	-o testtetrastreamer $(LFLAGS)
+		   indtetrahedron.o	-o testtetrastreamer $(LFLAGS)
 	@echo success
 
 obj:
 	$(CC) -c -Wall ${LIB}/processbar.cpp\
 			${LIB}/indtetrastream.cpp ${LIB}/readgadget.cpp \
 		   	${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
-		   	${LIB}/tetrastream.cpp testtetrastreamer.cpp $(IFLAG)  
+		   	${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp\
+		   	testtetrastreamer.cpp $(IFLAG)  
 
 clean:
 	rm -f *.o

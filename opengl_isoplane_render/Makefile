@@ -1,8 +1,8 @@
 #MACOS
 CC=g++
 LIB=../library
-#LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
-LFLAGS= -lGL -lglut -lGLEW
+LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
+#LFLAGS= -lGL -lglut -lGLEW
 IFLAG= -I /usr/include/GL/ -I${LIB}
 
 all: obj
@@ -13,7 +13,7 @@ obj:
 	$(CC) -c -Wall main.cpp buffers.cpp isoplane.cpp ${LIB}/processbar.cpp render.cpp\
 		   ${LIB}/indtetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp \
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
-		   ${LIB}/tetrastream.cpp $(IFLAG)  
+		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp $(IFLAG)  
 
 clean:
 	rm -f *.o

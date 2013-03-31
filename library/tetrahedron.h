@@ -35,23 +35,7 @@ public:
     CUDA_CALLABLE_MEMBER const Point cross(const Point &other) const;
 };
 
-// Ind tetrahedron 
-class IndTetrahedron{
-public:
-    CUDA_CALLABLE_MEMBER IndTetrahedron(){
-        ind1 = 0;
-        ind2 = 0;
-        ind3 = 0;
-        ind4 = 0;
-    };
-    int ind1;
-    int ind2;
-    int ind3;
-    int ind4;
 
-	CUDA_CALLABLE_MEMBER IndTetrahedron & operator=(const IndTetrahedron & rhs);
-	CUDA_CALLABLE_MEMBER IndTetrahedron(const IndTetrahedron &tetra);
-};
 
 
 class Tetrahedron{
@@ -97,13 +81,34 @@ private:
 	//double d0;				// compute d0 first to reduce calculation
 };
 
+
+
+// Ind tetrahedron
+class IndTetrahedron{
+public:
+    CUDA_CALLABLE_MEMBER IndTetrahedron(){
+        ind1 = 0;
+        ind2 = 0;
+        ind3 = 0;
+        ind4 = 0;
+    };
+    int ind1;
+    int ind2;
+    int ind3;
+    int ind4;
+    
+	CUDA_CALLABLE_MEMBER IndTetrahedron & operator=(const IndTetrahedron & rhs);
+	CUDA_CALLABLE_MEMBER IndTetrahedron(const IndTetrahedron &tetra);
+};
+
+
 // Ind Tetrahedron manager
 // manage the index tetrahedron
 class IndTetrahedronManager{
 public:
     //isVelocity: does velocity participated in the calculation?
     CUDA_CALLABLE_MEMBER IndTetrahedronManager(Point * parray = NULL, REAL box = 3200, bool isVelocity = false, Point * varray = NULL);
-
+    
     CUDA_CALLABLE_MEMBER void setIsVelocity(bool isVelocity);
     CUDA_CALLABLE_MEMBER void setPosArray(Point * parray);
     CUDA_CALLABLE_MEMBER void setVelArray(Point * varray);
@@ -111,8 +116,8 @@ public:
     
     //test wheter the point is in this tetra
 	CUDA_CALLABLE_MEMBER bool isInTetra(const IndTetrahedron &tetra_, const Point &p) const;
-	CUDA_CALLABLE_MEMBER bool isInTetra(const IndTetrahedron &tetra_, 
-                    Point &p, double &d0, double &d1, double &d2, double &d3, double &d4) const;
+	CUDA_CALLABLE_MEMBER bool isInTetra(const IndTetrahedron &tetra_,
+                                        Point &p, double &d0, double &d1, double &d2, double &d3, double &d4) const;
     
     CUDA_CALLABLE_MEMBER Point& posa(const IndTetrahedron &tetra_) const;
     CUDA_CALLABLE_MEMBER Point& posb(const IndTetrahedron &tetra_) const;
@@ -123,21 +128,21 @@ public:
     CUDA_CALLABLE_MEMBER Point& velb(const IndTetrahedron &tetra_) const;
     CUDA_CALLABLE_MEMBER Point& velc(const IndTetrahedron &tetra_) const;
     CUDA_CALLABLE_MEMBER Point& veld(const IndTetrahedron &tetra_) const;
-
+    
 	CUDA_CALLABLE_MEMBER REAL minx(const IndTetrahedron &tetra_) const;
 	CUDA_CALLABLE_MEMBER REAL miny(const IndTetrahedron &tetra_) const;
 	CUDA_CALLABLE_MEMBER REAL minz(const IndTetrahedron &tetra_) const;
 	CUDA_CALLABLE_MEMBER REAL maxx(const IndTetrahedron &tetra_) const;
 	CUDA_CALLABLE_MEMBER REAL maxy(const IndTetrahedron &tetra_) const;
 	CUDA_CALLABLE_MEMBER REAL maxz(const IndTetrahedron &tetra_) const;
-
+    
     CUDA_CALLABLE_MEMBER REAL getVolume(const IndTetrahedron &tetra_) const;
-
+    
     //compute and return how many periodical tetrahedrons
     CUDA_CALLABLE_MEMBER int getNumPeriodical(const IndTetrahedron &tetra_);
     //return the period tetrahedrons
 	CUDA_CALLABLE_MEMBER Tetrahedron * getPeroidTetras(const IndTetrahedron &tetra_);
-
+    
     
     
 private:
