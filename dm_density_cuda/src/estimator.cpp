@@ -20,14 +20,14 @@
 using namespace std;
 
 #include "types.h"
-#include "tetrastream.h"
+#include "indtetrastream.h"
 #include "gridmanager.h"
 #include "estimator.h"
 #include "kernel.h"
 #include "processbar.h"
 
 
-void Estimater::initialize(TetraStream * tetrastream, GridManager * gridmanager){
+void Estimater::initialize(TetraStreamer * tetrastream, GridManager * gridmanager){
 	tetrastream_ = tetrastream;
 	gridmanager_ = gridmanager;
 	good_ = true;
@@ -37,16 +37,16 @@ void Estimater::initialize(TetraStream * tetrastream, GridManager * gridmanager)
 	isVelocity_ = false;
 }
 
-Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager){
+Estimater::Estimater(TetraStreamer * tetrastream, GridManager * gridmanager){
 	initialize(tetrastream, gridmanager);
 }
 
-Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim){
+Estimater::Estimater(TetraStreamer * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim){
 	initialize(tetrastream, gridmanager);
 	gpu_tetra_list_mem_lim = tetra_list_mem_lim;
 }
 
-Estimater::Estimater(TetraStream * tetrastream, GridManager * gridmanager,  GridVelocityManager * gridvelocity, int tetra_list_mem_lim){
+Estimater::Estimater(TetraStreamer * tetrastream, GridManager * gridmanager,  GridVelocityManager * gridvelocity, int tetra_list_mem_lim){
 	initialize(tetrastream, gridmanager);
 	gridvelocity_ = gridvelocity;
 	gpu_tetra_list_mem_lim = tetra_list_mem_lim;
@@ -79,41 +79,49 @@ void Estimater::computeDensity(){
 	}else{
 		pbar_type = 0;
 	}
-	ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum(), pbar_type);
+	//ProcessBar process(tetrastream_->getTotalBlockNum() * gridmanager_-> getSubGridNum(), pbar_type);
 
 	int loop_i;
 
 	if(isVerbose_)
 		printf("Initialing CUDA devices ...\n");
 
-	if(initialCUDA(tetrastream_, gridmanager_, gpu_tetra_list_mem_lim, gridvelocity_, isVelocity_) != cudaSuccess){
+	if(initialCUDA(tetrastream_->getTetraContLimit(),
+                   gridmanager_,
+                   gpu_tetra_list_mem_lim,
+                   gridvelocity_,
+                   isVelocity_) != cudaSuccess){
 		return;
 	}
 
 	int tetra_ind = 0;
-	int tetra_num_block = tetrastream_->getTotalBlockNum();
-	process.start();
+	//int tetra_num_block = tetrastream_->getTotalBlockNum();
+	//process.start();
 
-	for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
-		if(isVerbose_)
-			printf("Loading TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
+	//for(tetra_ind = 0; tetra_ind < tetra_num_block; tetra_ind ++){
+    while(tetrastream_->hasNext()){
+		//if(isVerbose_)
+		//	printf("Loading TetraBlocks: %d/%d\n", tetra_ind + 1, tetra_num_block);
 
+        int num_tetra_;
+        Tetrahedron * tetras_;
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-		tetrastream_->loadBlock(tetra_ind);
+		//tetrastream_->loadBlock(tetra_ind);
+        tetras_ = tetrastream_->getNext(num_tetras_);
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		iotime_ += t2 - t1;
 		
-		if(isVerbose_)
-			printf("LoadedTetraBlocks: %d/%d, takes time %f secs\n", tetra_ind + 1, tetra_num_block, t2 - t1);
+		//if(isVerbose_)
+		//	printf("LoadedTetraBlocks: %d/%d, takes time %f secs\n", tetra_ind + 1, tetra_num_block, t2 - t1);
 
 		if(isVerbose_)
 			printf("Computing how many tetra memory need for GPU ... ");
 
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-		if(computeTetraMemWithCuda() != cudaSuccess)
+		if(computeTetraMemWithCuda(tetras_, num_tetras_) != cudaSuccess)
 			return;
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;

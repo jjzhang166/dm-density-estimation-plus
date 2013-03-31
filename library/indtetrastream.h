@@ -145,6 +145,14 @@ public:
     bool hasNext();
     Tetrahedron * getNext(int& num_tetras_);
     
+    IndTetraStream * getIndTetraStream(){
+        return indstream_;
+    };
+    
+    int getTetraContLimit(){
+        return limit_tetracount_;
+    };
+    
     void reset();
 
 private:

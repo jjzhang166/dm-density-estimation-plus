@@ -30,7 +30,7 @@
 //#include "grid.h"
 #include "gridmanager.h"
 #include "tetrahedron.h"
-#include "tetrastream.h"
+#include "indtetrastream.h"
 #include "estimator.h"
 
 
@@ -52,6 +52,11 @@ namespace main_space{
     bool isSetBox = false;                       //set up a box for the grids
     Point setStartPoint;
     double boxsize = 32000.0;
+    bool isHighMem = true;
+    bool isAlldata = false;
+    bool isCorrection = true;
+    int parttype = 1;
+    int datagridsize = -1;
 
 void printUsage(string pname){
 	fprintf(stderr, "Usage: %s\n %s \n %s \n %s \n %s\n %s\n %s\n %s \n %s \n %s \n %s \n %s\n %s\n"
@@ -192,13 +197,21 @@ int main(int argv, char * args[]){
 	printf("*********************************************************************\n");
 
 	//tetrastream
-	TetraStream tetraStream(filename, inputmemgrid, isVelocity);
-	tetraStream.setIsInOrder(isInOrder);
+	TetraStreamer tetraStream(filename,
+                              inputmemgrid,
+                              parttype,
+                              datagridsize,
+                              isHighMem,
+                              isAlldata,
+                              isVelocity,
+                              isCorrection,
+                              isInOrder);
+	//tetraStream.setIsInOrder(isInOrder);
 
 	//compute the startpoint and endpoint
 	Point startpoint;
 	Point endpoint;
-    gadget_header header = tetraStream.getHeader();
+    gadget_header header = (tetraStream.getIndTetraStream())->getHeader();
     if(!isSetBox){
         startpoint.x = 0;
         startpoint.y = 0;
@@ -224,7 +237,7 @@ int main(int argv, char * args[]){
 	}
 
 	//setup pierodical correction, NO "VOX_VOL" correction
-	tetraStream.setCorrection();
+	//tetraStream.setCorrection();
 
 	//estimator
 	Estimater estimater(&tetraStream, &grid, gridvel, gpu_mem_for_tetralist);

@@ -10,7 +10,7 @@ using namespace std;
 #include "types.h"
 #include "kernel.h"
 #include "tetrahedron.h"
-#include "tetrastream.h"
+//#include "tetrastream.h"
 #include "gridmanager.h"
 
 #include <tetrahedron.cpp>
@@ -20,11 +20,13 @@ using namespace std;
 namespace kernel_space{
 	int sub_grid_size_;
 	int num_tetra_ = 0;
+    
+    int TETRA_NUM_LIMIT_;
 
 	Tetrahedron * dev_tetras;						//the tetrahedrons in the GPU memory
 	Tetrahedron * tetras_v;							//the tetrahedrons in the CPU memory
 	GridManager * gridmanager;						//grid manager
-	TetraStream * tetrastream;						//tetrahedron stream
+	//TetraStreamer * tetrastream;						//tetrahedron stream
 
 	REAL * dev_grids;								//the grids in the GPU memory
 	Point * dev_grid_velocity;						//velocity grids
@@ -186,9 +188,17 @@ __device__ bool isInTouch(int ind, int subgs, int gs, int nsg, float box, float 
 
 
 //compute how many tetrahedrons are in touch with a certain subblock of the density grid
-__global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem, 
-		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box,
-        float x0, float y0, float z0){
+__global__ void computeTetraMem(
+                                Tetrahedron * dtetra,
+                                int * tetra_mem,
+                                int ntetra,
+                                int subgridsize,
+                                int gridsize,
+                                int numsubgrid,
+                                float box,
+                                float x0,
+                                float y0,
+                                float z0){
 	int loop_i = 0;
 	int ind;
 	float dx2 = box / gridsize / 2.0;
@@ -214,9 +224,19 @@ __global__ void computeTetraMem(Tetrahedron * dtetra, int * tetra_mem,
 }
 
 //compute the actual list of tetrahedrons thar are in touch with subblock
-__global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int * tetra_select, 
-		int ntetra, int subgridsize, int gridsize, int numsubgrid, float box,
-		int start_ind, int end_ind, float x0, float y0, float z0){
+__global__ void computeTetraSelection(Tetrahedron * dtetra,
+                                      int * tetra_mem,
+                                      int * tetra_select,
+                                      int ntetra,
+                                      int subgridsize,
+                                      int gridsize,
+                                      int numsubgrid,
+                                      float box,
+                                      int start_ind,
+                                      int end_ind,
+                                      float x0,
+                                      float y0,
+                                      float z0){
 	int loop_i = 0;
 	int ind;
 	float dx2 = box / gridsize / 2.0;
@@ -254,24 +274,27 @@ __global__ void computeTetraSelection(Tetrahedron * dtetra, int * tetra_mem, int
 }
 
 //initialize the CUDA
-cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, int mem_for_tetralist, GridVelocityManager * gridvelocity_, bool isVelocity_){
+cudaError_t initialCUDA(int tetra_num_limit,
+                        GridManager * gridmanager_,
+                        int mem_for_tetralist,
+                        GridVelocityManager * gridvelocity_,
+                        bool isVelocity_){
+    
 	is_Velocity = isVelocity_;
 	grid_velocity = gridvelocity_;
 
-	//int grid_size;
+	//memory limit for tetrahedrons in tetra mem calculating
 	TETRA_LIST_MEM_LIM = mem_for_tetralist;
+    TETRA_NUM_LIMIT_ = tetra_num_limit;
+    num_tetra_ = TETRA_NUM_LIMIT_;
 
-	tetrastream = tetrastream_;
+	//tetrastream = tetrastream_;
 	gridmanager = gridmanager_;
 	//tetras_v = tetrastream_->getTretras();
 
-	num_tetra_ = tetrastream->getBlockSize();
-	num_tetra_ = 6 * num_tetra_ * num_tetra_ * num_tetra_ * 8;
-
 	sub_grid_size_ = gridmanager->getSubGridSize();
 	//grid_size = gridmanager->getGridSize();
-
-	//printf("%d\n", grid_size);
+    
 	cudaError_t cudaStatus;
 	cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
@@ -315,12 +338,12 @@ cudaError_t initialCUDA(TetraStream * tetrastream_, GridManager * gridmanager_, 
 
 
 //compute how many tetrahedrons are in touch with a certain subblock of the density grid
-cudaError_t computeTetraMemWithCuda(){
+cudaError_t computeTetraMemWithCuda(Tetrahedron * tetras, int tetra_num){
 	//copy the memory to CUDA
 	cudaError_t cudaStatus;
 
-	tetras_v = tetrastream ->getCurrentBlock();
-	num_tetra_ = tetrastream->getBlockNumTetra();
+	tetras_v = tetras;
+	num_tetra_ = tetra_num;
 
 	int blocksize = 512;
 	int gridsize = gridmanager->getSubGridNum() / blocksize + 1;
@@ -332,14 +355,16 @@ cudaError_t computeTetraMemWithCuda(){
     }
 
 	//<<<gridsize, blocksize>>>
-	computeTetraMem<<<gridsize, blocksize>>>(dev_tetras, dev_tetra_mem, 
-		num_tetra_, gridmanager->getSubGridSize(), gridmanager->getGridSize(), 
-		gridmanager->getSubGridNum(), 
-		gridmanager->getEndPoint().x - gridmanager->getStartPoint().x,
-        gridmanager->getStartPoint().x,  
-        gridmanager->getStartPoint().y,  
-        gridmanager->getStartPoint().z
-    );
+	computeTetraMem<<<gridsize, blocksize>>>(dev_tetras,
+                                             dev_tetra_mem,
+                                             num_tetra_,
+                                             gridmanager->getSubGridSize(),
+                                             gridmanager->getGridSize(),
+                                             gridmanager->getSubGridNum(),
+                                             gridmanager->getEndPoint().x - gridmanager->getStartPoint().x,
+                                             gridmanager->getStartPoint().x,
+                                             gridmanager->getStartPoint().y,
+                                             gridmanager->getStartPoint().z);
 
 	cudaStatus = cudaThreadSynchronize();
 	if( cudaStatus != cudaSuccess){

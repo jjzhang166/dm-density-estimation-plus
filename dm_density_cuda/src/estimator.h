@@ -10,9 +10,9 @@
 
 class Estimater{
 public:
-	Estimater(TetraStream * tetrastream, GridManager * gridmanager);
-	Estimater(TetraStream * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim);
-	Estimater(TetraStream * tetrastream, GridManager * gridmanager, GridVelocityManager * gridvelocity, int tetra_list_mem_lim);
+	Estimater(TetraStreamer * tetrastream, GridManager * gridmanager);
+	Estimater(TetraStreamer * tetrastream, GridManager * gridmanager, int tetra_list_mem_lim);
+	Estimater(TetraStreamer * tetrastream, GridManager * gridmanager, GridVelocityManager * gridvelocity, int tetra_list_mem_lim);
 
 	void computeDensity();
 	bool isGood();						// if false, has some error
@@ -21,9 +21,9 @@ public:
 	void setVerbose(bool verbose);
 	void setIsVelocity(bool isvel);				// set whether calc
 private:
-	void initialize(TetraStream * tetrastream, GridManager * gridmanager);
+	void initialize(TetraStreamer * tetrastream, GridManager * gridmanager);
 
-	TetraStream * tetrastream_;
+	TetraStreamer * tetrastream_;
 	GridManager * gridmanager_;
 	GridVelocityManager * gridvelocity_;
 
