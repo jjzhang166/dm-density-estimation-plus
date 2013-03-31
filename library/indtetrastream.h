@@ -122,7 +122,7 @@ private:
     bool isAllData_;
     
     double iotime_, t0_, t1_;
-    timeval timediff;;
+    timeval timediff;
 };
 
 

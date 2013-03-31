@@ -10,7 +10,7 @@ using namespace std;
 #include "types.h"
 #include "kernel.h"
 #include "tetrahedron.h"
-//#include "tetrastream.h"
+#include "tetrastream.h"
 #include "gridmanager.h"
 
 #include <tetrahedron.cpp>

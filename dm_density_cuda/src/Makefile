@@ -1,6 +1,6 @@
 LIBPATH=../../library
 NVCCSRC=kernel.cu estimator.cpp
-GPPSRC=${LIBPATH}/readgadget.cpp ${LIBPATH}/processbar.cpp main.cpp ${LIBPATH}/tetrastream.cpp
+GPPSRC=${LIBPATH}/readgadget.cpp ${LIBPATH}/processbar.cpp main.cpp ${LIBPATH}/indtetrastream.cpp ${LIBPATH}/tetrastream.cpp
 
 all:
 	nvcc -c ${NVCCSRC} -I ${LIBPATH}
