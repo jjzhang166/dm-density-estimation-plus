@@ -9,6 +9,9 @@ double accretion_sphere_rate(int counts, Point * posdata, Point * veldata, doubl
     double volum = 4.0 * PI / 3.0 * (r2 * r2 * r2 - r1 * r1 * r1);
     double accr = 0.0;
     for(int i = 0; i < counts; i ++){
+        //flag the particles
+        if(posdata[i].x < 0) continue;
+        
         Point rvec = halocenter - posdata[i];
         double r = sqrt(rvec.dot(rvec));
         rvec = rvec / r;
@@ -43,7 +46,8 @@ double accretion_tetra_rate(
                              getRadius(tetras[i].v3, halocenter),
                              getRadius(tetras[i].v4, halocenter)
                             );
-            int nu_tri = cutter.cut(r);
+            
+            int nu_tri = cutter.cut(r, tetras[i].velocity1, tetras[i].velocity2, tetras[i].velocity3, tetras[i].velocity4);
             
             /*if(nu_tri > 0){
                 printf("Radius: %d %f %f %f %f %f\n", nu_tri, r,
@@ -56,13 +60,17 @@ double accretion_tetra_rate(
 
             for(int j = 0; j < nu_tri; j++){
                 Triangle3d t = cutter.getTrangle(j);
+                Point direc = halocenter - (t.a + t.b + t.c) / 3.0 ;
+                direc = direc / sqrt(direc.dot(direc));
+                
+                double velocity = direc.dot(t.val1 + t.val2 + t.val3) / 3.0;
                 double area = t.getArea();
                 //printf("\n");
                 /*printf("%f %f %f\n", t.a.x, t.a.y, t.a.z);
                 printf("%f %f %f\n", t.b.x, t.b.y, t.b.z);
                 printf("%f %f %f\n", t.c.x, t.c.y, t.c.z);*/
 
-                accr += area;
+                accr += area * velocity * mass * tetras[i].invVolume;
                 //printf("Area: %f %f\n", area, area/(4*PI*r*r));
                 //printf("\n");
 

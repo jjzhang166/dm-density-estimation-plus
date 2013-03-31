@@ -1,3 +1,4 @@
+#include <iostream>
 #include "accretion.h"
 
 using namespace std;
@@ -7,23 +8,38 @@ Point halocenter;
 double r = 600;
 double dr = 10;
 
-int main(){ 
-    GSnap * gsnap_ = new GSnap(filename_); 
+//load all the particles into memory?
+bool isHighMem = true;
+//return the all particle pointer?
+bool isAllData = false;
+
+//if use -1, then use the particle gridsize as the gridsize
+//otherwise use the user setting
+int datagridsize = 256;
+//the particle type in the gadget file
+int parttype = 1;
+int inputmemgrid = 32;
+
+bool isInOrder = false;
+bool isVelocity = true;
+
+int main(){
+    GSnap * gsnap_ = new GSnap(filename_, isHighMem, parttype, datagridsize);
     int numparts = gsnap_->Npart;
     double mass = gsnap_->header.mass[1];
     printf("Particle Numbers: %d\n", numparts);
     printf("Particle mass: %f\n", mass);
-    fstream file(filename_.c_str(), ios_base::in | ios_base::binary);
-    if(!file.good()){
-        printf("Data file bad!\n");
-        exit(1);
-    }
+    //fstream file(filename_.c_str(), ios_base::in | ios_base::binary);
+    //if(!file.good()){
+    //    printf("Data file bad!\n");
+    //    exit(1);
+    //}
 
-    Point * pos = new Point[numparts];
-    Point * vel = new Point[numparts];
+    Point * pos = gsnap_ -> getAllPos();//new Point[numparts];
+    Point * vel = gsnap_ -> getAllVel();//new Point[numparts];
 
-    gsnap_->readPos(file, pos, 0, numparts);
-    gsnap_->readVel(file, vel, 0, numparts);
+    //gsnap_->readPos(file, pos, 0, numparts);
+    //gsnap_->readVel(file, vel, 0, numparts);
    
     //for(int i = 0; i < numparts; i++){
     //    printf("Pos: %f %f %f\n", pos[i].x, pos[i].y, pos[i].z);
@@ -46,21 +62,34 @@ int main(){
                     r, 
                     r+dr);
     
-    TetraStreamer streamer(filename_, 70, true, true, false);
+    printf("Measure in radius %f, with thickness %f. Accretion rate is %e\n",
+           r, dr, ar_sphere);
+    std::cout.flush();
+    
+    TetraStreamer streamer(filename_,
+                           inputmemgrid,
+                           parttype,
+                           datagridsize,
+                           isHighMem,
+                           isAllData,
+                           isVelocity,
+                           true,
+                           isInOrder);
+    
     double ar_tetra = accretion_tetra_rate( 
                     streamer,  
                     mass, 
                     halocenter,
                     r);
 
-    printf("Measure in radius %f, with thickness %f. Accretion rate is %e\n", 
-                    r, dr, ar_sphere);
+
     printf("Measure in LTFE %f. Area is %f. Accretion rate is %e\n", 
                     r, 4*PI*r*r, ar_tetra);
 
 
-    file.close();
+    //file.close();
     
+    delete gsnap_;
     
     return 0;
 }
