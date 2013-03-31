@@ -108,7 +108,7 @@ void Estimater::computeDensity(){
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		//tetrastream_->loadBlock(tetra_ind);
-        tetras_ = tetrastream_->getNext(num_tetras_);
+        tetras_ = tetrastream_->getNext(num_tetra_);
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 		iotime_ += t2 - t1;
@@ -121,7 +121,7 @@ void Estimater::computeDensity(){
 
 		gettimeofday(&timediff, NULL);
 	    t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
-		if(computeTetraMemWithCuda(tetras_, num_tetras_) != cudaSuccess)
+		if(computeTetraMemWithCuda(tetras_, num_tetra_) != cudaSuccess)
 			return;
 		gettimeofday(&timediff, NULL);
 		t2 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
@@ -165,7 +165,7 @@ void Estimater::computeDensity(){
 			t1 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
 
 			for(loop_i = 0; loop_i < gridmanager_-> getSubGridNum(); loop_i ++){
-				process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
+				//process.setvalue(loop_i + tetra_ind * (gridmanager_-> getSubGridNum()));
 				gridmanager_->loadGrid(loop_i);
 				if(isVelocity_){
 					gridvelocity_->loadGrid(loop_i);
@@ -182,7 +182,7 @@ void Estimater::computeDensity(){
 
 	}
 	finished_ = true;
-	process.end();
+	//process.end();
 	finishCUDA();
 
 	//printf("Finished\n");
