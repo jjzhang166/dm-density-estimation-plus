@@ -4,9 +4,10 @@
 using namespace std;
 
 string filename_ =  "/Users/lyang/data/run_200";
+//string filename_ =  "/Users/lyang/data/run_200";
 Point halocenter;
-double r = 600;
-double dr = 10;
+double r = 1110;
+double dr = 50;
 
 //load all the particles into memory?
 bool isHighMem = true;
@@ -18,7 +19,7 @@ bool isAllData = false;
 int datagridsize = 256;
 //the particle type in the gadget file
 int parttype = 1;
-int inputmemgrid = 32;
+int inputmemgrid = 16;
 
 bool isInOrder = false;
 bool isVelocity = true;
