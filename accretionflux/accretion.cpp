@@ -67,7 +67,7 @@ double accretion_tetra_rate(
 
             cts ++;
             for(int j = 0; j < nu_tri; j++){
-                Triangle3d t = cutter.getTrangle(j);
+                Triangle3d &t = cutter.getTrangle(j);
                 Point direc = halocenter - (t.a + t.b + t.c) / 3.0 ;
                 
                 double rp = sqrt(direc.dot(direc));
