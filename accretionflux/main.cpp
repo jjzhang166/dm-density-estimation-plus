@@ -1,5 +1,8 @@
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
 #include "accretion.h"
+
 
 using namespace std;
 

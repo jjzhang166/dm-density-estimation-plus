@@ -1,4 +1,6 @@
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include "accretion.h"
 #include "triangle.h"
 #include "tetracut.h"
