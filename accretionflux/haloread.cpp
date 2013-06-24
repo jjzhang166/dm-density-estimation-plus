@@ -9,7 +9,7 @@
 using namespace std;
 
 
-int getTotalHaloNum(char * fitsname){
+int getTotalHaloNum(const char * fitsname){
     int status = 0;
     char keyname[FLEN_KEYWORD], colname[FLEN_VALUE], coltype[FLEN_VALUE];
     //int status = 0;   /* CFITSIO status value MUST be initialized to zero! */
@@ -39,7 +39,7 @@ int getTotalHaloNum(char * fitsname){
     return leng;
 }
 
-int getHaloById(char * fitsname, int halonum, Halo * halo){
+int getHaloById(const char * fitsname, int halonum, Halo * halo){
     int status = 0;   /* CFITSIO status value MUST be initialized to zero! */
     
     char keyname[FLEN_KEYWORD], colname[FLEN_VALUE], coltype[FLEN_VALUE];

@@ -68,9 +68,10 @@ namespace main_space{
     Point setStartPoint;
     double boxsize = 32000.0;
     int imagesize = 512;
+    double showz = 26300;                        //the showing z-direction
 
 void printUsage(string pname){
-	fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
+	fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
             , pname.c_str()
             , "[-imsize <imagesize>]"
 			, "[-df <datafilename>]"
@@ -86,6 +87,7 @@ void printUsage(string pname){
             , "[-lowmem] use low memory mode (don't load all part in mem)"
             , "[-nalldata] only usable in highmem mode"
             , "[-box <x0> <y0> <z0> <boxsize>] setup the start point, and the boxsize. The box should be inside the data's box, otherwise some unpredictable side effects will comes out"
+            , "[-showz <z-coor of the cut plane>]"
 			);
 }
 
@@ -135,6 +137,9 @@ void readParameters(int argv, char * args[]){
 			}else if(strcmp(args[k], "-alldata") == 0){
 				isAllData = true;
 				k = k -1;
+			}else if(strcmp(args[k], "-showz") == 0){
+                ss << args[k + 1];
+				ss >> showz;
 			}else if(strcmp(args[k], "-box") == 0){
 				isSetBox = true;
                 k++;
@@ -242,7 +247,7 @@ int main(int argv, char * args[]){
 	Render render(imagesize, boxsize, &isoplane, &argv, args);
     //printf("Main ok\n");
     //render.showPlane(1000);
-    render.showPlane(26300);
+    render.showPlane(showz);
 
     
     return 0;

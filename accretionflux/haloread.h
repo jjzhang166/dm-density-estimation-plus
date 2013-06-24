@@ -3,8 +3,8 @@
 
 #include "../library/types.h"
 
-int getHaloById(char * fitsname, int halonum, Halo * halo);
+int getHaloById(const char * fitsname, int halonum, Halo * halo);
 int getHaloById(fitsfile * fptr, int halonum, Halo * halo);
-int getTotalHaloNum(char * fitsname);
+int getTotalHaloNum(const char * fitsname);
 
 #endif

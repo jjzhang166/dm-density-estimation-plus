@@ -12,19 +12,27 @@ ACCOBJ= tetrastream.o readgadget.o accretion.o processbar.o\
 
 HPOBJ= haloprop.o $(FITSIOOBJ)
 
+MELTFEOBJ=  tetrastream.o readgadget.o accretion.o processbar.o\
+		tetrahedron.o triangle.o tetracut.o haloread.o\
+		indtetrastream.o indtetrahedron.o measureacc_ltfe.o
+
 
 
 all: obj
 	$(CC) $(ACCOBJ) -o accretionrate $(LFLAGS)
 	$(CC) $(HPOBJ) -o haloprop
+	$(CC) $(MELTFEOBJ) -o measureacc_ltfe $(LFLAGS)  $(FITSIOOBJ)
 	@echo success
 
 obj:
-	$(CC) -c -Wall -G main.cpp accretion.cpp ${LIB}/processbar.cpp\
+	$(CC) -c -Wall main.cpp accretion.cpp ${LIB}/processbar.cpp\
 		   ${LIB}/tetrastream.cpp ${LIB}/readgadget.cpp \
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp\
-		   ${LIB}/indtetrastream.cpp ${LIB}/indtetrahedron.cpp  $(IFLAG)  
+		   ${LIB}/indtetrastream.cpp ${LIB}/indtetrahedron.cpp\
+		   measureacc_ltfe.cpp $(IFLAG)  -I $(FITSIODIR)
 	$(CC) -c haloprop.cpp -I $(FITSIODIR)
+	$(CC) -c haloread.cpp -I $(FITSIODIR)
+
 
 test:
 	$(CC) -c testhaloread.cpp haloread.cpp -I $(FITSIODIR)
@@ -36,3 +44,4 @@ clean:
 	rm -f accretionrate 
 	rm -f haloprop
 	rm -f testhaloread
+	rm -f measureacc_ltfe
