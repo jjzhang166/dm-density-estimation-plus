@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                             true,
                             isInOrder);
     
-    printf("ID    MASS    X    Y    Z    ACCRETION_RATE\n");
+    printf("ID    MASS    X    Y    Z    RADIUS    ACCRETION_RATE\n");
     
     for(int i = hmin; i < hmax; i++){
         int haloid = 0;
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
             halocenter,
             r);
         
-        printf("%d   %f   %f   %f   %f   %f \n", haloid, mass, halocenter.x,
-               halocenter.y, halocenter.z, accrate);
+        printf("%d   %f   %f   %f   %f   %f   %f \n", haloid, mass, halocenter.x,
+               halocenter.y, halocenter.z, halo.radius, accrate);
         cout.flush();
     }
     
