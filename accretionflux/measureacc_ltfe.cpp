@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         }else{
             haloid = i + 1;
         }
-        int status = getHaloById(argv[1], haloid, &halo);
+        int status = getHaloById(halofile.c_str(), haloid, &halo);
         if(status != 0){
             break;
         }
