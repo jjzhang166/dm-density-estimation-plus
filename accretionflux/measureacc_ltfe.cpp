@@ -115,6 +115,8 @@ int main(int argc, char *argv[])
                             true,
                             isInOrder);
     
+    printf("ID    MASS    X    Y    Z    ACCRETION_RATE\n");
+    
     for(int i = hmin; i < hmax; i++){
         int haloid = 0;
         if(isUseHaloVec){
@@ -137,6 +139,10 @@ int main(int argc, char *argv[])
             mass,
             halocenter,
             r);
+        
+        printf("%d   %f   %f   %f   %f   %f \n", haloid, mass, halocenter.x,
+               halocenter.y, halocenter.z, accrate);
+        cout.flush();
     }
     
 }
