@@ -181,10 +181,18 @@ int main(int argc, char *argv[])
             continue;
         }
         
+
+        
+        
         int status = getHaloById(halofile.c_str(), haloid, &halo);
         if(status != 0){
             break;
         }
+        
+        if(massthred > 0 && halo.mass > massthred){
+            continue;
+        }
+        
         
         halocenter.x = halo.x;
         halocenter.y = halo.y;
