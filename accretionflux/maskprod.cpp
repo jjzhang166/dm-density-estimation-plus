@@ -104,32 +104,35 @@ int main(int argc, char * argv[]){
     
     printf("Start calculating...\n");
 
-    for(int j = 0; j < numparts; j++){
-        if(partmask[j] != 0){
-            for(int i = 0; i < hmax; i++){
-                if(halomask[i] == 0){
-                    Halo halo;
-                    int haloid = i + 1;
-                    int status = getHaloById(halofile.c_str(), haloid, &halo);
-                    if(status != 0){
-                        printf("Unkown error!\n");
-                        exit(1);
-                    }
-                    
-                    Point hc;
-                    hc.x = halo.x;
-                    hc.y = halo.y;
-                    hc.z = halo.z;
-                    
-                    Point rvec = pos[j] - hc;
-                    double r = sqrt(rvec.dot(rvec));
-                    
-                    if(r < halo.radius){
-                        halomask[i] = 1;
-                    }
+    for(int i = 0; i < hmax; i++){
+        Halo halo;
+        int haloid = i + 1;
+        int status = getHaloById(halofile.c_str(), haloid, &halo);
+        if(status != 0){
+            printf("Unkown error!\n");
+            exit(1);
+        }
+        for(int j = 0; j < numparts; j++){
+            if(partmask[j] != 0){
+                Point hc;
+                hc.x = halo.x;
+                hc.y = halo.y;
+                hc.z = halo.z;
+                
+                Point rvec = pos[j] - hc;
+                double r = sqrt(rvec.dot(rvec));
+                
+                if(r < halo.radius){
+                    halomask[i] = 1;
+                    break;
                 }
             }
         }
+        
+        if(i % 100 == 0){
+            printf("%d/%d\n", i+1, hmax);
+        }
+        
     }
     
 
