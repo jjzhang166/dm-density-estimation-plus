@@ -102,6 +102,8 @@ int main(int argc, char * argv[]){
     
     halomask = new char[hmax]();
     
+    printf("Start calculating...\n");
+
     for(int j = 0; j < numparts; j++){
         if(partmask[j] != 0){
             for(int i = 0; i < hmax; i++){
@@ -130,6 +132,7 @@ int main(int argc, char * argv[]){
         }
     }
     
+
     fstream outfst(outputfile.c_str(), ios::out | ios::binary);
     head[0] = hmax;
     if(outfst.good()){
@@ -138,6 +141,8 @@ int main(int argc, char * argv[]){
     }
     
     outfst.close();
+    
+    printf("Finished...\n");
     delete partmask;
     delete gsnap_;
     delete halomask;
