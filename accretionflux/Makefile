@@ -16,12 +16,16 @@ MELTFEOBJ=  tetrastream.o readgadget.o accretion.o processbar.o\
 		tetrahedron.o triangle.o tetracut.o haloread.o\
 		indtetrastream.o indtetrahedron.o measureacc_ltfe.o
 
+MASKOBJ= tetrastream.o readgadget.o accretion.o processbar.o\
+		tetrahedron.o triangle.o tetracut.o haloread.o\
+		indtetrastream.o indtetrahedron.o maskprod.o
 
 
 all: obj
 	$(CC) $(ACCOBJ) -o accretionrate $(LFLAGS)
 	$(CC) $(HPOBJ) -o haloprop
 	$(CC) $(MELTFEOBJ) -o measureacc_ltfe $(LFLAGS)  $(FITSIOOBJ)
+	$(CC) $(MASKOBJ) -o maskprod $(LFLAGS)  $(FITSIOOBJ)
 	@echo success
 
 obj:
@@ -32,6 +36,7 @@ obj:
 		   measureacc_ltfe.cpp $(IFLAG)  -I $(FITSIODIR)
 	$(CC) -c haloprop.cpp -I $(FITSIODIR)
 	$(CC) -c haloread.cpp -I $(FITSIODIR)
+	$(CC) -c maskprod.cpp -I $(FITSIODIR) $(IFLAG) 
 
 
 test:
@@ -45,3 +50,4 @@ clean:
 	rm -f haloprop
 	rm -f testhaloread
 	rm -f measureacc_ltfe
+	rm -f maskprod

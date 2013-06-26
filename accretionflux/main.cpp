@@ -79,8 +79,8 @@ int main(){
     
     
     //test
-    double rho = numparts * mass /
-        ((gsnap_->header.BoxSize)*(gsnap_->header.BoxSize)*(gsnap_->header.BoxSize));
+    //double rho = numparts * mass /
+    //    ((gsnap_->header.BoxSize)*(gsnap_->header.BoxSize)*(gsnap_->header.BoxSize));
     //printf("Test:\n, Calculated rate is rho * v * 4 pi r^2 = %e\n", - rho * r * 4 * 3.1415926 * r * r); //* (1/2.0 + 1/2.0 / 10.0));
 
     

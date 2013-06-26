@@ -8,7 +8,7 @@
 using namespace std;
 
 double accretion_sphere_rate(int counts, Point * posdata, Point * veldata, double mass, Point &halocenter, double r1, double r2){
-    double volum = 4.0 * PI / 3.0 * (r2 * r2 * r2 - r1 * r1 * r1);
+    //double volum = 4.0 * PI / 3.0 * (r2 * r2 * r2 - r1 * r1 * r1);
     double accr = 0.0;
     double dr = abs(r2 - r1);
     //printf("Points %d %f\n", counts, 1.0/volum);
