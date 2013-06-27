@@ -140,7 +140,7 @@ int main(int argc, char * argv[]){
     head[0] = hmax;
     if(outfst.good()){
         outfst.write((char *) head, sizeof(int) * 64);
-        outfst.write((char *) halomask, hmax);
+        outfst.write((char *) halomask, hmax * sizeof(char));
     }
     
     outfst.close();

@@ -132,6 +132,9 @@ int main(int argc, char *argv[])
     
     
     if(maskfile != ""){
+        //for(int i = 0; i < hmax; i++){
+        //    halomask[i] = 0;
+        //}
         maskstream.open(maskfile.c_str(), ios::in | ios::binary);
         if(maskstream.good()){
             int head[64];
@@ -141,7 +144,7 @@ int main(int argc, char *argv[])
                 maskstream.close();
                 exit(1);
             }else{
-                maskstream.read(halomask, hmax * sizeof(char));
+                maskstream.read((char *) halomask, hmax);
             }
         }else{
             printf("Mask file corrupted!\n");
@@ -150,6 +153,14 @@ int main(int argc, char *argv[])
     }
     maskstream.close();
     
+    /*int m = 0;
+    for(int i = 0; i < hmax; i++){
+        printf("%d\n", halomask[i]);
+        m += halomask[i];
+    }
+    printf("Total = %d\n", m);
+    */
+
     if(isUseHaloVec){
         hmin = 0;
         hmax = halovec.size();
@@ -176,13 +187,14 @@ int main(int argc, char *argv[])
             haloid = i + 1;
         }
         
-        
-        if(halomask[haloid] == 0){
+       
+        printf("Haloid = %d, halomask=%d\n", haloid, halomask[haloid - 1]);
+        if(halomask[haloid - 1] == 0){
             continue;
         }
         
 
-        
+        continue;
         
         int status = getHaloById(halofile.c_str(), haloid, &halo);
         if(status != 0){
