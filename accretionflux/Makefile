@@ -16,6 +16,11 @@ MELTFEOBJ=  tetrastream.o readgadget.o accretion.o processbar.o\
 		tetrahedron.o triangle.o tetracut.o haloread.o\
 		indtetrastream.o indtetrahedron.o measureacc_ltfe.o
 
+MSHELLOBJ=  tetrastream.o readgadget.o accretion.o processbar.o\
+		tetrahedron.o triangle.o tetracut.o haloread.o\
+		indtetrastream.o indtetrahedron.o measureacc_shell.o
+
+
 MASKOBJ= tetrastream.o readgadget.o accretion.o processbar.o\
 		tetrahedron.o triangle.o tetracut.o haloread.o\
 		indtetrastream.o indtetrahedron.o maskprod.o
@@ -26,6 +31,7 @@ all: obj
 	$(CC) $(HPOBJ) -o haloprop
 	$(CC) $(MELTFEOBJ) -o measureacc_ltfe $(LFLAGS)  $(FITSIOOBJ)
 	$(CC) $(MASKOBJ) -o maskprod $(LFLAGS)  $(FITSIOOBJ)
+	$(CC) $(MSHELLOBJ) -o measureacc_shell $(LFLAGS)  $(FITSIOOBJ)
 	@echo success
 
 obj:
@@ -33,7 +39,7 @@ obj:
 		   ${LIB}/tetrastream.cpp ${LIB}/readgadget.cpp \
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp\
 		   ${LIB}/indtetrastream.cpp ${LIB}/indtetrahedron.cpp\
-		   measureacc_ltfe.cpp $(IFLAG)  -I $(FITSIODIR)
+		   measureacc_ltfe.cpp measureacc_shell.cpp $(IFLAG)  -I $(FITSIODIR)
 	$(CC) -c haloprop.cpp -I $(FITSIODIR)
 	$(CC) -c haloread.cpp -I $(FITSIODIR)
 	$(CC) -c maskprod.cpp -I $(FITSIODIR) $(IFLAG) 

@@ -105,9 +105,9 @@ int main(int argc, char *argv[])
     }
     Halo halo;
     
-    GSnap * gsnap_ = new GSnap(filename_, isHighMem, parttype, datagridsize);
-    numparts = gsnap_->Npart;
-    mass = gsnap_->header.mass[1];
+    GSnap * gsnap_ = new GSnap(datafile.c_str(), isHighMem, parttype, datagridsize);
+    int numparts = gsnap_->Npart;
+    double mass = gsnap_->header.mass[1];
     printf("Particle Numbers: %d\n", numparts);
     printf("Particle mass: %f\n", mass);
     
