@@ -105,15 +105,14 @@ int main(int argc, char *argv[])
     }
     Halo halo;
     
-    TetraStreamer streamer(datafile,
-                            inputmemgrid,
-                            parttype,
-                            datagridsize,
-                            isHighMem,
-                            isAllData,
-                            isVelocity,
-                            true,
-                            isInOrder);
+    GSnap * gsnap_ = new GSnap(filename_, isHighMem, parttype, datagridsize);
+    numparts = gsnap_->Npart;
+    mass = gsnap_->header.mass[1];
+    printf("Particle Numbers: %d\n", numparts);
+    printf("Particle mass: %f\n", mass);
+    
+    Point * pos = gsnap_ -> getAllPos();//new Point[numparts];
+    Point * vel = gsnap_ -> getAllVel();//new Point[numparts];
     
     printf("ID    MASS    X    Y    Z    RADIUS    ACCRETION_RATE\n");
     
@@ -135,14 +134,20 @@ int main(int argc, char *argv[])
         double mass = halo.mass;
         double r = radtimes * halo.radius;
         
-        double accrate = accretion_tetra_rate(                                                streamer,
-            mass,
-            halocenter,
-            r);
+        double accrate = accretion_sphere_rate(
+                                               numparts,
+                                               pos,
+                                               vel,
+                                               mass,
+                                               halocenter,
+                                               r,
+                                               r + dr);
         
         printf("%d   %f   %f   %f   %f   %f   %f \n", haloid, mass, halocenter.x,
                halocenter.y, halocenter.z, halo.radius, accrate);
         cout.flush();
     }
+    
+    delete gsnap_;
     
 }

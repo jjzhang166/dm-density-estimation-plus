@@ -15,7 +15,7 @@
     
     
     double accretion_tetra_rate(
-                    TetraStreamer &tetrastreamer, 
+                    TetraStreamer &tetrastreamer,
                     double mass, 
                     Point &halocenter, 
                     double r);

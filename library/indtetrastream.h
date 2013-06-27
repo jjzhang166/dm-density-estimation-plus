@@ -4,7 +4,7 @@
  * This file defines IndTetraStream class, which is a low memory 
  * conterpart of TetraStream. The tetrahedrons used in this stream
  * is the IndTetraHedron, so that the output will only takes small
- * amount of memory.
+ * amount of memory. And this should be faster then tetrastream.
  *
  *  Created on: Dec 17, 2012
  *      Author: lyang

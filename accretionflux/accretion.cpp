@@ -37,7 +37,7 @@ double accretion_tetra_rate(
                     double mass, 
                     Point &halocenter,
                     double r){
-    int cts = 0;
+    int cts = 0, tcts = 0;
     double accr = 0.0;
     tetrastreamer.reset();
     IsoCutter cutter;
@@ -68,6 +68,9 @@ double accretion_tetra_rate(
             }*/
 
             cts ++;
+            if(nu_tri > 0){
+                tcts ++;
+            }
             for(int j = 0; j < nu_tri; j++){
                 Triangle3d &t = cutter.getTrangle(j);
                 Point direc = halocenter - (t.a + t.b + t.c) / 3.0 ;
@@ -100,7 +103,7 @@ double accretion_tetra_rate(
             }
         }
     }
-    printf("Tetras: %d\n", cts);
+    printf("Tetras: %d, cuts %d\n", cts, tcts);
     return accr;
 }
 
