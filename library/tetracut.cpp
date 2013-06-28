@@ -371,12 +371,14 @@ IsoZCutter::IsoZCutter(){
 void IsoZCutter::setTetrahedron(Tetrahedron *tetra){
     this->tetra_ = tetra;
     
+
+    
+    sortVertex();
+    
     val[0] = tetra_->v1.z;
     val[1] = tetra_->v2.z;
     val[2] = tetra_->v3.z;
     val[3] = tetra_->v4.z;
-    
-    sortVertex();
     
     v12 = tetra_->v2 - tetra_->v1;
     v13 = tetra_->v3 - tetra_->v1;
@@ -432,23 +434,32 @@ void IsoZCutter::sortVertex(){
     }
     
     //sorting
-    Tetrahedron tempt = *tetra_;
-    *ptp[sor[0]] = tempt.v1;
-    *ptp[sor[1]] = tempt.v2;
-    *ptp[sor[2]] = tempt.v3;
-    *ptp[sor[3]] = tempt.v4;
+    Point p1, p2, p3, p4;
+    p1 = *ptp[sor[0]];
+    p2 = *ptp[sor[1]];
+    p3 = *ptp[sor[2]];
+    p4 = *ptp[sor[3]];
+    *ptp[0] = p1;
+    *ptp[1] = p2;
+    *ptp[2] = p3;
+    *ptp[3] = p4;
     
-    *ptv[sor[0]] = tempt.velocity1;
-    *ptv[sor[1]] = tempt.velocity2;
-    *ptv[sor[2]] = tempt.velocity3;
-    *ptv[sor[3]] = tempt.velocity4;
+    p1 = *ptv[sor[0]];
+    p2 = *ptv[sor[1]];
+    p3 = *ptv[sor[2]];
+    p4 = *ptv[sor[3]];
+    *ptv[0] = p1;
+    *ptv[1] = p2;
+    *ptv[2] = p3;
+    *ptv[3] = p4;
 }
 
 
 int IsoZCutter::cut(REAL isoz){
+    
     if((isoz < val[0]) || (isoz > val[3])){
         return 0;
-    }else if((isoz <= val[1]) || (isoz >= val[0])){
+    }else if((isoz <= val[1]) && (isoz >= val[0])){
         //a single triangle
         if(v12.z == 0.0 && v13.z > 0.0){
             num_tris_ = 0;
@@ -464,24 +475,25 @@ int IsoZCutter::cut(REAL isoz){
             return 0;
         }else{
             num_tris_ = 1;
-            triangles_[0].a = tetra_->v1 + v12 * (z - val[0]) / v12.z;
-            triangles_[0].b = tetra_->v1 + v13 * (z - val[0]) / v13.z;
-            triangles_[0].c = tetra_->v1 + v14 * (z - val[0]) / v14.z;
+            triangles_[0].a = tetra_->v1 + v12 * (isoz - val[0]) / v12.z;
+            triangles_[0].b = tetra_->v1 + v13 * (isoz - val[0]) / v13.z;
+            triangles_[0].c = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
             return 1;
         }
 
-    }else if((isoz <= val[2]) || (isoz > val[1])){
+    }else if((isoz < val[2]) && (isoz > val[1])){
+        //printf("Ok\n");
         if(v13.z >0 && v23.z > 0 && v24.z >0 && v14.z > 0){
             num_tris_ = 2;
             //13
-            triangles_[0].a = tetra_->v1 + v13 * (z - val[0]) / v13.z;
+            triangles_[0].a = tetra_->v1 + v13 * (isoz - val[0]) / v13.z;
             //23
-            triangles_[0].b = tetra_->v2 + v23 * (z - val[1]) / v23.z;
+            triangles_[0].b = tetra_->v2 + v23 * (isoz - val[1]) / v23.z;
             //24
-            triangles_[0].c = tetra_->v2 + v24 * (z - val[1]) / v24.z;
+            triangles_[0].c = tetra_->v2 + v24 * (isoz - val[1]) / v24.z;
             
             //14
-            triangles_[1].a = tetra_->v1 + v14 * (z - val[0]) / v14.z;
+            triangles_[1].a = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
             //13
             triangles_[1].b = triangles_[0].a;
             //24
@@ -500,18 +512,29 @@ int IsoZCutter::cut(REAL isoz){
             num_tris_ = 1;
             triangles_[0].a = tetra_->v2;
             triangles_[0].b = tetra_->v3;
-            triangles_[0].c = tetra_->v1 + v14 * (z - val[0]) / v14.z;
+            triangles_[0].c = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
             return 1;
         }else{
             num_tris_ = 0;
             return 0;
         }
-    }else if((isoz <= val[3]) || (isoz > val[2])){
-        num_tris_ = 1;
-        triangles_[0].a = tetra_->v2 + v24 * (z - val[1]) / v24.z;
-        triangles_[0].b = tetra_->v3 + v34 * (z - val[2]) / v34.z;
-        triangles_[0].c = tetra_->v1 + v14 * (z - val[0]) / v14.z;
-        return 1;
+    }else if((isoz <= val[3]) && (isoz >= val[2])){
+        if(v14.z > 0 && v24.z > 0 && v34.z >0){
+            num_tris_ = 1;
+            triangles_[0].a = tetra_->v2 + v24 * (isoz - val[1]) / v24.z;
+            triangles_[0].b = tetra_->v3 + v34 * (isoz - val[2]) / v34.z;
+            triangles_[0].c = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
+            return 1;
+        }else if(v14.z > 0 && v24.z == 0){
+            num_tris_ = 1;
+            triangles_[0].a = tetra_->v2;
+            triangles_[0].b = tetra_->v3;
+            triangles_[0].c = tetra_->v4;
+            return 1;
+        }else{
+            num_tris_ = 0;
+            return 0;
+        }
     }else{
         num_tris_ = 0;
         return 0;

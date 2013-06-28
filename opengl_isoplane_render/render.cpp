@@ -14,6 +14,7 @@
 #include "types.h"
 #include "render.h"
 #include "buffers.h"
+#include "viewfun.h"
 
 using namespace std;
 
