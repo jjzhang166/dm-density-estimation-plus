@@ -74,7 +74,6 @@ public:
 	CUDA_CALLABLE_MEMBER Tetrahedron(const Tetrahedron &tetra);
     CUDA_CALLABLE_MEMBER static double getVolume(const Point &v1, const Point &v2, const Point &v3, const Point &v4);
 
-
 private:
 	REAL minx_, maxx_, miny_, maxy_, minz_, maxz_;
 

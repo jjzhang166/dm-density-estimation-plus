@@ -41,4 +41,30 @@ private:
     bool iso_cut_line(REAL _isoval, Point &p1, Point &p2, REAL v1, REAL v2, Point &retp, REAL &t_par);
      
 };
+
+
+//Only cut the tetrahedron along the z-direction
+//This cutter will run very fast if the 4-point of the tetrahedron is already sorted along z-direction
+class IsoZCutter{
+public:
+    IsoZCutter();
+    void setTetrahedron(Tetrahedron *tetra);
+    
+    //sort on the tetrehadra's vertex based on the z-coordinates
+    //if already sorted, this will return immediately
+    void sortVertex();
+    
+    //return how many triangles are there after this cutting
+    int cut(REAL isoz);
+    
+    //get the i-th triangles after the cut
+    Triangle3d& getTrangle(int i);
+    
+private:
+    Tetrahedron *tetra_;
+    Triangle3d triangles_[2];
+    Point v12, v13, v14, v23, v24, v34;
+    int num_tris_;
+    REAL val[4];
+};
 #endif
