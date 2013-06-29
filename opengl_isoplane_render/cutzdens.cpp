@@ -1,6 +1,13 @@
+/*********************************************************************/
+/* get the density use the iso-z-cutter.
+/*this is very fast, no need to calculate the interpolation every time
+/*Author: Lin F. Yang
+/*********************************************************************/
+
 #include <cstdio>
 #include <iostream>
 #include <sstream>
+#include <fsteam>
 #include <cstring>
 #include <cmath>
 
@@ -26,18 +33,15 @@
 #include "denrender.h"
 
 
-#define NUMP 512
-
-
-float * colorimage;
-
-GLuint textureIni;
-
-
 namespace main_space{
     
     int inputmemgrid = 16;						//the input memory grid size
     string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
+    
+    float * colorimage;
+    
+    GLuint textureIni;
+    
     string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
     string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
     bool isoutputres = false;
@@ -60,7 +64,9 @@ namespace main_space{
     Point setStartPoint;
     double boxsize = 32000.0;
     int imagesize = 512;
-    double showz = 26300;                        //the showing z-direction
+    int numOfCuts = imagesize;
+    float dz = boxsize / numOfCuts;
+    float startz = 0;
     
     void printUsage(string pname){
         fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
@@ -78,8 +84,10 @@ namespace main_space{
                 , "[-parttype] default: 1. Use 0-NTYPE data in the gadgetfile"
                 , "[-lowmem] use low memory mode (don't load all part in mem)"
                 , "[-nalldata] only usable in highmem mode"
+                , "[-startz] the starting z-coordinates to calculate the cuts"
+                , "[-dz] the interval between each 2 z-plane"
+                , "[-numz] the number of z-planes"
                 , "[-box <x0> <y0> <z0> <boxsize>] setup the start point, and the boxsize. The box should be inside the data's box, otherwise some unpredictable side effects will comes out"
-                , "[-showz <z-coor of the cut plane>]"
                 );
     }
     
@@ -129,9 +137,15 @@ namespace main_space{
                 }else if(strcmp(args[k], "-alldata") == 0){
                     isAllData = true;
                     k = k -1;
-                }else if(strcmp(args[k], "-showz") == 0){
+                }else if(strcmp(args[k], "-startz") == 0){
                     ss << args[k + 1];
-                    ss >> showz;
+                    ss >> startz;
+                }else if(strcmp(args[k], "-dz") == 0){
+                    ss << args[k + 1];
+                    ss >> dz;
+                }else if(strcmp(args[k], "-numz") == 0){
+                    ss << args[k + 1];
+                    ss >> numOfCuts;
                 }else if(strcmp(args[k], "-box") == 0){
                     isSetBox = true;
                     k++;
@@ -157,152 +171,9 @@ namespace main_space{
 
 
 
-
-
 using namespace main_space;
 
-
-void getJetColor(float value, float &r, float &g, float &b) {
-    float fourValue = 4 * value;
-    r = min(fourValue - 1.5, -fourValue + 4.5);
-    g = min(fourValue - 0.5, -fourValue + 3.5);
-    b = min(fourValue + 0.5, -fourValue + 2.5);
-    if(r > 1.0) r = 1.0;
-    if(r < 0.0) r = 0.0;
-    if(g > 1.0) g = 1.0;
-    if(g < 0.0) g = 0.0;
-    if(b > 1.0) b = 1.0;
-    if(b < 0.0) b = 0.0;
-}
-
-void getcolorImge(float *value, float * colorimg){
-    float r, g, b;
-    float max = 0.0, min = 1.0e20;
-    for(int i = 0; i < imagesize * imagesize; i++){
-        if(max < value[i]){
-            max = value[i];
-        }
-        if(min > value[i] && value[i] > 0.0){
-            min = value[i];
-        }
-
-    }
-    
-	//printf("%f %f\n", min, max);
-	if(min == max){
-		min = max / 1.0e5;
-	}
-    
-    float x = log(max) - log(min);
-    for(int i = 0; i < imagesize * imagesize; i++){
-        float v = (log(value[i]) - log(min)) / x;
-        //printf("%f\n",v);
-        getJetColor(v, r, g, b);
-        colorimg[3 * i] = r;
-        colorimg[3 * i + 1] = g;
-        colorimg[3 * i + 2] = b;
-    }
-}
-
-
-
-
-
-
-int pti = 0;
-
-
-void rendsenc(){
-    //glClientActiveTexture(GL_TEXTURE0);
-	glViewport(0,0,imagesize, imagesize);
-    glActiveTexture(GL_TEXTURE0);
-    
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_POINT_SPRITE);
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-    
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-2, 2, -2, 2, -100, 100);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    
-    //fbuffer -> bindTex();
-    printf("Texture: %d\n", pti);
-    //glBindTexture(GL_TEXTURE_2D, textureIni[pti]);
-    
-    glBindTexture(GL_TEXTURE_2D, textureIni);
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imagesize, imagesize, 0,
-                 GL_RGB, GL_FLOAT, colorimage + pti * 3 * imagesize * imagesize);
-    // set its parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    
-    
-    glBegin(GL_QUADS);
-    glTexCoord2i(0, 0); glVertex3f(-2, -2, 0);
-    glTexCoord2i(0, 1); glVertex3f(-2,  2, 0);
-    glTexCoord2i(1, 1); glVertex3f( 2,  2, 0);
-    glTexCoord2i(1, 0); glVertex3f( 2, -2, 0);
-    glEnd();
-    
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glFlush();
-}
-
-
-
-
-
-void ReshapeFunc(int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void KeyboardFunc(unsigned char key, int x, int y)
-{
-    //int foo;
-    //foo = x + y; //Has no effect: just to avoid a warning
-    if ('q' == key || 'Q' == key || 27 == key){
-        exit(0);
-        //else if(key == 's' && picfile!=""){
-        //savePic();
-    }else if(']' == key){
-        pti ++;
-        if(pti >=NUMP){
-            pti = NUMP -1;
-        }
-    }else if('[' == key){
-        pti --;
-        if(pti < 0){
-            pti = 0;
-        }
-    }
-    
-    printf(": %d\n", pti);
-    
-    glutPostRedisplay();
-}
-
-
-
-
-
 int main(int argv, char * args[]){
-	//double io_t = 0, calc_t = 0, total_t = 0;
-	//timeval timediff;
-	//double t1, t2, t0 = 0;
-	
-	//gettimeofday(&timediff, NULL);
-	//t0 = timediff.tv_sec + timediff.tv_usec / 1.0e6;
     
 	readParameters(argv, args);
 	printf("\n=========================DENSITY ESTIMATION==========================\n");
@@ -315,8 +186,9 @@ int main(int argv, char * args[]){
         printf("DataGridsize            = %d\n", datagridsize);
     }
     printf("Particle Type           = %d\n", parttype);
-	printf("Grid File               = %s\n", gridfilename.c_str());
+	printf("Output File               = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
+    printf("Rendering %d z-cuts of the density field. Start from z = %f, with dz = %f\n", numOfCuts, startz, dz);
     
     if(isSetBox){
         printf("Box                    = %f %f %f %f\n",
@@ -354,9 +226,6 @@ int main(int argv, char * args[]){
     glewInit();
 #endif
     
-
-    
-    colorimage = new float[imagesize * imagesize * NUMP * 3];
     
     //test
     TetraStreamer streamer(filename,
@@ -378,7 +247,7 @@ int main(int argv, char * args[]){
     int count = 0;
     
     //render
-    
+    printf("Start rendering ...\n");
     while(streamer.hasNext()){
         int nums;
         Tetrahedron * tetras;
@@ -393,35 +262,34 @@ int main(int argv, char * args[]){
     render.finish();
     float * im = render.getDenfield();
     
-    printf("Starting compute color image!\n");
+    printf("Saving ...\n");
     
-    //get color image
-    for(int i = 0; i < NUMP; i++){
-        getcolorImge(im + imagesize * imagesize * i,
-                     colorimage + imagesize * imagesize * 3 * i);
+    //head used 256 bytes
+    //the first is imagesize
+    //the second the numOfCuts
+    //the third is a float number boxsize
+    //the 4-th is a float number startz
+    //the 5-th is a fload number dz
+    //All others are 0
+    int head[59];
+    fstream outstream;
+    outstream.open(gridfilename.c_str(), ios::out | ios::binary);
+    while(!outstream.good()){
+        printf("Output error, calculation not saved...!\n");
+        printf("Input new filename:\n");
+        cin >> gridfilename;
+        outstream.clear();
+        outstream.open(gridfilename.c_str(), ios::out | ios::binary);
     }
-    
-    //for(int i = 0; i < NUMP; i++){
-    glGenTextures(1, &(textureIni));
-    glBindTexture(GL_TEXTURE_2D, textureIni);
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imagesize, imagesize, 0,
-                 GL_RGB, GL_FLOAT, colorimage + 0 * imagesize * imagesize);
-    // set its parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    //}
-  
-    
-    glutDisplayFunc(&rendsenc);
-    glutReshapeFunc(&ReshapeFunc);
-    glutKeyboardFunc(&KeyboardFunc);
-    glutMainLoop();
+    outstream.write((char *) &imagesize, sizeof(int));
+    outstream.write((char *) &numOfCuts, sizeof(int));
+    outstream.write((char *) &boxsize, sizeof(float));
+    outstream.write((char *) &startz, sizeof(float));
+    outstream.write((char *) &dz, sizeof(float));
+    outstream.write((char *) head, sizeof(int) * 59);
+    outstream.write((char *) im, sizeof(float) * imagesize * imagesize * numOfCuts);
+    outstream.close();
     
     return 0;
 }
-
 

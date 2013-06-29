@@ -17,13 +17,20 @@ public:
     ~DenRender();
     
     void rend(Tetrahedron & tetra);
+    void finish();
     
     float * getDenfield();
     
     float * getImage();
-    fluxBuffer ** getBuffers();
     
+    
+    static const int VERTEXBUFFERDEPTH;
+    
+
 private:
+    
+    void rendplane(int i);
+    
     void openGLInit();
     
     int * argc_;
@@ -34,11 +41,17 @@ private:
     REAL viewSize;
     int numplanes_;
     
+    //image stores all the density field
     float * image_;
+    //image stores only one slides of the field
+    float * tempimage_;
     float startz_, dz_;
     
-    fluxBuffer **fbuffer;
-
+    fluxBuffer *fbuffer;
+    //the buffer for drawing triangles
+    float * vertexbuffer_;
+    int * vertexIds_;
+    
     IsoZCutter cutter;
 };
 
