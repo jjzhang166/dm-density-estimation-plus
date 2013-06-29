@@ -111,7 +111,10 @@ void DenRender::rendplane(int i){
     fbuffer->bindTex();
     
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
-                 GL_RED, GL_FLOAT , 0);//image_ + i * imagesize_ * imagesize_);
+                 GL_RED, GL_FLOAT , 0);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
+    //             GL_RED, GL_FLOAT , image_ + i * imagesize_ * imagesize_);
+    
     
     // set its parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -174,7 +177,8 @@ void DenRender::rendplane(int i){
                   0,
                   GL_RED,
                   GL_FLOAT,
-                  tempimage_);//(image_ + imagesize_ * imagesize_ * i));
+                  tempimage_);
+                  //(image_ + imagesize_ * imagesize_ * i));
     fbuffer->unbindTex();
     
     //avoiding clamping
@@ -263,7 +267,9 @@ float * DenRender::getImage(){
 void DenRender::finish(){
     for(int i = 0; i < numplanes_; i++){
         //printf("%d \n", vertexIds_[i]);
-        rendplane(i);
+        if(vertexIds_[i] > 0){
+            rendplane(i);
+        }
     }
 }
 

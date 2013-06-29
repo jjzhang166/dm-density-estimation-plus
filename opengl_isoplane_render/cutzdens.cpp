@@ -256,25 +256,27 @@ int main(int argv, char * args[]){
     int count = 0;
     
     //render
+
+    int tcount = datagridsize * datagridsize * datagridsize * 6 / 10;
+    
     printf("Start rendering ...\n");
-    int tcount = boxsize * boxsize * boxsize * 6 / 100;
     while(streamer.hasNext()){
         int nums;
         Tetrahedron * tetras;
         tetras = streamer.getNext(nums);
         for(int i= 0; i < nums; i++){
             render.rend(tetras[i]);
+            if((count %  tcount )== 0){
+                printf(">");
+                cout.flush();
+            }
+            count ++;
         }
-        if((count %  tcount )== 0){
-            printf(".");
-            cout.flush();
-        }
-        count += nums;
     }
     render.finish();
     float * im = render.getDenfield();
     
-    printf("\nFinished.\nSaving ...\n");
+    printf("\nFinished. In total %d tetrahedron rendered.\nSaving ...\n", count);
     
     //head used 256 bytes
     //the first is imagesize
