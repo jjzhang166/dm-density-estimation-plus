@@ -190,8 +190,12 @@ int main(int argv, char * args[]){
                            isVelocity,
                            true,
                            isInOrder);
+    
     boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
     dz = boxsize / numOfCuts;
+    if(datagridsize == -1){
+        datagridsize = ceil(pow(streamer.getIndTetraStream()->getHeader().npart[parttype], 1.0 / 3.0));
+    }
     
     
     printf("\n=========================DENSITY ESTIMATION==========================\n");
@@ -253,7 +257,7 @@ int main(int argv, char * args[]){
     
     //render
     printf("Start rendering ...\n");
-    int totalcount = boxsize * boxsize * boxsize * 6;
+    int tcount = boxsize * boxsize * boxsize * 6 / 100;
     while(streamer.hasNext()){
         int nums;
         Tetrahedron * tetras;
@@ -261,10 +265,11 @@ int main(int argv, char * args[]){
         for(int i= 0; i < nums; i++){
             render.rend(tetras[i]);
         }
+        if((count %  tcount )== 0){
+            printf(".");
+            cout.flush();
+        }
         count += nums;
-        //if(count % (totalcount / 10) == 0){
-        //    printf("%d0%% ", count / (totalcount / 10));
-        //}
     }
     render.finish();
     float * im = render.getDenfield();

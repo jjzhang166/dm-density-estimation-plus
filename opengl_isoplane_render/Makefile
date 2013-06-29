@@ -45,6 +45,24 @@ obj:
 		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
  			$(IFLAG)  
 
+
+profile:
+	$(CC) -pg -c -Wall main.cpp buffers.cpp isoplane.cpp \
+			${LIB}/processbar.cpp render.cpp\
+		   	${LIB}/indtetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp \
+		   	${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
+		   	${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
+		   	testdensrender.cpp denrender.cpp \
+			cutzdens.cpp viewfun.cpp densviewer.cpp\
+ 			$(IFLAG)  
+	$(CC) $(RENDOBJ) -pg -o renddens $(LFLAGS)
+	$(CC) $(TOBJ) -pg -o testisoz $(LFLAGS)
+	$(CC) $(TDROBJ) -pg -o testdender $(LFLAGS)
+	$(CC) $(ZDENSOBJ) -pg -o zdensrender $(LFLAGS)
+	$(CC) $(DENSVIEWOBJ) -pg -o DensViewer $(LFLAGS)
+	@echo success
+
+
 clean:
 	rm -f *.o
 	rm -f renddens 

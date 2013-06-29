@@ -122,6 +122,7 @@ int main(int args, char * argv[]){
     file.read((char *) &boxsize, sizeof(float));
     file.read((char *) &startz, sizeof(float));
     file.read((char *) &dz, sizeof(float));
+    file.read((char *) head, sizeof(int) * 59);
     
     if(numofcuts <= 0){
         numofcuts = gridsize;
