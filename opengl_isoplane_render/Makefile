@@ -21,10 +21,20 @@ TDROBJ=testdensrender.o buffers.o processbar.o\
 		   tetrahedron.o triangle.o indtetrahedron.o\
 		   denrender.o tetracut.o
 
+ZDENSOBJ=cutzdens.o buffers.o processbar.o\
+		   indtetrastream.o readgadget.o tetrastream.o\
+		   tetrahedron.o triangle.o indtetrahedron.o\
+		   denrender.o tetracut.o
+
+DENSVIEWOBJ=viewfun.o densviewer.o
+
+
 all: obj
 	$(CC) $(RENDOBJ) -o renddens $(LFLAGS)
 	$(CC) $(TOBJ) -o testisoz $(LFLAGS)
 	$(CC) $(TDROBJ) -o testdender $(LFLAGS)
+	$(CC) $(ZDENSOBJ) -o zdensrender $(LFLAGS)
+	$(CC) $(DENSVIEWOBJ) -o DensViewer $(LFLAGS)
 	@echo success
 
 obj:
@@ -32,10 +42,13 @@ obj:
 		   ${LIB}/indtetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp \
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
 		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
-		   testdensrender.cpp denrender.cpp $(IFLAG)  
+		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
+ 			$(IFLAG)  
 
 clean:
 	rm -f *.o
 	rm -f renddens 
 	rm -f testisoz
 	rm -f testdender
+	rm -f zdensrender
+	rm -f DensViewer

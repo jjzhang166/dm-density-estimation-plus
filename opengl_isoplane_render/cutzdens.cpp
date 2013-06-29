@@ -1,13 +1,13 @@
 /*********************************************************************/
-/* get the density use the iso-z-cutter.
-/*this is very fast, no need to calculate the interpolation every time
-/*Author: Lin F. Yang
+/* get the density use the iso-z-cutter.                             */
+/*this is very fast, no need to calculate the interpolation every time*/
+/*Author: Lin F. Yang                                                */
 /*********************************************************************/
 
 #include <cstdio>
 #include <iostream>
 #include <sstream>
-#include <fsteam>
+#include <fstream>
 #include <cstring>
 #include <cmath>
 
@@ -64,12 +64,12 @@ namespace main_space{
     Point setStartPoint;
     double boxsize = 32000.0;
     int imagesize = 512;
-    int numOfCuts = imagesize;
+    int numOfCuts = 0;
     float dz = boxsize / numOfCuts;
     float startz = 0;
     
     void printUsage(string pname){
-        fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
+        fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
                 , pname.c_str()
                 , "[-imsize <imagesize>]"
                 , "[-df <datafilename>]"
@@ -176,6 +176,9 @@ using namespace main_space;
 int main(int argv, char * args[]){
     
 	readParameters(argv, args);
+    if(numOfCuts == 0){
+        numOfCuts = imagesize;
+    }
 	printf("\n=========================DENSITY ESTIMATION==========================\n");
 	printf("*****************************PARAMETERES*****************************\n");
     printf("Render Image Size       = %d\n", imagesize);
@@ -186,10 +189,10 @@ int main(int argv, char * args[]){
         printf("DataGridsize            = %d\n", datagridsize);
     }
     printf("Particle Type           = %d\n", parttype);
-	printf("Output File               = %s\n", gridfilename.c_str());
+	printf("Output File             = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
-    printf("Rendering %d z-cuts of the density field. Start from z = %f, with dz = %f\n", numOfCuts, startz, dz);
-    
+    printf("Rendering %d z-cuts of the density field. \nStart from z = %f, with dz = %f\n", numOfCuts, startz, dz);
+
     if(isSetBox){
         printf("Box                    = %f %f %f %f\n",
                setStartPoint.x, setStartPoint.y, setStartPoint.z, boxsize);
@@ -239,7 +242,7 @@ int main(int argv, char * args[]){
                            isInOrder);
     boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
     DenRender render(imagesize, boxsize,
-                     0, boxsize / NUMP, NUMP,
+                     startz, dz, numOfCuts,
                      &argv, args);
     
     printf("Boxsize: %f\n", boxsize);
