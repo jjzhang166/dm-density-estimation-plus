@@ -65,7 +65,7 @@ namespace main_space{
     double boxsize = 32000.0;
     int imagesize = 512;
     int numOfCuts = 0;
-    float dz = boxsize / numOfCuts;
+    float dz = 0;
     float startz = 0;
     
     void printUsage(string pname){
@@ -179,7 +179,22 @@ int main(int argv, char * args[]){
     if(numOfCuts == 0){
         numOfCuts = imagesize;
     }
-	printf("\n=========================DENSITY ESTIMATION==========================\n");
+    
+    //test
+    TetraStreamer streamer(filename,
+                           inputmemgrid,
+                           parttype,
+                           datagridsize,
+                           isHighMem,
+                           isAllData,
+                           isVelocity,
+                           true,
+                           isInOrder);
+    boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
+    dz = boxsize / numOfCuts;
+    
+    
+    printf("\n=========================DENSITY ESTIMATION==========================\n");
 	printf("*****************************PARAMETERES*****************************\n");
     printf("Render Image Size       = %d\n", imagesize);
 	printf("Data File               = %s\n", filename.c_str());
@@ -192,7 +207,7 @@ int main(int argv, char * args[]){
 	printf("Output File             = %s\n", gridfilename.c_str());
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
     printf("Rendering %d z-cuts of the density field. \nStart from z = %f, with dz = %f\n", numOfCuts, startz, dz);
-
+    
     if(isSetBox){
         printf("Box                    = %f %f %f %f\n",
                setStartPoint.x, setStartPoint.y, setStartPoint.z, boxsize);
@@ -218,6 +233,7 @@ int main(int argv, char * args[]){
     printf("*********************************************************************\n");
     
     
+    
     //initiate openGL
     glutInit(&argv, args);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
@@ -229,43 +245,31 @@ int main(int argv, char * args[]){
     glewInit();
 #endif
     
-    
-    //test
-    TetraStreamer streamer(filename,
-                           inputmemgrid,
-                           parttype,
-                           datagridsize,
-                           isHighMem,
-                           isAllData,
-                           isVelocity,
-                           true,
-                           isInOrder);
-    boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
     DenRender render(imagesize, boxsize,
                      startz, dz, numOfCuts,
                      &argv, args);
-    
-    printf("Boxsize: %f\n", boxsize);
     
     int count = 0;
     
     //render
     printf("Start rendering ...\n");
+    int totalcount = boxsize * boxsize * boxsize * 6;
     while(streamer.hasNext()){
         int nums;
         Tetrahedron * tetras;
         tetras = streamer.getNext(nums);
         for(int i= 0; i < nums; i++){
-            //printf("Oz = %f %f %f %f\n",
-            //      tetras[i].v1.z, tetras[i].v2.z, tetras[i].v3.z, tetras[i].v4.z);
             render.rend(tetras[i]);
         }
         count += nums;
+        //if(count % (totalcount / 10) == 0){
+        //    printf("%d0%% ", count / (totalcount / 10));
+        //}
     }
     render.finish();
     float * im = render.getDenfield();
     
-    printf("Saving ...\n");
+    printf("\nFinished.\nSaving ...\n");
     
     //head used 256 bytes
     //the first is imagesize
