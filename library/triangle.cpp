@@ -1,4 +1,8 @@
+#include <cmath>
+#include <cstdlib>
 #include "triangle.h"
+
+using namespace std;
 
 CUDA_CALLABLE_MEMBER Triangle& Triangle::operator=(const Triangle &rhs){
 	a = rhs.a;
@@ -72,14 +76,14 @@ CUDA_CALLABLE_MEMBER REAL Triangle::getArea(){
     Point v1 = b.getPoint() - a.getPoint();
     Point v2 = c.getPoint() - a.getPoint();
     Point area = v1.cross(v2);
-    return sqrt(area.dot(area)) / 2.0;
+    return (REAL) (sqrt(area.dot(area)) / 2.0);
 }
 
 CUDA_CALLABLE_MEMBER REAL Triangle3d::getArea(){
     Point v1 = b - a;
     Point v2 = c - a;
     Point area = v1.cross(v2);
-    return sqrt(area.dot(area)) / 2.0;
+    return (REAL)(sqrt(area.dot(area)) / 2.0);
 }
 
 

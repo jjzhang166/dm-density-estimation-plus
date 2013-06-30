@@ -8,7 +8,6 @@
 
 #ifndef TETRAHEDRON_H_
 #define TETRAHEDRON_H_
-#include <cmath>
 #include "types.h"
 
 

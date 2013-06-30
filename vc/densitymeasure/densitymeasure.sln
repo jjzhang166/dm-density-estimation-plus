@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "density_ogl", "density_ogl\density_ogl.vcxproj", "{A4C05AA0-A829-434C-86B8-F0FFF41AE4E3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "densviewer", "densviewer\densviewer.vcxproj", "{67B8842F-3168-4E29-AF19-F9E208F302BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{A4C05AA0-A829-434C-86B8-F0FFF41AE4E3}.Debug|Win32.Build.0 = Debug|Win32
 		{A4C05AA0-A829-434C-86B8-F0FFF41AE4E3}.Release|Win32.ActiveCfg = Release|Win32
 		{A4C05AA0-A829-434C-86B8-F0FFF41AE4E3}.Release|Win32.Build.0 = Release|Win32
+		{67B8842F-3168-4E29-AF19-F9E208F302BF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{67B8842F-3168-4E29-AF19-F9E208F302BF}.Debug|Win32.Build.0 = Debug|Win32
+		{67B8842F-3168-4E29-AF19-F9E208F302BF}.Release|Win32.ActiveCfg = Release|Win32
+		{67B8842F-3168-4E29-AF19-F9E208F302BF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

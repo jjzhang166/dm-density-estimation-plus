@@ -7,6 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 
 //#include "cuda_runtime.h"
 //#include "device_launch_parameters.h"

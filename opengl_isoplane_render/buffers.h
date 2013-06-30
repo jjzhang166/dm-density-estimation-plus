@@ -1,8 +1,6 @@
 #ifndef __LY_BUFFERS__
 #define __LY_BUFFERS__
 #include <string>
-//#include <glew.h>
-//#include <GLUT/glut.h>
 #include "types.h"
 
 using namespace std;

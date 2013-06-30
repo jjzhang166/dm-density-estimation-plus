@@ -1,14 +1,10 @@
-#include <stdlib.h>
 #include <cmath>
-
-#include <stdio.h>
 #include <string>
 #include <fstream>
 #include <iostream>
 
 
 #ifdef __APPLE__
-//#include <glew.h>
 #include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
 #else
 #include <GL/glew.h>

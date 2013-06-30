@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <cstdlib>
 #ifdef __APPLE__
 //#include <glew.h>
 #include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
@@ -17,7 +19,6 @@
 
 
 #include "types.h"
-#include "render.h"
 #include "buffers.h"
 
 #include "tetracut.h"

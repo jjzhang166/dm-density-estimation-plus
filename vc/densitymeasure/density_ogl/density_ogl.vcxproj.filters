@@ -60,6 +60,9 @@
     <ClInclude Include="..\..\..\opengl_isoplane_render\viewfun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\library\gettimeofday_win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\library\indtetrahedron.cpp">
@@ -95,14 +98,11 @@
     <ClCompile Include="..\..\..\opengl_isoplane_render\denrender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\opengl_isoplane_render\densviewer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\opengl_isoplane_render\testdensrender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\opengl_isoplane_render\viewfun.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\gettimeofday_win.cpp">
+      <Filter>library</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
