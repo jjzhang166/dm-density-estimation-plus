@@ -8,8 +8,13 @@
 
 #include <cmath>
 
+#if defined(_WIN32) || defined(_WIN64)
+//#include "gettimeofday_win.h"
+#else
 #include <unistd.h>
 #include <sys/time.h>
+#endif
+
 
 #include "types.h"
 #include "render.h"

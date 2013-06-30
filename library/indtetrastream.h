@@ -13,8 +13,13 @@
 #ifndef TETRASTREAM_H_
 #define TETRASTREAM_H_
 
+#if defined(_WIN32) || defined(_WIN64)
+#include "gettimeofday_win.h"
+#else
 #include <unistd.h>
 #include <sys/time.h>
+#endif
+
 
 #include <string>
 #include <vector>
