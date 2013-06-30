@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="library">
+      <UniqueIdentifier>{f1e4f682-3096-4e30-b3ca-10826fbb6277}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\opengl_isoplane_render\buffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\opengl_isoplane_render\viewfun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\opengl_isoplane_render\denrender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\indtetrahedron.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\indtetrastream.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\processbar.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\readgadget.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\tetracut.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\tetrahedron.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\tetrastream.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\triangle.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\library\gettimeofday_win.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\opengl_isoplane_render\densviewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\opengl_isoplane_render\buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\opengl_isoplane_render\viewfun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\opengl_isoplane_render\denrender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\gadgetheader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\gettimeofday_win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\indtetrastream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\opengl_isoplane_render\isoplane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\processbar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\readgadget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\opengl_isoplane_render\render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\tetracut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\tetrahedron.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\tetrastream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\library\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
