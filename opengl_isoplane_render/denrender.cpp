@@ -28,7 +28,7 @@
 using namespace std;
 
 //the depth of the triangle buffer
-const int DenRender::VERTEXBUFFERDEPTH = 128 * 1024;
+const int DenRender::VERTEXBUFFERDEPTH = 16 * 1024;
 
 //must run in openGL environment, with glew
 
@@ -189,7 +189,8 @@ void DenRender::rendplane(int i){
     
     //avoiding clamping
     float * imp = image_ + imagesize_ * imagesize_ * i;
-    for(int j = 0; j < imagesize_ * imagesize_; j++){
+	int numpix = imagesize_ * imagesize_;
+    for(int j = 0; j < numpix; j++){
         imp[j] += tempimage_[j];
     }
     //int j = 1000;

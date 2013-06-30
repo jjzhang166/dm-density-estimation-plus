@@ -156,6 +156,13 @@ int main(int args, char * argv[]){
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
     glutInitWindowSize(gridsize, gridsize);
     glutCreateWindow("Dark Matter Density rendering!");
+
+
+	#ifndef __APPLE__
+    glewExperimental = GL_TRUE;
+    glewInit();
+	#endif
+    
     
     glGenTextures(1, &(textureIni));
     glBindTexture(GL_TEXTURE_2D, textureIni);

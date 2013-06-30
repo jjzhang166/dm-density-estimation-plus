@@ -37,7 +37,7 @@
 namespace main_space{
     
     int inputmemgrid = 16;						//the input memory grid size
-    string filename =  "E:\\multires_150";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
+    string filename =  "I:\\data\\32Mpc_050_S4";//"I:\\data\\MIP-00-00-00-run_050";		//the input data filename "E:\\multires_150";//
     
     float * colorimage;
     

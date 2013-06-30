@@ -28,6 +28,8 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
     Npart = 0;
 	filename_ = filename;
 
+	totalparts = 0;
+
 	uint32_t record0, record1;
 
 	fstream file(filename.c_str(), ios_base::in | ios_base::binary);
@@ -63,6 +65,7 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
         }
     }
     endind = startind + header.npart[parttype];
+
     
     //printf("%d, %d, %d, %d\n", startind, endind, totalparts, Npart);
     //printf("%d %d %d %d %d %d\n", header.npartTotal[0],header.npartTotal[1], header.npartTotal[2],

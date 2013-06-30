@@ -20,8 +20,6 @@
     <ClCompile Include="..\..\..\library\tetrahedron.cpp" />
     <ClCompile Include="..\..\..\library\tetrastream.cpp" />
     <ClCompile Include="..\..\..\library\triangle.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\buffers.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\denrender.cpp" />
     <ClCompile Include="..\..\..\opengl_isoplane_render\densviewer.cpp" />
     <ClCompile Include="..\..\..\opengl_isoplane_render\viewfun.cpp" />
   </ItemGroup>
@@ -82,6 +80,9 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <HeapReserveSize>2000</HeapReserveSize>
+      <HeapCommitSize>2000</HeapCommitSize>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,6 +97,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <HeapReserveSize>2000</HeapReserveSize>
+      <HeapCommitSize>2000</HeapCommitSize>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
