@@ -47,7 +47,7 @@ private:
     float * tempimage_;
     float startz_, dz_;
     
-    fluxBuffer *fbuffer;
+    buffer *fbuffer;
     //the buffer for drawing triangles
     float * vertexbuffer_;
     int * vertexIds_;

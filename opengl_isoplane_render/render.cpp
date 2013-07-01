@@ -19,7 +19,7 @@
 using namespace std;
 
 int windowSize;
-fluxBuffer * fbuffer;
+buffer * fbuffer;
 float viewSize;
 GLuint textureIni;  //initial empty texture
 int * argc;
@@ -106,7 +106,7 @@ void openGLInit(){
     glewInit(); 
 #endif
 
-    fbuffer = new fluxBuffer(windowSize, windowSize);
+    fbuffer = new buffer(windowSize, windowSize);
     fbuffer->setBuffer();
 
     glEnable(GL_TEXTURE_2D);

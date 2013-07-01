@@ -28,12 +28,12 @@
 using namespace std;
 
 //the depth of the triangle buffer
-const int DenRender::VERTEXBUFFERDEPTH = 16 * 1024;
+const int DenRender::VERTEXBUFFERDEPTH = 1024;
 
 //must run in openGL environment, with glew
 
 void DenRender::openGLInit(){
-    fbuffer = new fluxBuffer(imagesize_, imagesize_);
+    fbuffer = new buffer(imagesize_, imagesize_);
     fbuffer->setBuffer();
     
     
@@ -79,6 +79,10 @@ DenRender::DenRender(int imagesize, float boxsize,
     image_ = new float[imagesize * imagesize * numplanes_];
     tempimage_ = new float[imagesize_ * imagesize_];
     
+    for(int i = 0; i < imagesize * imagesize * numplanes_; i++){
+        image_[i] = 0.0f;
+    }
+    
     //color and vertex
     vertexbuffer_ = new float[15 * VERTEXBUFFERDEPTH * numplanes_];
     vertexIds_ = new int[numplanes_];
@@ -116,10 +120,10 @@ void DenRender::rendplane(int i){
     //copy the data
     fbuffer->bindTex();
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
-                 GL_RED, GL_FLOAT , 0);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
-    //             GL_RED, GL_FLOAT , image_ + i * imagesize_ * imagesize_);
+    // setup some generic opengl options
+    glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE);
+    glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
+    glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE);
     
     
     // set its parameters
@@ -130,10 +134,18 @@ void DenRender::rendplane(int i){
     
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     
-    // setup some generic opengl options
-    glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE);
-    glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
-    glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE);
+    
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
+    //             GL_RED, GL_FLOAT , 0);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
+    //             GL_RED, GL_FLOAT , image_ + i * imagesize_ * imagesize_);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
+                    GL_RED, GL_FLOAT , image_ + i * imagesize_ * imagesize_);
+    
+    
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
+    //                          GL_RED, GL_FLOAT , 0);
+
     
     fbuffer->unbindTex();
     
@@ -151,9 +163,6 @@ void DenRender::rendplane(int i){
     glLoadIdentity();
     
     //clear color
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
     glEnableClientState (GL_VERTEX_ARRAY);
     glEnableClientState (GL_COLOR_ARRAY);
     
@@ -165,34 +174,30 @@ void DenRender::rendplane(int i){
     glDrawArrays(GL_TRIANGLES, 0, vertexIds_[i] * 3);
     
     
-    /*printf("Triangles: %d\n", i);
-    float *p = vertexbuffer_ + 15 * VERTEXBUFFERDEPTH * i;
-    printf("%f %f %e %e %e\n", *p, *(p+1), *(p+2), *(p+3), *(p+4));
-    printf("%f %f %e %e %e\n", *(p+5), *(p+6), *(p+7), *(p+8), *(p+9));
-    printf("%f %f %e %e %e\n", *(p+10), *(p+11), *(p+12), *(p+13), *(p+14));*/
-    
     glFinish();
     fbuffer->unbindBuf();
     
     vertexIds_[i] = 0;
     
     //copy the data back
-    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    //glPixelStorei(GL_PACK_ALIGNMENT, 4);
     fbuffer->bindTex();
     glGetTexImage(GL_TEXTURE_2D,
                   0,
                   GL_RED,
                   GL_FLOAT,
-                  tempimage_);
-                  //(image_ + imagesize_ * imagesize_ * i));
+                  //tempimage_);
+                  (image_ + imagesize_ * imagesize_ * i));
     fbuffer->unbindTex();
     
     //avoiding clamping
-    float * imp = image_ + imagesize_ * imagesize_ * i;
+    /*float * imp = image_ + imagesize_ * imagesize_ * i;
 	int numpix = imagesize_ * imagesize_;
     for(int j = 0; j < numpix; j++){
-        imp[j] += tempimage_[j];
-    }
+        if(imp[j] > 1.0){
+            printf("%f\n",imp[j]);
+        }
+    }*/
     //int j = 1000;
     //    printf("%e\n", *(image_ + imagesize_ * imagesize_ * i + j));
     
