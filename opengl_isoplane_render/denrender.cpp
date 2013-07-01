@@ -28,7 +28,7 @@
 using namespace std;
 
 //the depth of the triangle buffer
-const int DenRender::VERTEXBUFFERDEPTH = 1024;
+const int DenRender::VERTEXBUFFERDEPTH = 128 * 1024;
 
 //must run in openGL environment, with glew
 

@@ -76,9 +76,8 @@ void KeyboardFunc(unsigned char key, int x, int y)
     //int foo;
     //foo = x + y; //Has no effect: just to avoid a warning
     if ('q' == key || 'Q' == key || 27 == key){
+        delete colorim;
         exit(0);
-        //else if(key == 's' && picfile!=""){
-        //savePic();
     }else if(']' == key){
         pti ++;
         if(pti >=numofcuts){
@@ -181,8 +180,7 @@ int main(int args, char * argv[]){
     glutReshapeFunc(&ReshapeFunc);
     glutKeyboardFunc(&KeyboardFunc);
     glutMainLoop();
-    
-    delete colorim;
+
     return 0;
     
 }
