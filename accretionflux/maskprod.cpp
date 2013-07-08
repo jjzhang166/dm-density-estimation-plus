@@ -13,6 +13,7 @@
 #include <cstdlib>     /* atoi */
 #include <sstream>
 #include <fstream>
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include <fitsio.h>

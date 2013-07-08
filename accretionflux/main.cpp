@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <cmath>
 #include <cstdlib>
 #include "accretion.h"
 
@@ -30,7 +31,8 @@ bool isVelocity = true;
 
 int main(){
     
-    string filename_ =  "/Users/lyang/data/trygad.data";
+    //string filename_ =  "/Users/lyang/data/trygad.data";
+    string filename_ = "/Users/lyang/Documents/Projects/sf13/denscompare/try.data";
     
     GSnap * gsnap_ = new GSnap(filename_, isHighMem, parttype, datagridsize);
     int numparts = gsnap_->Npart;

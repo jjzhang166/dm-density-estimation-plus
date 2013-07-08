@@ -43,6 +43,7 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
 	file.read((char *) &record0, sizeof(uint32_t));
 	file.read((char *) &header, sizeof(gadget_header));
 	file.read((char *) &record1, sizeof(uint32_t));
+    //printf("r0 = %d, r1 = %d headsize = %d\n", (int)record0, (int)record1, sizeof(gadget_header));
 	if (record0 != record1) {
 		printf("Record in file not equal!\n");
 		return;
