@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     
     //string filename_ =  "/Users/lyang/data/32Mpc_S1_PM_000";
     Point halocenter;
-    double r = 10000;
-    double dr = 100;
+    //double r = 10000;
+    //double dr = 100;
     
     //load all the particles into memory?
     bool isHighMem = true;
@@ -60,8 +60,6 @@ int main(int argc, char *argv[])
     
     char * halomask;
     fstream maskstream;
-    
-    
     
 
     
@@ -200,11 +198,7 @@ int main(int argc, char *argv[])
         if(status != 0){
             break;
         }
-        
-        if(massthred > 0 && halo.mass > massthred){
-            continue;
-        }
-        
+
         
         halocenter.x = halo.x;
         halocenter.y = halo.y;
