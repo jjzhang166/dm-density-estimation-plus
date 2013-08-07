@@ -122,6 +122,12 @@ int main(int argc, char *argv[])
     
     int hmin =0;
     int hmax = getTotalHaloNum(halofile.c_str());
+    
+    halomask = new char[hmax];
+    for(int i = 0; i < hmax; i++){
+        halomask[i] = 1;
+    }
+    
     if(isUseHaloVec){
         hmin = 0;
         hmax = halovec.size();
@@ -210,5 +216,5 @@ int main(int argc, char *argv[])
     }
     
     delete gsnap_;
-    
+    delete halomask; 
 }
