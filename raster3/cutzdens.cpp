@@ -18,13 +18,6 @@
 #include <sys/time.h>
 #endif
 
-/*#ifdef __APPLE__
-#include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
-#else
-#include <GL/glew.h>
-#include <GL/glut.h>
-#endif*/
-
 
 //#include "grid.h"
 #include "tetrahedron.h"
