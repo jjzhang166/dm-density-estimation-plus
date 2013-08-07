@@ -1,7 +1,7 @@
 #ifndef __DENRENDER__
 #define __DENRENDER__
 #include "types.h"
-#include "buffers.h"
+//#include "buffers.h"
 #include "tetracut.h"
 #include "tetrahedron.h"
 
@@ -47,7 +47,7 @@ private:
     float * tempimage_;
     float startz_, dz_;
     
-    buffer *fbuffer;
+    //buffer *fbuffer;
     //the buffer for drawing triangles
     float * vertexbuffer_;
     int * vertexIds_;

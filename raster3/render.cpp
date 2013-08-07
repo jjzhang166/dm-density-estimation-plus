@@ -95,7 +95,6 @@ void getcolorImge(float *value, float * colorimg){
 
 
 void openGLInit(){
-    //initialize glut and glew
     glutInit(argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
     glutInitWindowSize(windowSize, windowSize);

@@ -18,12 +18,12 @@
 #include <sys/time.h>
 #endif
 
-#ifdef __APPLE__
+/*#ifdef __APPLE__
 #include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
 #else
 #include <GL/glew.h>
 #include <GL/glut.h>
-#endif
+#endif*/
 
 
 //#include "grid.h"
@@ -41,7 +41,7 @@ namespace main_space{
     
     float * colorimage;
     
-    GLuint textureIni;
+    //GLuint textureIni;
     
     string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
     string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
@@ -239,7 +239,7 @@ int main(int argv, char * args[]){
     
     
     
-    //initiate openGL
+/*    //initiate openGL
     glutInit(&argv, args);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
     glutInitWindowSize(imagesize, imagesize);
@@ -248,7 +248,7 @@ int main(int argv, char * args[]){
 #ifndef __APPLE__
     glewExperimental = GL_TRUE;
     glewInit();
-#endif
+#endif*/
     
     DenRender render(imagesize, boxsize,
                      startz, dz, numOfCuts,

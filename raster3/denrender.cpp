@@ -30,9 +30,24 @@ using namespace std;
 //the depth of the triangle buffer
 const int DenRender::VERTEXBUFFERDEPTH = 64 * 1024;
 
+buffer *fbuffer;
+
 //must run in openGL environment, with glew
 
 void DenRender::openGLInit(){
+    int argv = 1;
+    char * args[1];
+    args[0] = "Density Render";
+    glutInit(&argv, args);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
+    glutInitWindowSize(imagesize_, imagesize_);
+    glutCreateWindow("Dark Matter Density rendering!");
+    
+#ifndef __APPLE__
+    glewExperimental = GL_TRUE;
+    glewInit();
+#endif
+    
     fbuffer = new buffer(imagesize_, imagesize_);
     fbuffer->setBuffer();
     
