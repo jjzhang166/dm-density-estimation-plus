@@ -36,6 +36,7 @@ int main(int argc, char * argv[]){
     
     char * partmask;
     GSnap * gsnap_;
+    int * int_halomask;
     char * halomask;
     
     
@@ -50,7 +51,9 @@ int main(int argc, char * argv[]){
     //return the all particle pointer?
     bool isAllData = false;
 
-    
+    //halos with how many particles intersect with the fil considered to be in the fil
+    int PART_THRED = 100;
+
     
     if(argc != 5){
         printf("Usage: maskprod gadfile particlemask halocatlog outputmask\n");
@@ -102,7 +105,8 @@ int main(int argc, char * argv[]){
     
     
     halomask = new char[hmax]();
-    
+    int_halomask = new int[hmax]();
+
     printf("Start calculating...\n");
 
     for(int i = 0; i < hmax; i++){
@@ -124,8 +128,11 @@ int main(int argc, char * argv[]){
                 double r = sqrt(rvec.dot(rvec));
                 
                 if(r < halo.radius){
-                    halomask[i] = 1;
-                    break;
+                    int_halomask[i] += 1;
+                    if(int_halomask[i] >= PART_THRED){
+                        halomask[i] = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -150,5 +157,6 @@ int main(int argc, char * argv[]){
     delete partmask;
     delete gsnap_;
     delete halomask;
+    delete int_halomask;
     
 }

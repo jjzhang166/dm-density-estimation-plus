@@ -165,11 +165,11 @@
     <ClInclude Include="..\..\..\library\tetrastream.h" />
     <ClInclude Include="..\..\..\library\triangle.h" />
     <ClInclude Include="..\..\..\library\types.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\buffers.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\denrender.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\isoplane.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\render.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\viewfun.h" />
+    <ClInclude Include="..\..\..\raster3\buffers.h" />
+    <ClInclude Include="..\..\..\raster3\denrender.h" />
+    <ClInclude Include="..\..\..\raster3\isoplane.h" />
+    <ClInclude Include="..\..\..\raster3\render.h" />
+    <ClInclude Include="..\..\..\raster3\viewfun.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\library\gettimeofday_win.cpp" />
@@ -181,10 +181,10 @@
     <ClCompile Include="..\..\..\library\tetrahedron.cpp" />
     <ClCompile Include="..\..\..\library\tetrastream.cpp" />
     <ClCompile Include="..\..\..\library\triangle.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\buffers.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\cutzdens.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\denrender.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\viewfun.cpp" />
+    <ClCompile Include="..\..\..\raster3\buffers.cpp" />
+    <ClCompile Include="..\..\..\raster3\cutzdens.cpp" />
+    <ClCompile Include="..\..\..\raster3\denrender.cpp" />
+    <ClCompile Include="..\..\..\raster3\viewfun.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

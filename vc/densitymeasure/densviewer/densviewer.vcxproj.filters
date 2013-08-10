@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\opengl_isoplane_render\viewfun.cpp">
+    <ClCompile Include="..\..\..\raster3\viewfun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\library\indtetrahedron.cpp">
@@ -48,18 +48,18 @@
     <ClCompile Include="..\..\..\library\gettimeofday_win.cpp">
       <Filter>library</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\opengl_isoplane_render\densviewer.cpp">
+    <ClCompile Include="..\..\..\raster3\densviewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\opengl_isoplane_render\buffers.h">
+    <ClInclude Include="..\..\..\raster3\buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\opengl_isoplane_render\viewfun.h">
+    <ClInclude Include="..\..\..\raster3\viewfun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\opengl_isoplane_render\denrender.h">
+    <ClInclude Include="..\..\..\raster3\denrender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\library\gadgetheader.h">
@@ -71,7 +71,7 @@
     <ClInclude Include="..\..\..\library\indtetrastream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\opengl_isoplane_render\isoplane.h">
+    <ClInclude Include="..\..\..\raster3\isoplane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\library\processbar.h">
@@ -80,7 +80,7 @@
     <ClInclude Include="..\..\..\library\readgadget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\opengl_isoplane_render\render.h">
+    <ClInclude Include="..\..\..\raster3\render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\library\tetracut.h">

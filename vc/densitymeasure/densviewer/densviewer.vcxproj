@@ -28,8 +28,8 @@
     <ClCompile Include="..\..\..\library\tetrahedron.cpp" />
     <ClCompile Include="..\..\..\library\tetrastream.cpp" />
     <ClCompile Include="..\..\..\library\triangle.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\densviewer.cpp" />
-    <ClCompile Include="..\..\..\opengl_isoplane_render\viewfun.cpp" />
+    <ClCompile Include="..\..\..\raster3\densviewer.cpp" />
+    <ClCompile Include="..\..\..\raster3\viewfun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\library\gadgetheader.h" />
@@ -42,11 +42,11 @@
     <ClInclude Include="..\..\..\library\tetrastream.h" />
     <ClInclude Include="..\..\..\library\triangle.h" />
     <ClInclude Include="..\..\..\library\types.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\buffers.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\denrender.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\isoplane.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\render.h" />
-    <ClInclude Include="..\..\..\opengl_isoplane_render\viewfun.h" />
+    <ClInclude Include="..\..\..\raster3\buffers.h" />
+    <ClInclude Include="..\..\..\raster3\denrender.h" />
+    <ClInclude Include="..\..\..\raster3\isoplane.h" />
+    <ClInclude Include="..\..\..\raster3\render.h" />
+    <ClInclude Include="..\..\..\raster3\viewfun.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{67B8842F-3168-4E29-AF19-F9E208F302BF}</ProjectGuid>
