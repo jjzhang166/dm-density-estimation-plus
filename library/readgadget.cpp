@@ -114,7 +114,8 @@ GSnap::GSnap(string filename, bool isHighMem, int parttype, int gridsize){
         //printf("ind min: %d \n", indmin);
         
         for(int i = startind; i < endind; i ++){
-            if(allind_[i] >= Npart){
+            // - indmin
+            if(allind_[i] - indmin >= Npart){
                 printf("*************************WARNNING***************************\n");
                 printf("particle index is larger than the total number of particles.\nResult is UNPREDICTABLE!!\nPlease double check the indexes, make sure they starts from 0.\n");
                 printf("************************************************************\n");

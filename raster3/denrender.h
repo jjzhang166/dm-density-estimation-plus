@@ -5,6 +5,9 @@
 #include "tetracut.h"
 #include "tetrahedron.h"
 
+//how many color components are being calculated
+#define NUMCOLORCOMP 2
+
 //render the density through a serier plane cutter of the tetrahedrons
 //startz, dz, and numplane specifies how many slices of the density field
 //will be rendered
@@ -21,7 +24,7 @@ public:
     
     float * getDenfield();
     
-    float * getImage();
+    int * getStreamData();
     
     
     static const int VERTEXBUFFERDEPTH;
@@ -43,8 +46,13 @@ private:
     
     //image stores all the density field
     float * image_;
+    
+    //stores the stream data of any pixels
+    int * streams_;
+    
+    float * density_;
+    
     //image stores only one slides of the field
-    float * tempimage_;
     float startz_, dz_;
     
     //buffer *fbuffer;
