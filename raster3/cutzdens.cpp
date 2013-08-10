@@ -37,7 +37,9 @@ namespace main_space{
     //GLuint textureIni;
     
     string gridfilename = "I:\\sandbox\\tetrahedron.grid";	//output filename
-    string velofilename = "I:\\sandbox\\tetrahedron.vgrid";	//velocity output filename
+    string velofilename = "";	//velocity output filename
+    string streamfile = ""; //stream data
+    
     bool isoutputres = false;
     bool isVerbose = false;
     bool isInOrder = false;
@@ -62,12 +64,14 @@ namespace main_space{
     float dz = 0;
     float startz = 0;
     
+    
     void printUsage(string pname){
-        fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
+        fprintf(stderr, "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
                 , pname.c_str()
                 , "[-imsize <imagesize>]"
                 , "[-df <datafilename>]"
                 , "[-of <gridfilename>]"
+                , "[-ostream <streamfile>]"
                 , "[-vfile <velocityfieldfilename> only applied when use -vel]"
                 , "[-t <numbers of tetra in memory>]"
                 , "[-o] to output result in texts"
@@ -140,6 +144,9 @@ namespace main_space{
                 }else if(strcmp(args[k], "-numz") == 0){
                     ss << args[k + 1];
                     ss >> numOfCuts;
+                }else if(strcmp(args[k], "-ostream") == 0){
+                    ss << args[k + 1];
+                    ss >> streamfile;
                 }else if(strcmp(args[k], "-box") == 0){
                     isSetBox = true;
                     k++;
@@ -203,6 +210,9 @@ int main(int argv, char * args[]){
     }
     printf("Particle Type           = %d\n", parttype);
 	printf("Output File             = %s\n", gridfilename.c_str());
+    if(streamfile != ""){
+        printf("Stream Data File        = %s\n", streamfile.c_str());
+    }
 	printf("Tetra in Mem            = %d\n", inputmemgrid);
     printf("Rendering %d z-cuts of the density field. \nStart from z = %f, with dz = %f\n", numOfCuts, startz, dz);
     
@@ -269,6 +279,7 @@ int main(int argv, char * args[]){
     }
     render.finish();
     float * im = render.getDenfield();
+    int * streamdata = render.getStreamData();
     
     printf("\nFinished. In total %d tetrahedron rendered.\nSaving ...\n", count);
     
@@ -297,6 +308,27 @@ int main(int argv, char * args[]){
     outstream.write((char *) head, sizeof(int) * 59);
     outstream.write((char *) im, sizeof(float) * imagesize * imagesize * numOfCuts);
     outstream.close();
+    
+    
+    if(streamfile != ""){
+        outstream.open(streamfile.c_str(), ios::out | ios::binary);
+        while(!outstream.good()){
+            printf("Output error, Stream Data not saved...!\n");
+            printf("Input new filename:\n");
+            cin >> streamfile;
+            outstream.clear();
+            outstream.open(gridfilename.c_str(), ios::out | ios::binary);
+        }
+        outstream.write((char *) &imagesize, sizeof(int));
+        outstream.write((char *) &numOfCuts, sizeof(int));
+        outstream.write((char *) &boxsize, sizeof(float));
+        outstream.write((char *) &startz, sizeof(float));
+        outstream.write((char *) &dz, sizeof(float));
+        outstream.write((char *) head, sizeof(int) * 59);
+        outstream.write((char *) streamdata, sizeof(int) * imagesize * imagesize * numOfCuts);
+        outstream.close();
+    }
+    
     
     return 0;
 }

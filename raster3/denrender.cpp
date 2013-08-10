@@ -37,7 +37,7 @@ buffer *fbuffer;
 void DenRender::openGLInit(){
     int argv = 1;
     char * args[1];
-    args[0] = "Density Render";
+    args[0] = (char *) "Density Render";
     glutInit(&argv, args);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
     glutInitWindowSize(imagesize_, imagesize_);
@@ -91,10 +91,11 @@ DenRender::DenRender(int imagesize, float boxsize,
     boxsize_ = boxsize;
     numplanes_ = numplane;
     
-    image_ = new float[imagesize * imagesize * numplanes_];
-    tempimage_ = new float[imagesize_ * imagesize_];
+    image_ = new float[imagesize * imagesize * numplanes_ * NUMCOLORCOMP];
+    streams_ = new int[imagesize * imagesize * numplanes_];
+    density_ = new float[imagesize * imagesize * numplanes_];
     
-    for(int i = 0; i < imagesize * imagesize * numplanes_; i++){
+    for(int i = 0; i < imagesize * imagesize * numplanes_ * NUMCOLORCOMP; i++){
         image_[i] = 0.0f;
     }
     
@@ -124,7 +125,8 @@ DenRender::~DenRender(){
     delete vertexbuffer_;
     delete fbuffer;
     delete image_;
-    delete tempimage_;
+    delete streams_;
+    delete density_;
 }
 
 //render the i-th buffer
@@ -150,16 +152,9 @@ void DenRender::rendplane(int i){
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     
     
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
-    //             GL_RED, GL_FLOAT , 0);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
-    //             GL_RED, GL_FLOAT , image_ + i * imagesize_ * imagesize_);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
-                    GL_RED, GL_FLOAT , image_ + i * imagesize_ * imagesize_);
-    
-    
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, imagesize_, imagesize_, 0,
-    //                          GL_RED, GL_FLOAT , 0);
+                    GL_RG, GL_FLOAT , image_ +
+                    i * imagesize_ * imagesize_ * NUMCOLORCOMP);
 
     
     fbuffer->unbindTex();
@@ -199,10 +194,10 @@ void DenRender::rendplane(int i){
     fbuffer->bindTex();
     glGetTexImage(GL_TEXTURE_2D,
                   0,
-                  GL_RED,
+                  GL_RG,
                   GL_FLOAT,
                   //tempimage_);
-                  (image_ + imagesize_ * imagesize_ * i));
+                  (image_ + imagesize_ * imagesize_ * i * NUMCOLORCOMP));
     fbuffer->unbindTex();
     
     //avoiding clamping
@@ -251,18 +246,18 @@ void DenRender::rend(Tetrahedron & tetra){
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 0] = cutter.getTrangle(j).a.x;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 1] = cutter.getTrangle(j).a.y;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 2] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 3] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 4] = tetra.invVolume;
+            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 3] = 1;
+            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 4] = 1;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 5] = cutter.getTrangle(j).b.x;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 6] = cutter.getTrangle(j).b.y;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 7] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 8] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 9] = tetra.invVolume;
+            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 8] = 1;
+            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 9] = 1;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 10] = cutter.getTrangle(j).c.x;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 11] = cutter.getTrangle(j).c.y;
             vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 12] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 13] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 14] = tetra.invVolume;
+            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 13] = 1;
+            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 14] = 1;
 
             
             /*printf("Triangles: %d\n", i);
@@ -281,22 +276,30 @@ void DenRender::rend(Tetrahedron & tetra){
     }
 }
 
+
 float * DenRender::getDenfield(){
-    return image_;
+    return density_;
 }
 
-
-float * DenRender::getImage(){
-    return image_;
+int * DenRender::getStreamData(){
+    return streams_;
 }
+
 
 
 void DenRender::finish(){
+    
     for(int i = 0; i < numplanes_; i++){
         //printf("%d \n", vertexIds_[i]);
         if(vertexIds_[i] > 0){
             rendplane(i);
         }
     }
+    
+    for(int i = 0; i < imagesize_ * imagesize_ * numplanes_; i++){
+        density_[i] = image_[i * NUMCOLORCOMP];
+        streams_[i] = image_[i * NUMCOLORCOMP + 1];
+    }
+    
 }
 
