@@ -36,6 +36,33 @@ public:
        return p;
     };
 
+    CUDA_CALLABLE_MEMBER float dot(Point2d &p){
+       return x * p.x + y * p.y;
+    };
+
+    
+    CUDA_CALLABLE_MEMBER const Point2d Point2d::operator+(const Point2d &other) const{
+        Point2d result = *this;
+        result.x += other.x;
+        result.y += other.y;
+        return result;
+    }
+    
+    CUDA_CALLABLE_MEMBER const Point2d Point2d::operator-(const Point2d &other) const{
+        Point2d result = *this;
+        result.x -= other.x;
+        result.y -= other.y;
+        return result;
+    }
+    
+    CUDA_CALLABLE_MEMBER const Point2d Point2d::operator*(const REAL &other) const{
+        Point2d result = *this;
+        result.x *= other;
+        result.y *= other;
+        return result;
+    }
+
+
 };
 
 
