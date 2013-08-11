@@ -177,9 +177,6 @@ using namespace main_space;
 int main(int argv, char * args[]){
     
 	readParameters(argv, args);
-    if(numOfCuts == 0){
-        numOfCuts = imagesize;
-    }
     
     //test
     TetraStreamer streamer(filename,
@@ -193,7 +190,11 @@ int main(int argv, char * args[]){
                            isInOrder);
     
     boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
-    dz = boxsize / numOfCuts;
+    if(numOfCuts == 0){
+        numOfCuts = imagesize;
+        dz = boxsize / numOfCuts;
+    }
+
     if(datagridsize == -1){
         datagridsize = ceil(pow(streamer.getIndTetraStream()->getHeader().npart[parttype], 1.0 / 3.0));
     }

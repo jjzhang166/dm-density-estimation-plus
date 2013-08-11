@@ -27,6 +27,12 @@
 
 using namespace std;
 
+
+//buffer *fbuffer;
+//the buffer for drawing triangles
+float * vertexbuffer_;
+int * vertexIds_;
+
 //the depth of the triangle buffer
 const int DenRender::VERTEXBUFFERDEPTH = 64 * 1024;
 
@@ -34,7 +40,7 @@ buffer *fbuffer;
 
 //must run in openGL environment, with glew
 
-void DenRender::openGLInit(){
+void DenRender::init(){
     int argv = 1;
     char * args[1];
     args[0] = (char *) "Density Render";
@@ -117,7 +123,7 @@ DenRender::DenRender(int imagesize, float boxsize,
     dz_ = dz;
     
     //printf("debug1\n");
-    openGLInit();
+    init();
 }
 
 DenRender::~DenRender(){

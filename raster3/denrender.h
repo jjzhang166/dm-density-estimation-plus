@@ -34,7 +34,7 @@ private:
     
     void rendplane(int i);
     
-    void openGLInit();
+    void init();
     
     int * argc_;
     char ** args_;
@@ -54,11 +54,6 @@ private:
     
     //image stores only one slides of the field
     float startz_, dz_;
-    
-    //buffer *fbuffer;
-    //the buffer for drawing triangles
-    float * vertexbuffer_;
-    int * vertexIds_;
     
     IsoZCutter cutter;
 };

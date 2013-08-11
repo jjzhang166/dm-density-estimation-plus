@@ -55,7 +55,7 @@ profile:
 		   	testdensrender.cpp denrender.cpp \
 			cutzdens.cpp viewfun.cpp densviewer.cpp\
  			$(IFLAG)  
-	$(CC) $(RENDOBJ) -pg -o renddens $(LFLAGS)
+	$(CC) $(RENDOBJ) -pg -o renddens_1slide $(LFLAGS)
 	$(CC) $(TOBJ) -pg -o testisoz $(LFLAGS)
 	$(CC) $(TDROBJ) -pg -o testdender $(LFLAGS)
 	$(CC) $(ZDENSOBJ) -pg -o zdensrender $(LFLAGS)
@@ -65,7 +65,7 @@ profile:
 
 clean:
 	rm -f *.o
-	rm -f renddens 
+	rm -f renddens_1slide 
 	rm -f testisoz
 	rm -f testdender
 	rm -f zdensrender
