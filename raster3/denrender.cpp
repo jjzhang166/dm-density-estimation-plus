@@ -41,12 +41,12 @@ namespace RenderSpace {
     
     buffer *fbuffer;
     REAL viewSize;
-    int * argc_;
-    char ** args_;
     
     int num_of_rendertype = 0;
     
     GLenum glFormats[] = {GL_RED, GL_RG, GL_RGB, GL_RGBA};
+    
+    static bool glut_is_initialized = false;
 }
 
 //the depth of the triangle buffer
@@ -61,19 +61,24 @@ using namespace RenderSpace;
 //must run in openGL environment, with glew
 
 void DenRender::init(){
-    int argv = 1;
-    char * args[1];
-    args[0] = (char *) "Density Render";
-    glutInit(&argv, args);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
-    glutInitWindowSize(imagesize_, imagesize_);
-    glutCreateWindow("Dark Matter Density rendering!");
+
     
+    if(!glut_is_initialized){
+        int argv = 1;
+        char * args[1];
+        args[0] = (char *) "LTFE Render";
+        
+        glutInit(&argv, args);
+        glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
+        glutInitWindowSize(imagesize_, imagesize_);
+        glutCreateWindow("Dark Matter Density rendering!");
+        
 #ifndef __APPLE__
-    glewExperimental = GL_TRUE;
-    glewInit();
+        glewExperimental = GL_TRUE;
+        glewInit();
 #endif
-    
+        glut_is_initialized = true;
+    }
     fbuffer = new buffer(imagesize_, imagesize_);
     fbuffer->setBuffer();
     
@@ -148,15 +153,11 @@ DenRender::DenRender(int imagesize,
     
     viewSize = boxsize_;
     
-    argc_ = new int[1];
-    args_ = new char*[1];
-    *argc_ = 1;
-    *args_ = (char *)"LTFE Render";
     
     startz_ = startz;
     dz_ = dz;
     
-    //printf("debug1\n");
+    
     init();
 }
 
@@ -165,7 +166,6 @@ DenRender::~DenRender(){
     delete vertexbuffer_;
     delete fbuffer;
     delete result_;
-    delete argc_;
     //delete *args_;
     //delete args_;
     //delete image_;
@@ -261,6 +261,8 @@ void DenRender::rend(Tetrahedron & tetra){
     
     //printf("z = %f %f %f %f\n",
     //       tetra.v1.z, tetra.v2.z, tetra.v3.z, tetra.v4.z);
+    
+   // printf("%f %f\n", startz_, dz_);
     
     if(startz_ > tetra.v4.z || tetra.v1.z > startz_ + numplanes_ * dz_){
         return;

@@ -63,6 +63,10 @@ namespace main_space{
     
     double boxsize = 32000.0;       //the boxsize of the simulation data
     
+    
+    int mem_cut_limit = -1;         //for limit CPU memory, limit the number of cuts in memory
+                                    //to render a larger scene, rend several times for them
+    
     int imagesize = 512;            //the render imagesize
     int numOfCuts = 0;              //the number of cuts of the feild to render
     float dz = 0;                   //the z-distance of each two cuts
@@ -73,7 +77,7 @@ namespace main_space{
     void printUsage(string pname){  //print the usage
         fprintf(stdout,
                 "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n "
-                "%s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
+                "%s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
                 , pname.c_str()
                 , "[-imsize <imagesize>]"
                 , "[-df <datafilename>]"
@@ -85,13 +89,17 @@ namespace main_space{
                 , "[-t <numbers of tetra in memory>]"
                 , "[-order] if the data is in order"
                 , "[-v] to show verbose"
-                , "[-dgridsize] default: -1 to use the npart^(1/3) as gridsize"
-                , "[-parttype] default: 1. Use [0 ~ NTYPE]'s species of data in the GADGET file"
-                , "[-lowmem] use low memory mode (don't load all part in mem, not recomended)"
+                , "[-dgridsize <particle gridsize>] default: -1 to use the npart^(1/3) as gridsize"
+                , "[-parttype <paritcle type>] default: 1. "
+                  "Use [0 ~ NTYPE]'s species of data in the GADGET file"
+                , "[-lowmem] use low memory mode "
+                  "(don't load all part in mem, not recomended)"
                 , "[-nalldata] load all particle data into memory, only usable in highmem mode"
                 , "[-startz] the starting z-coordinates to calculate the cuts"
                 , "[-dz] the interval between each 2 z-plane"
                 , "[-numz] the number of z-planes"
+                , "[-cutslimit] <limit the number of cuts in CPU memory> "
+                  "default: -1, no limit"
                 , "[-box <x0> <y0> <z0> <boxsize>] setup the start point,\n"
                   "and the boxsize. The box should be inside the data's box,\n "
                   "otherwise some unpredictable side effects will comes out"
@@ -185,6 +193,9 @@ namespace main_space{
                 }else if(strcmp(args[k], "-numz") == 0){
                     ss << args[k + 1];
                     ss >> numOfCuts;
+                }else if(strcmp(args[k], "-cutslimit") == 0){
+                    ss << args[k + 1];
+                    ss >> mem_cut_limit;
                 }else if(strcmp(args[k], "-box") == 0){
                     isSetBox = true;
                     k++;
@@ -290,90 +301,135 @@ int main(int argv, char * args[]){
     printf("*********************************************************************\n");
     
     
-    DenRender render(imagesize, boxsize,
-                     startz, dz, numOfCuts, renderTypes);
     
-    int count = 0;
-    
-    //render
-
-    int tcount = datagridsize * datagridsize * datagridsize * 6 / 10;
-    
-    printf("Start rendering ...\n");
-    while(streamer.hasNext()){
-        int nums;
-        Tetrahedron * tetras;
-        tetras = streamer.getNext(nums);
-        for(int i= 0; i < nums; i++){
-            render.rend(tetras[i]);
-            if((count %  tcount )== 0){
-                printf(">");
-                cout.flush();
-            }
-            count ++;
-        }
+    if(mem_cut_limit == -1){
+        mem_cut_limit = numOfCuts;
     }
-    render.finish();
-    float * result = render.getResult();
     
-    printf("\nFinished. In total %d tetrahedron rendered.\nSaving ...\n", count);
-    
-    //head used 256 bytes
-    //the first is imagesize
-    //the second the numOfCuts
-    //the third is a float number boxsize
-    //the 4-th is a float number startz
-    //the 5-th is a fload number dz
-    //All others are 0
-    int head[59];
-    
-    string outputFilenames[] = {
-        densityFilename,
-        streamFilename,
-        velocityXFilename,
-        velocityYFilename,
-        velocityZFilename
-    };
-    
-    int numofrendertyps = renderTypes.size();
-    if(numofrendertyps > render.NUM_OF_RENDERTRYPE_LIMIT)
-        numofrendertyps = render.NUM_OF_RENDERTRYPE_LIMIT;
-    
-    fstream * outstreams = new fstream[numofrendertyps];
-    
-    for(int i = 0; i < numofrendertyps; i ++ ){
+    int tetra_count = 0;
+    int repeatTimes = (int)ceil((float) numOfCuts / (float) mem_cut_limit);
+    int repeatNumOfCuts = numOfCuts > mem_cut_limit ? mem_cut_limit : numOfCuts;
+    for(int _idcut = 0; _idcut < repeatTimes; _idcut ++){
         
-        if(outputFilenames[renderTypes[i]] != ""){
-            outstreams[i].open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
-            while(!outstreams[i].good()){
-                printf("File error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
-                printf("Input new filename:\n");
-                cin >> outputFilenames[renderTypes[i]];
-                outstreams[i].clear();
-                outstreams[i].open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
-            }
-            outstreams[i].write((char *) &imagesize, sizeof(int));
-            outstreams[i].write((char *) &numOfCuts, sizeof(int));
-            outstreams[i].write((char *) &boxsize, sizeof(float));
-            outstreams[i].write((char *) &startz, sizeof(float));
-            outstreams[i].write((char *) &dz, sizeof(float));
-            outstreams[i].write((char *) head, sizeof(int) * 59);
-            
-            //printf("%d %d\n", renderTypes.size(), i);
-            for(int j = 0; j < imagesize * imagesize * numOfCuts; j ++ ){
-                
-                outstreams[i].write((char *) (result + j * numofrendertyps + i),
-                                    sizeof(float));
-            }
-            //outstreams[i].write((char *) result,
-            //                    sizeof(float) * imagesize * imagesize * numOfCuts);
-            outstreams[i].flush();
-            outstreams[i].close();
+        int newNumOfCuts = repeatNumOfCuts;
+        if(newNumOfCuts * (_idcut + 1) > numOfCuts){
+            newNumOfCuts = numOfCuts - mem_cut_limit * _idcut;
+        }
+        float newStartz = startz + _idcut * repeatNumOfCuts * dz;
+        
+        //printf("%f %f %d\n", newStartz, dz, newNumOfCuts);
+        
+        DenRender render(imagesize,
+                         boxsize,
+                         newStartz,
+                         dz,
+                         newNumOfCuts,
+                         renderTypes);
+        
+
+        //render
+        
+        int tcount = datagridsize * datagridsize * datagridsize * 6 / 10;
+        
+        if(mem_cut_limit == numOfCuts){
+            printf("Start rendering ...\n");
+        }else{
+            printf("Rendering %d/%d...\n", _idcut + 1, repeatTimes);
         }
         
+        streamer.reset();
+        while(streamer.hasNext()){
+            int nums;
+            Tetrahedron * tetras;
+            tetras = streamer.getNext(nums);
+            for(int i= 0; i < nums; i++){
+                render.rend(tetras[i]);
+                if((tetra_count %  tcount )== 0){
+                    printf(">");
+                    cout.flush();
+                }
+                tetra_count ++;
+            }
+        }
+        render.finish();
+        float * result = render.getResult();
+        
+        printf("\n");
+        if(mem_cut_limit == numOfCuts){
+            printf("Finished. In total %d tetrahedron rendered.\n", tetra_count);
+        }
+        
+        //head used 256 bytes
+        //the first is imagesize
+        //the second the numOfCuts
+        //the third is a float number boxsize
+        //the 4-th is a float number startz
+        //the 5-th is a fload number dz
+        //All others are 0
+        int head[59];
+        
+        string outputFilenames[] = {
+            densityFilename,
+            streamFilename,
+            velocityXFilename,
+            velocityYFilename,
+            velocityZFilename
+        };
+        
+        int numofrendertyps = renderTypes.size();
+        if(numofrendertyps > render.NUM_OF_RENDERTRYPE_LIMIT)
+            numofrendertyps = render.NUM_OF_RENDERTRYPE_LIMIT;
+        
+        fstream * outstreams = new fstream[numofrendertyps];
+        
+        printf("Saving ...\n");
+        for(int i = 0; i < numofrendertyps; i ++ ){
+            
+            if(outputFilenames[renderTypes[i]] != ""){
+                
+                if(_idcut == 0){
+                    outstreams[i].open(outputFilenames[renderTypes[i]].c_str(),
+                                       ios::out | ios::binary);
+                    while(!outstreams[i].good()){
+                        printf("File error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
+                        printf("Input new filename:\n");
+                        cin >> outputFilenames[renderTypes[i]];
+                        outstreams[i].clear();
+                        outstreams[i].open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
+                    }
+                    outstreams[i].write((char *) &imagesize, sizeof(int));
+                    outstreams[i].write((char *) &numOfCuts, sizeof(int));
+                    outstreams[i].write((char *) &boxsize, sizeof(float));
+                    outstreams[i].write((char *) &startz, sizeof(float));
+                    outstreams[i].write((char *) &dz, sizeof(float));
+                    outstreams[i].write((char *) head, sizeof(int) * 59);
+                }else{
+                    outstreams[i].open(outputFilenames[renderTypes[i]].c_str(),
+                                       ios::out | ios::binary | ios::app);
+                }
+                
+                //printf("%d %d\n", renderTypes.size(), i);
+                for(int j = 0; j < imagesize * imagesize * newNumOfCuts; j ++ ){
+                    
+                    outstreams[i].write((char *) (result + j * numofrendertyps + i),
+                                        sizeof(float));
+                }
+                //outstreams[i].write((char *) result,
+                //                    sizeof(float) * imagesize * imagesize * numOfCuts);
+                outstreams[i].flush();
+                outstreams[i].close();
+            }
+            
+        }
+        //delete outstreams;
+       
     }
     //outstream.open(gridfilename.c_str(), ios::out | ios::binary);
-    printf("Finished!\n");
+    if(mem_cut_limit != numOfCuts){
+        printf("Finished. In total %d tetrahedron rendered.\n", tetra_count);
+    }else{
+        printf("Finished!\n");
+    }
     
     return 0;
 }
