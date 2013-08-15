@@ -41,21 +41,21 @@ public:
     };
 
     
-    CUDA_CALLABLE_MEMBER const Point2d Point2d::operator+(const Point2d &other) const{
+    CUDA_CALLABLE_MEMBER const Point2d operator+(const Point2d &other) const{
         Point2d result = *this;
         result.x += other.x;
         result.y += other.y;
         return result;
     }
     
-    CUDA_CALLABLE_MEMBER const Point2d Point2d::operator-(const Point2d &other) const{
+    CUDA_CALLABLE_MEMBER const Point2d operator-(const Point2d &other) const{
         Point2d result = *this;
         result.x -= other.x;
         result.y -= other.y;
         return result;
     }
     
-    CUDA_CALLABLE_MEMBER const Point2d Point2d::operator*(const REAL &other) const{
+    CUDA_CALLABLE_MEMBER const Point2d operator*(const REAL &other) const{
         Point2d result = *this;
         result.x *= other;
         result.y *= other;

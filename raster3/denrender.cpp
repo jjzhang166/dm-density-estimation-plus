@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
+
 #ifdef __APPLE__
 //#include <glew.h>
 #include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
@@ -25,35 +27,58 @@
 
 #include "denrender.h"
 
+//number floats of a triangle
+#define NUM_FLOATS_TRIANGLE 18
+
 using namespace std;
 
 
-//buffer *fbuffer;
-//the buffer for drawing triangles
-float * vertexbuffer_;
-int * vertexIds_;
+namespace RenderSpace {
+    //buffer *fbuffer;
+    //the buffer for drawing triangles
+    float * vertexbuffer_;
+    int * vertexIds_;
+    
+    buffer *fbuffer;
+    REAL viewSize;
+    
+    int num_of_rendertype = 0;
+    
+    GLenum glFormats[] = {GL_RED, GL_RG, GL_RGB, GL_RGBA};
+    
+    static bool glut_is_initialized = false;
+}
 
 //the depth of the triangle buffer
 const int DenRender::VERTEXBUFFERDEPTH = 64 * 1024;
 
-buffer *fbuffer;
+//at most render 4 different render type at the same time
+const int DenRender::NUM_OF_RENDERTRYPE_LIMIT = 4;
+
+
+using namespace RenderSpace;
 
 //must run in openGL environment, with glew
 
 void DenRender::init(){
-    int argv = 1;
-    char * args[1];
-    args[0] = (char *) "Density Render";
-    glutInit(&argv, args);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
-    glutInitWindowSize(imagesize_, imagesize_);
-    glutCreateWindow("Dark Matter Density rendering!");
+
     
+    if(!glut_is_initialized){
+        int argv = 1;
+        char * args[1];
+        args[0] = (char *) "LTFE Render";
+        
+        glutInit(&argv, args);
+        glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
+        glutInitWindowSize(imagesize_, imagesize_);
+        glutCreateWindow("Dark Matter Density rendering!");
+        
 #ifndef __APPLE__
-    glewExperimental = GL_TRUE;
-    glewInit();
+        glewExperimental = GL_TRUE;
+        glewInit();
 #endif
-    
+        glut_is_initialized = true;
+    }
     fbuffer = new buffer(imagesize_, imagesize_);
     fbuffer->setBuffer();
     
@@ -90,23 +115,35 @@ void DenRender::init(){
 
 
 
-DenRender::DenRender(int imagesize, float boxsize,
-                     float startz, float dz, int numplane,
-                     int * argc, char * args[]){
+DenRender::DenRender(int imagesize,
+                     float boxsize,
+                     float startz,
+                     float dz,
+                     int numplane,
+                     vector<RenderType> rentypes){
+    
     imagesize_ = imagesize;
     boxsize_ = boxsize;
     numplanes_ = numplane;
     
-    image_ = new float[imagesize * imagesize * numplanes_ * NUMCOLORCOMP];
-    streams_ = new int[imagesize * imagesize * numplanes_];
-    density_ = new float[imagesize * imagesize * numplanes_];
+    rentypes_ = rentypes;
+    num_of_rendertype = rentypes.size();
     
-    for(int i = 0; i < imagesize * imagesize * numplanes_ * NUMCOLORCOMP; i++){
-        image_[i] = 0.0f;
+    if(num_of_rendertype > NUM_OF_RENDERTRYPE_LIMIT){
+        printf("Number of render components larger than limit %d.\n", NUM_OF_RENDERTRYPE_LIMIT);
+        printf("Only first %d render components will be calculated.\n", NUM_OF_RENDERTRYPE_LIMIT);
+        num_of_rendertype = NUM_OF_RENDERTRYPE_LIMIT;
+    }
+    
+    
+    result_ = new float[imagesize * imagesize * numplanes_ * num_of_rendertype];
+    
+    for(int i = 0; i < imagesize * imagesize * numplanes_ * num_of_rendertype; i++){
+        result_[i] = 0.0f;
     }
     
     //color and vertex
-    vertexbuffer_ = new float[15 * VERTEXBUFFERDEPTH * numplanes_];
+    vertexbuffer_ = new float[NUM_FLOATS_TRIANGLE * VERTEXBUFFERDEPTH * numplanes_];
     vertexIds_ = new int[numplanes_];
     
     for(int i = 0; i < numplanes_; i ++){
@@ -116,13 +153,11 @@ DenRender::DenRender(int imagesize, float boxsize,
     
     viewSize = boxsize_;
     
-    argc_ = argc;
-    args_ = args;
     
     startz_ = startz;
     dz_ = dz;
     
-    //printf("debug1\n");
+    
     init();
 }
 
@@ -130,15 +165,17 @@ DenRender::~DenRender(){
     delete vertexIds_;
     delete vertexbuffer_;
     delete fbuffer;
-    delete image_;
-    delete streams_;
-    delete density_;
+    delete result_;
+    //delete *args_;
+    //delete args_;
+    //delete image_;
+    //delete streams_;
+    //delete density_;
 }
 
 //render the i-th buffer
 void DenRender::rendplane(int i){
     
-    //printf("Rendering ... \n");
     
     //copy the data
     fbuffer->bindTex();
@@ -159,8 +196,8 @@ void DenRender::rendplane(int i){
     
     
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
-                    GL_RG, GL_FLOAT , image_ +
-                    i * imagesize_ * imagesize_ * NUMCOLORCOMP);
+                    glFormats[num_of_rendertype - 1], GL_FLOAT , result_ +
+                    i * imagesize_ * imagesize_ * num_of_rendertype);
 
     
     fbuffer->unbindTex();
@@ -182,10 +219,10 @@ void DenRender::rendplane(int i){
     glEnableClientState (GL_VERTEX_ARRAY);
     glEnableClientState (GL_COLOR_ARRAY);
     
-    glVertexPointer(2, GL_FLOAT, 5 * sizeof(GLfloat),
-                     vertexbuffer_ + 15 * VERTEXBUFFERDEPTH * i);
-    glColorPointer(3, GL_FLOAT, 5 * sizeof(GLfloat),
-                     vertexbuffer_ + 15 * VERTEXBUFFERDEPTH * i + 2);
+    glVertexPointer(2, GL_FLOAT, 6 * sizeof(GLfloat),
+                     vertexbuffer_ + NUM_FLOATS_TRIANGLE * VERTEXBUFFERDEPTH * i);
+    glColorPointer(4, GL_FLOAT, 6 * sizeof(GLfloat),
+                     vertexbuffer_ + NUM_FLOATS_TRIANGLE * VERTEXBUFFERDEPTH * i + 2);
     
     glDrawArrays(GL_TRIANGLES, 0, vertexIds_[i] * 3);
     
@@ -200,10 +237,10 @@ void DenRender::rendplane(int i){
     fbuffer->bindTex();
     glGetTexImage(GL_TEXTURE_2D,
                   0,
-                  GL_RG,
+                  glFormats[num_of_rendertype - 1],
                   GL_FLOAT,
                   //tempimage_);
-                  (image_ + imagesize_ * imagesize_ * i * NUMCOLORCOMP));
+                  (result_ + imagesize_ * imagesize_ * i * num_of_rendertype));
     fbuffer->unbindTex();
     
     //avoiding clamping
@@ -225,6 +262,8 @@ void DenRender::rend(Tetrahedron & tetra){
     //printf("z = %f %f %f %f\n",
     //       tetra.v1.z, tetra.v2.z, tetra.v3.z, tetra.v4.z);
     
+   // printf("%f %f\n", startz_, dz_);
+    
     if(startz_ > tetra.v4.z || tetra.v1.z > startz_ + numplanes_ * dz_){
         return;
     }
@@ -241,29 +280,135 @@ void DenRender::rend(Tetrahedron & tetra){
 
         int tris = cutter.cut(z);
         for(int j = 0; j < tris; j++){
+            //density, stream number, velocity_x, velocity_y, velocity_z
             
-            /*printf("Triangles: \n");
-            printf("%f %f\n", cutter.getTrangle(j).a.x, cutter.getTrangle(j).a.y);
-            printf("%f %f\n", cutter.getTrangle(j).b.x, cutter.getTrangle(j).b.y);
-            printf("%f %f\n", cutter.getTrangle(j).c.x, cutter.getTrangle(j).c.y);
-            printf("%e %e\n",tetra.invVolume, tetra.volume);*/
+            float values_a[] = {tetra.invVolume, 1,
+                cutter.getTrangle(j).val1.x,
+                cutter.getTrangle(j).val1.y,
+                cutter.getTrangle(j).val1.z
+            };
+            
+            float values_b[] = {tetra.invVolume, 1,
+                cutter.getTrangle(j).val2.x,
+                cutter.getTrangle(j).val2.y,
+                cutter.getTrangle(j).val2.z
+            };
+            
+            float values_c[] = {tetra.invVolume, 1,
+                cutter.getTrangle(j).val3.x,
+                cutter.getTrangle(j).val3.y,
+                cutter.getTrangle(j).val3.z
+            };
+            
+            vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                          + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                          + 0] = cutter.getTrangle(j).a.x;
+            
+            vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                          + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                          + 1] = cutter.getTrangle(j).a.y;
+            
+            for(int k = 0; k < NUM_OF_RENDERTRYPE_LIMIT; k ++ ){
+                if(k < num_of_rendertype){
+                    vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                                  + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                                  + 2 + k] = values_a[rentypes_[k]];
+
+                }else{
+                    vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                                  + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                                  + 2 + k] = 0.0;
+                }
+            }
+                        
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 3] = 1;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 4] = 1;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 5] = 1;
             
             
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 0] = cutter.getTrangle(j).a.x;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 1] = cutter.getTrangle(j).a.y;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 2] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 3] = 1;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 4] = 1;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 5] = cutter.getTrangle(j).b.x;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 6] = cutter.getTrangle(j).b.y;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 7] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 8] = 1;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 9] = 1;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 10] = cutter.getTrangle(j).c.x;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 11] = cutter.getTrangle(j).c.y;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 12] = tetra.invVolume;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 13] = 1;
-            vertexbuffer_[15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15 + 14] = 1;
+
+            vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                          + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                          + 6] = cutter.getTrangle(j).b.x;
+            
+            vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                          + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                          + 7] = cutter.getTrangle(j).b.y;
+            
+            for(int k = 0; k < NUM_OF_RENDERTRYPE_LIMIT; k ++ ){
+                if(k < num_of_rendertype){
+                    vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                                  + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                                  + 8 + k] = values_b[rentypes_[k]];
+                    
+                }else{
+                    vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                                  + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                                  + 8 + k] = 0.0;
+                }
+            }
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 8] = tetra.invVolume;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 9] = 1;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 10] = 1;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 11] = 1;
+            
+            
+            vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                          + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                          + 12] = cutter.getTrangle(j).c.x;
+            
+            vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                          + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                          + 13] = cutter.getTrangle(j).c.y;
+            
+            for(int k = 0; k < NUM_OF_RENDERTRYPE_LIMIT; k ++ ){
+                if(k < num_of_rendertype){
+                    vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                                  + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                                  + 14 + k] = values_c[rentypes_[k]];
+                    
+                }else{
+                    vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+                                  + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+                                  + 14 + k] = 0.0;
+                }
+            }
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 14] = tetra.invVolume;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 15] = 1;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 16] = 1;
+            
+            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
+            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
+            //              + 17] = 1;
 
             
             /*printf("Triangles: %d\n", i);
@@ -283,15 +428,9 @@ void DenRender::rend(Tetrahedron & tetra){
 }
 
 
-float * DenRender::getDenfield(){
-    return density_;
+float * DenRender::getResult(){
+    return result_;
 }
-
-int * DenRender::getStreamData(){
-    return streams_;
-}
-
-
 
 void DenRender::finish(){
     
@@ -302,10 +441,9 @@ void DenRender::finish(){
         }
     }
     
-    for(int i = 0; i < imagesize_ * imagesize_ * numplanes_; i++){
-        density_[i] = image_[i * NUMCOLORCOMP];
-        streams_[i] = image_[i * NUMCOLORCOMP + 1];
-    }
-    
+    //for(int i = 0; i < imagesize_ * imagesize_ * numplanes_; i++){
+    //    density_[i] = image_[i * NUMCOLORCOMP];
+    //    streams_[i] = image_[i * NUMCOLORCOMP + 1];
+    //}
 }
 

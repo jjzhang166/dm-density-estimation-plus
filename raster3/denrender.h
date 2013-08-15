@@ -1,59 +1,67 @@
 #ifndef __DENRENDER__
 #define __DENRENDER__
+#include <vector>
 #include "types.h"
 //#include "buffers.h"
 #include "tetracut.h"
 #include "tetrahedron.h"
 
-//how many color components are being calculated
-#define NUMCOLORCOMP 2
-
 //render the density through a serier plane cutter of the tetrahedrons
 //startz, dz, and numplane specifies how many slices of the density field
 //will be rendered
+
+enum RenderType {
+            DENSITY,                    //render density
+            STREAM,                     //render stream
+            VELOCITY_X,                 //render velocity x
+            VELOCITY_Y,                 //render velocity y
+            VELOCITY_Z                  //render velocity z
+};
+
 class DenRender{
 public:
-    DenRender(int imagesize, float boxsize,
-              float startz, float dz, int numplane,
-              int * argc, char ** args);
     
-    ~DenRender();
+            DenRender            (
+                                 int imagesize,
+                                 float boxsize,
+                                 float startz,
+                                 float dz,
+                                 int numplane,
+                                 vector<RenderType> rentypes
+                                 );
     
-    void rend(Tetrahedron & tetra);
-    void finish();
+            ~DenRender          ();
     
-    float * getDenfield();
+    void    rend                (Tetrahedron & tetra);
+    void    finish              ();
     
-    int * getStreamData();
+    float*  getResult           ();
     
     
     static const int VERTEXBUFFERDEPTH;
     
+    static const int NUM_OF_RENDERTRYPE_LIMIT;
+                                            //the limit of render
+                                            //types of this render
 
 private:
     
-    void rendplane(int i);
+    void    rendplane(int i);
     
-    void init();
+    void    init();
     
-    int * argc_;
-    char ** args_;
+    int     imagesize_;
+    REAL    boxsize_;
+    int     numplanes_;
     
-    int imagesize_;
-    REAL boxsize_;
-    REAL viewSize;
-    int numplanes_;
-    
-    //image stores all the density field
-    float * image_;
-    
-    //stores the stream data of any pixels
-    int * streams_;
-    
-    float * density_;
+    //store the result
+    float*  result_;
     
     //image stores only one slides of the field
-    float startz_, dz_;
+    float   startz_;
+    float   dz_;
+    
+    vector<RenderType> rentypes_;
     
     IsoZCutter cutter;
 };
