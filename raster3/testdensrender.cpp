@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cstring>
 #include <cmath>
+#include <vector>
 
 #if defined(_WIN32) || defined(_WIN64)
 //#include "gettimeofday_win.h"
@@ -344,17 +345,6 @@ int main(int argv, char * args[]){
     printf("*********************************************************************\n");
     
     
-    //initiate openGL
-    glutInit(&argv, args);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
-    glutInitWindowSize(imagesize, imagesize);
-    glutCreateWindow("Dark Matter Density rendering!");
-    
-#ifndef __APPLE__
-    glewExperimental = GL_TRUE;
-    glewInit();
-#endif
-    
 
     
     colorimage = new float[imagesize * imagesize * NUMP * 3];
@@ -370,9 +360,12 @@ int main(int argv, char * args[]){
                            true,
                            isInOrder);
     boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
+    
+    vector<RenderType> renderTypes;
+    renderTypes.push_back(DENSITY);
     DenRender render(imagesize, boxsize,
                      0, boxsize / NUMP, NUMP,
-                     &argv, args);
+                     renderTypes);
     
     printf("Boxsize: %f\n", boxsize);
     
@@ -392,7 +385,7 @@ int main(int argv, char * args[]){
         count += nums;
     }
     render.finish();
-    float * im = render.getDenfield();
+    float * im = render.getResult();
     
     printf("Starting compute color image!\n");
     

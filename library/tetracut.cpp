@@ -469,6 +469,11 @@ int IsoZCutter::cut(REAL isoz){
             triangles_[0].a = tetra_->v1;
             triangles_[0].b = tetra_->v2;
             triangles_[0].c = tetra_->v3;
+            
+            triangles_[0].val1 = tetra_->velocity1;
+            triangles_[0].val2 = tetra_->velocity2;
+            triangles_[0].val3 = tetra_->velocity3;
+            
             return 1;
         }else if(v14.z == 0.0){
             num_tris_ = 0;
@@ -478,6 +483,16 @@ int IsoZCutter::cut(REAL isoz){
             triangles_[0].a = tetra_->v1 + v12 * (isoz - val[0]) / v12.z;
             triangles_[0].b = tetra_->v1 + v13 * (isoz - val[0]) / v13.z;
             triangles_[0].c = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
+            
+            triangles_[0].val1 = tetra_->velocity1 +
+                                (tetra_->velocity2 - tetra_->velocity1)
+                                * (isoz - val[0]) / v12.z;
+            triangles_[0].val2 = tetra_->velocity1 +
+                                (tetra_->velocity3 - tetra_->velocity1)
+                                * (isoz - val[0]) / v13.z;
+            triangles_[0].val3 = tetra_->velocity1 +
+                                (tetra_->velocity4 - tetra_->velocity1)
+                                * (isoz - val[0]) / v14.z;
             return 1;
         }
 
@@ -487,17 +502,36 @@ int IsoZCutter::cut(REAL isoz){
             num_tris_ = 2;
             //13
             triangles_[0].a = tetra_->v1 + v13 * (isoz - val[0]) / v13.z;
+            triangles_[0].val1 = tetra_->velocity1 +
+                                (tetra_->velocity3 - tetra_->velocity1)
+                                * (isoz - val[0]) / v13.z;
+            
             //23
             triangles_[0].b = tetra_->v2 + v23 * (isoz - val[1]) / v23.z;
+            triangles_[0].val2 = tetra_->velocity2 +
+                                (tetra_->velocity3 - tetra_->velocity2)
+                                * (isoz - val[1]) / v23.z;
+            
             //24
             triangles_[0].c = tetra_->v2 + v24 * (isoz - val[1]) / v24.z;
+            triangles_[0].val3 = tetra_->velocity2
+                                + (tetra_->velocity4 - tetra_->velocity2)
+                                * (isoz - val[1]) / v24.z;
+            
             
             //14
             triangles_[1].a = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
+            triangles_[1].val1 = tetra_->velocity1
+                                + (tetra_->velocity4 - tetra_->velocity1)
+                                * (isoz - val[0]) / v14.z;
+            
             //13
             triangles_[1].b = triangles_[0].a;
+            triangles_[1].val2 = triangles_[0].val1;
+            
             //24
             triangles_[1].c = triangles_[0].c;
+            triangles_[1].val3 = triangles_[0].val3;
             return 2;
         }else if(v14.z == 0.0){
             num_tris_ = 0;
@@ -507,12 +541,22 @@ int IsoZCutter::cut(REAL isoz){
             triangles_[0].a = tetra_->v1;
             triangles_[0].b = tetra_->v2;
             triangles_[0].c = tetra_->v3;
+            
+            triangles_[0].val1 = tetra_->velocity1;
+            triangles_[0].val2 = tetra_->velocity2;
+            triangles_[0].val3 = tetra_->velocity3;
             return 1;
         }else if(v23.z == 0.0){
             num_tris_ = 1;
             triangles_[0].a = tetra_->v2;
             triangles_[0].b = tetra_->v3;
             triangles_[0].c = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
+            
+            triangles_[0].val1 = tetra_->velocity2;
+            triangles_[0].val2 = tetra_->velocity3;
+            triangles_[0].val3 = tetra_->velocity1
+                                + (tetra_->velocity4 - tetra_->velocity1)
+                                * (isoz - val[0]) / v14.z;
             return 1;
         }else{
             num_tris_ = 0;
@@ -522,14 +566,30 @@ int IsoZCutter::cut(REAL isoz){
         if(v14.z > 0 && v24.z > 0 && v34.z >0){
             num_tris_ = 1;
             triangles_[0].a = tetra_->v2 + v24 * (isoz - val[1]) / v24.z;
+            triangles_[0].val1 = tetra_->velocity2
+                                + (tetra_->velocity4 - tetra_->velocity2)
+                                * (isoz - val[1]) / v24.z;
+            
             triangles_[0].b = tetra_->v3 + v34 * (isoz - val[2]) / v34.z;
+            triangles_[0].val2 = tetra_->velocity3
+                                + (tetra_->velocity4 - tetra_->velocity3)
+                                * (isoz - val[2]) / v34.z;
+            
+            
             triangles_[0].c = tetra_->v1 + v14 * (isoz - val[0]) / v14.z;
+            triangles_[0].val3 = tetra_->velocity1
+                                + (tetra_->velocity4 - tetra_->velocity1)
+                                * (isoz - val[0]) / v14.z;
             return 1;
         }else if(v14.z > 0 && v24.z == 0){
             num_tris_ = 1;
             triangles_[0].a = tetra_->v2;
             triangles_[0].b = tetra_->v3;
             triangles_[0].c = tetra_->v4;
+            
+            triangles_[0].val1 = tetra_->velocity2;
+            triangles_[0].val2 = tetra_->velocity3;
+            triangles_[0].val3 = tetra_->velocity4;
             return 1;
         }else{
             num_tris_ = 0;
