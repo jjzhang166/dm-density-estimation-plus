@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <cstdio>
+#include <cstring>
 
 #ifdef __APPLE__
 #include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
@@ -23,6 +24,7 @@ float * colorim;
 int gridsize = 0;
 int numofcuts = 0;
 int pti = 0;
+int startind = 0;
 
 void rendsenc(){
     //glClientActiveTexture(GL_TEXTURE0);
@@ -90,7 +92,7 @@ void KeyboardFunc(unsigned char key, int x, int y)
         }
     }
     
-    printf("Zplane: %d\n", pti);
+    printf("Zplane: %d\n", pti + startind);
     
     glutPostRedisplay();
 }
@@ -102,8 +104,10 @@ void ReshapeFunc(int width, int height)
 }
 
 int main(int args, char * argv[]){
-    if(args != 2){
+    if(args != 2 && args != 4){
         printf("DensViewer <densfile>\n");
+        printf("OR\n");
+        printf("DensViewer <densfile> startind numcuts\n");
         exit(1);
     }
     
@@ -124,11 +128,24 @@ int main(int args, char * argv[]){
     file.read((char *) &dz, sizeof(float));
     file.read((char *) head, sizeof(int) * 59);
     
+
+    
     if(numofcuts <= 0){
         numofcuts = gridsize;
     }
     
-    printf("Gridsize = %d NumofCuts = %d \n", gridsize, numofcuts);
+    
+
+    if(args == 4){
+        startind = atoi(argv[2]);
+        if( atoi(argv[3]) < numofcuts - startind){
+            numofcuts = atoi(argv[3]);
+        }else{
+            numofcuts = numofcuts - startind;
+        }
+    }
+    
+    printf("Gridsize = %d Start from %d, NumofCuts = %d \n", gridsize, startind, numofcuts);
     
     int pixels;
     
@@ -139,6 +156,8 @@ int main(int args, char * argv[]){
     
     im = new float[pixels];
     colorim = new float[pixels * 3];
+    
+    file.seekg (256 + startind * gridsize * gridsize * sizeof(float), file.beg);
     file.read((char *) im, sizeof(float) * pixels);
     
     file.close();
