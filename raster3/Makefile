@@ -1,5 +1,6 @@
 #MACOS
 CC=g++
+CUDACC=nvcc
 LIB=../library
 LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
 #LFLAGS= -lGL -lglut -lGLEW
@@ -25,6 +26,11 @@ ZDENSOBJ=cutzdens.o buffers.o processbar.o\
 		   indtetrastream.o readgadget.o tetrastream.o\
 		   tetrahedron.o triangle.o indtetrahedron.o\
 		   denrender.o tetracut.o
+
+CUDAZDENSOBJ=cutzdens.o processbar.o\
+			 indtetrastream.o readgadget.o tetrastream.o\
+			 cudakernel.o indtetrahedron.o cudarender.o\
+			 tetracut.o
 
 DENSVIEWOBJ=viewfun.o densviewer.o
 
@@ -62,6 +68,14 @@ profile:
 	$(CC) $(DENSVIEWOBJ) -pg -o DensViewer $(LFLAGS)
 	@echo success
 
+cuda:
+	$(CC) -c -Wall ${LIB}/processbar.cpp\
+			${LIB}/indtetrastream.cpp ${LIB}/readgadget.cpp \
+			${LIB}/tetracut.cpp ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp \
+			cutzdens.cpp $(IFLAG)  
+
+	$(CUDACC) -c cudarender.cpp cudakernel.cu $(IFLAG)
+	$(CUDACC) -o cudaZDensRender $(CUDAZDENSOBJ) 	
 
 clean:
 	rm -f *.o
@@ -69,4 +83,5 @@ clean:
 	rm -f testisoz
 	rm -f testdender
 	rm -f zdensrender
+	rm -f cudaZDensRender
 	rm -f DensViewer
