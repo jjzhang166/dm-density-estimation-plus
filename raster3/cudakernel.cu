@@ -4,7 +4,10 @@
 #include "device_launch_parameters.h"
 #include "cudakernel.h"
 
-static const float divider[] = {1.0, 0.5, 0.25};
+#include "triangle.cpp"
+#include "tetrahedron.cpp"
+
+//__device__ static const float divider[] = {1.0, 0.5, 0.25};
 
 __host__ cudaError_t drawTriangleOnGPU(Triangle triangle, float invVolum, Canvas canvas){
     Point2d topleft;
@@ -39,13 +42,13 @@ __host__ cudaError_t drawTriangleOnGPU(Triangle triangle, float invVolum, Canvas
 
 
 cudaError_t Canvas::copyDeviceDataToHost(int zind){
-    cudaError_t err = cudaSucess;
+    cudaError_t err = cudaSuccess;
     for(int i = 0; i < numRenderTypes; i++){
         cudaError_t err1 = cudaMemcpy(hostCanvasData[i]
                                       + zind * imagesize * imagesize,
                                       deviceCanvasData[i],
                                       imagesize * imagesize * sizeof(float),cudaMemcpyDeviceToHost);
-        if(err1 != cudaSucess){
+        if(err1 != cudaSuccess){
             err = err1;
         }
     }
@@ -55,13 +58,13 @@ cudaError_t Canvas::copyDeviceDataToHost(int zind){
 
 
 cudaError_t Canvas::copyHostDataToDevice(int zind){
-    cudaError_t err = cudaSucess;
+    cudaError_t err = cudaSuccess;
     for(int i = 0; i < numRenderTypes; i++){
         cudaError_t err1 = cudaMemcpy(deviceCanvasData[i],
                                       hostCanvasData[i]
                                        + zind * imagesize * imagesize,
                                       imagesize * imagesize * sizeof(float),cudaMemcpyHostToDevice);
-        if(err1 != cudaSucess){
+        if(err1 != cudaSuccess){
             err = err1;
         }
     }
@@ -127,25 +130,25 @@ __device__ int isInTriangle(Triangle & triangle, Point2d &p, float &u, float &v)
 }
 
 __global__ void renderTriangle(Triangle triangle, float invVolum, Canvas canvas, int xind, int yind){
-
+    const float divider[] = {1.0, 0.5, 0.25};
     
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int idy = blockIdx.y * blockDim.y + threadIdx.y;
     
     Point2d p;
     p.x = (idx + xind) * canvas.dx + canvas.topleft.x;
-    p.y = (idy + yind) * canvas.dy + canvas.topleft.y;
+    p.y = (idy + yind) * canvas.dx + canvas.topleft.y;
     
     float u, v;
     int inTriangle = isInTriangle(triangle, p, u, v);
     if(inTriangle != -1){
-        int ind = idx + xind + (idy + yind) * imagesize;
-        Point velocity = (1.0 - u - v) * triangle.val1
-            + u * triangle.val2 + v * triangle.val3;
+        int ind = idx + xind + (idy + yind) * canvas.imagesize;
+        Point velocity = triangle.val1 * (1.0 - u - v)
+            + triangle.val2 * u + triangle.val3 * v;
         float values[] = {invVolum, 1.0, velocity.x, velocity.y, velocity.z};
         
         for(int i = 0; i < canvas.numRenderTypes; i++){
-            canvas.deviceCanvasData[i][ind] += values[renderTypes[i]] *
+            canvas.deviceCanvasData[i][ind] += values[canvas.renderTypes(i)] *
                                             divider[inTriangle];
         }
     }

@@ -52,12 +52,12 @@ DenRender::DenRender(int imagesize,
 	cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
-        return cudaStatus;
+        exit(1);
     }
     
     imagesize_ = imagesize;
     boxsize_ = boxsize;
-    numplane_ = numplane;
+    numplanes_ = numplane;
     dz_ = dz;
     startz_ = startz;
     rentypes_ = rentypes;
@@ -83,14 +83,25 @@ DenRender::DenRender(int imagesize,
     canvas.bottomright.x = boxsize;
     canvas.bottomright.y = boxsize;
     canvas.numRenderTypes = num_of_rendertype;
-    canvas.renderTypes = rentypes;
-    canvas.hostCanvasData = new (float *)[num_of_rendertype];
-    canvas.deviceCanvasData = new (float *)[num_of_rendertype];
+    //canvas.renderTypes = rentypes;
+    if(rentypes.size() >= 1)
+        canvas.type1 = rentypes[0];
+    if(rentypes.size() >= 2)
+        canvas.type2 = rentypes[1];
+    if(rentypes.size() >= 3)
+        canvas.type3 = rentypes[2];
+    if(rentypes.size() >= 4)
+        canvas.type4 = rentypes[3];
+    if(rentypes.size() >= 5)
+        canvas.type5 = rentypes[4];
+
+    canvas.hostCanvasData = new float*[num_of_rendertype];
+    canvas.deviceCanvasData = new float*[num_of_rendertype];
     
     for(int i = 0; i < num_of_rendertype; i++){
-        hostCanvasData[i] = result_ +
+        canvas.hostCanvasData[i] = result_ +
                             imagesize * imagesize * numplanes_ * i;
-        cudaStatus = cudaMalloc((void**)&deviceCanvasData[i],
+        cudaStatus = cudaMalloc((void**)&canvas.deviceCanvasData[i],
                                 imagesize * imagesize * sizeof(float));
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "cudaMalloc failed");
@@ -105,7 +116,7 @@ DenRender::~DenRender(){
     delete result_;
     
     for(int i = 0; i < num_of_rendertype; i++){
-        cudaFree(deviceCanvasData[i])
+        cudaFree(canvas.deviceCanvasData[i]);
     }
     
     delete canvas.deviceCanvasData;
@@ -132,8 +143,18 @@ void DenRender::rend(Tetrahedron & tetra){
         int tris = cutter.cut(z);
         for(int j = 0; j < tris; j++){
             //density, stream number, velocity_x, velocity_y, velocity_z
-            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]]
-                = cutter.getTrangle(j);
+            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].a
+                = cutter.getTriangle(j).a;
+            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].b
+                = cutter.getTriangle(j).b;
+            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].c
+                = cutter.getTriangle(j).c;
+            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].val1
+                = cutter.getTriangle(j).val1;
+            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].val2
+                = cutter.getTriangle(j).val2;
+            vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].val3
+                = cutter.getTriangle(j).val3;
             volumebuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]]
                 = tetra.invVolume;
             

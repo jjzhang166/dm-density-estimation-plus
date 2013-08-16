@@ -58,7 +58,7 @@ public:
     int cut(REAL isoz);
     
     //get the i-th triangles after the cut
-    Triangle3d& getTrangle(int i);
+    Triangle3d& getTriangle(int i);
     
 private:
     Tetrahedron *tetra_;

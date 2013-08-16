@@ -601,6 +601,6 @@ int IsoZCutter::cut(REAL isoz){
     }
 }
 
-Triangle3d& IsoZCutter::getTrangle(int i){
+Triangle3d& IsoZCutter::getTriangle(int i){
     return triangles_[i];
 }

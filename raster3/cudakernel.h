@@ -1,7 +1,7 @@
 #ifndef __CUDAKERNEL__
 #define __CUDAKERNEL__
 #include <cuda.h>
-#include "../library/triangle.h"
+#include "triangle.h"
 #include "denrender.h"
 
 #define RENDERTYPES_LIMIT 5
@@ -20,7 +20,27 @@ public:
     
     
     int numRenderTypes;
-    RenderType renderTypes[RENDERTYPES_LIMIT];
+    RenderType type1;
+    RenderType type2;
+    RenderType type3;
+    RenderType type4;
+    RenderType type5;
+
+    CUDA_CALLABLE_MEMBER RenderType renderTypes(int i){
+        switch(i){
+            case 0:
+                return type1;
+            case 1:
+                return type2;
+            case 2:
+                return type3;
+            case 3:
+                return type4;
+            case 4:
+                return type5;
+        }
+        return type1;
+    };
     
     
     int imagesize;
