@@ -30,7 +30,7 @@ DENSVIEWOBJ=viewfun.o densviewer.o
 
 
 all: obj
-	$(CC) $(RENDOBJ) -o renddens $(LFLAGS)
+	$(CC) $(RENDOBJ) -o renddens_1slide $(LFLAGS)
 	$(CC) $(TOBJ) -o testisoz $(LFLAGS)
 	$(CC) $(TDROBJ) -o testdender $(LFLAGS)
 	$(CC) $(ZDENSOBJ) -o zdensrender $(LFLAGS)
