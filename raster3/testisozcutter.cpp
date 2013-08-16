@@ -32,9 +32,9 @@ int main(){
     printf("Tris: %d\n", tris);
     for(int i = 0; i < tris; i++){
         printf("Triangle: %d\n", i);
-        printf("%f %f %f\n", cutter.getTrangle(i).a.x, cutter.getTrangle(i).a.y, cutter.getTrangle(i).a.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).b.x, cutter.getTrangle(i).b.y, cutter.getTrangle(i).b.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).c.x, cutter.getTrangle(i).c.y, cutter.getTrangle(i).c.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).a.x, cutter.getTriangle(i).a.y, cutter.getTriangle(i).a.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).b.x, cutter.getTriangle(i).b.y, cutter.getTriangle(i).b.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).c.x, cutter.getTriangle(i).c.y, cutter.getTriangle(i).c.z);
         printf("\n");
     }
     
@@ -42,18 +42,18 @@ int main(){
     printf("Tris: %d\n", tris);
     for(int i = 0; i < tris; i++){
         printf("Triangle: %d\n", i);
-        printf("%f %f %f\n", cutter.getTrangle(i).a.x, cutter.getTrangle(i).a.y, cutter.getTrangle(i).a.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).b.x, cutter.getTrangle(i).b.y, cutter.getTrangle(i).b.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).c.x, cutter.getTrangle(i).c.y, cutter.getTrangle(i).c.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).a.x, cutter.getTriangle(i).a.y, cutter.getTriangle(i).a.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).b.x, cutter.getTriangle(i).b.y, cutter.getTriangle(i).b.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).c.x, cutter.getTriangle(i).c.y, cutter.getTriangle(i).c.z);
         printf("\n");
     }
     tris = cutter.cut(0.5);
     printf("Tris: %d\n", tris);
     for(int i = 0; i < tris; i++){
         printf("Triangle: %d\n", i);
-        printf("%f %f %f\n", cutter.getTrangle(i).a.x, cutter.getTrangle(i).a.y, cutter.getTrangle(i).a.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).b.x, cutter.getTrangle(i).b.y, cutter.getTrangle(i).b.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).c.x, cutter.getTrangle(i).c.y, cutter.getTrangle(i).c.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).a.x, cutter.getTriangle(i).a.y, cutter.getTriangle(i).a.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).b.x, cutter.getTriangle(i).b.y, cutter.getTriangle(i).b.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).c.x, cutter.getTriangle(i).c.y, cutter.getTriangle(i).c.z);
         printf("\n");
     }
     
@@ -61,9 +61,9 @@ int main(){
     printf("Tris: %d\n", tris);
     for(int i = 0; i < tris; i++){
         printf("Triangle: %d\n", i);
-        printf("%f %f %f\n", cutter.getTrangle(i).a.x, cutter.getTrangle(i).a.y, cutter.getTrangle(i).a.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).b.x, cutter.getTrangle(i).b.y, cutter.getTrangle(i).b.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).c.x, cutter.getTrangle(i).c.y, cutter.getTrangle(i).c.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).a.x, cutter.getTriangle(i).a.y, cutter.getTriangle(i).a.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).b.x, cutter.getTriangle(i).b.y, cutter.getTriangle(i).b.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).c.x, cutter.getTriangle(i).c.y, cutter.getTriangle(i).c.z);
         printf("\n");
     }
     
@@ -71,9 +71,9 @@ int main(){
     printf("Tris: %d\n", tris);
     for(int i = 0; i < tris; i++){
         printf("Triangle: %d\n", i);
-        printf("%f %f %f\n", cutter.getTrangle(i).a.x, cutter.getTrangle(i).a.y, cutter.getTrangle(i).a.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).b.x, cutter.getTrangle(i).b.y, cutter.getTrangle(i).b.z);
-        printf("%f %f %f\n", cutter.getTrangle(i).c.x, cutter.getTrangle(i).c.y, cutter.getTrangle(i).c.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).a.x, cutter.getTriangle(i).a.y, cutter.getTriangle(i).a.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).b.x, cutter.getTriangle(i).b.y, cutter.getTriangle(i).b.z);
+        printf("%f %f %f\n", cutter.getTriangle(i).c.x, cutter.getTriangle(i).c.y, cutter.getTriangle(i).c.z);
         printf("\n");
     }
 }

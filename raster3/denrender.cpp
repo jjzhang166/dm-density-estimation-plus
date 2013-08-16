@@ -283,30 +283,30 @@ void DenRender::rend(Tetrahedron & tetra){
             //density, stream number, velocity_x, velocity_y, velocity_z
             
             float values_a[] = {tetra.invVolume, 1,
-                cutter.getTrangle(j).val1.x,
-                cutter.getTrangle(j).val1.y,
-                cutter.getTrangle(j).val1.z
+                cutter.getTriangle(j).val1.x,
+                cutter.getTriangle(j).val1.y,
+                cutter.getTriangle(j).val1.z
             };
             
             float values_b[] = {tetra.invVolume, 1,
-                cutter.getTrangle(j).val2.x,
-                cutter.getTrangle(j).val2.y,
-                cutter.getTrangle(j).val2.z
+                cutter.getTriangle(j).val2.x,
+                cutter.getTriangle(j).val2.y,
+                cutter.getTriangle(j).val2.z
             };
             
             float values_c[] = {tetra.invVolume, 1,
-                cutter.getTrangle(j).val3.x,
-                cutter.getTrangle(j).val3.y,
-                cutter.getTrangle(j).val3.z
+                cutter.getTriangle(j).val3.x,
+                cutter.getTriangle(j).val3.y,
+                cutter.getTriangle(j).val3.z
             };
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
                           + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-                          + 0] = cutter.getTrangle(j).a.x;
+                          + 0] = cutter.getTriangle(j).a.x;
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
                           + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-                          + 1] = cutter.getTrangle(j).a.y;
+                          + 1] = cutter.getTriangle(j).a.y;
             
             for(int k = 0; k < NUM_OF_RENDERTRYPE_LIMIT; k ++ ){
                 if(k < num_of_rendertype){
@@ -337,11 +337,11 @@ void DenRender::rend(Tetrahedron & tetra){
 
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
                           + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-                          + 6] = cutter.getTrangle(j).b.x;
+                          + 6] = cutter.getTriangle(j).b.x;
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
                           + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-                          + 7] = cutter.getTrangle(j).b.y;
+                          + 7] = cutter.getTriangle(j).b.y;
             
             for(int k = 0; k < NUM_OF_RENDERTRYPE_LIMIT; k ++ ){
                 if(k < num_of_rendertype){
@@ -375,11 +375,11 @@ void DenRender::rend(Tetrahedron & tetra){
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
                           + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-                          + 12] = cutter.getTrangle(j).c.x;
+                          + 12] = cutter.getTriangle(j).c.x;
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
                           + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-                          + 13] = cutter.getTrangle(j).c.y;
+                          + 13] = cutter.getTriangle(j).c.y;
             
             for(int k = 0; k < NUM_OF_RENDERTRYPE_LIMIT; k ++ ){
                 if(k < num_of_rendertype){
