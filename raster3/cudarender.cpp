@@ -69,7 +69,9 @@ DenRender::DenRender(int imagesize,
     vertexbuffer_ = new Triangle[VERTEXBUFFERDEPTH * numplanes_];
     volumebuffer_ = new float[VERTEXBUFFERDEPTH * numplanes_];
     vertexIds_ = new int[numplanes_];
-    
+    for(int i = 0; i < numplanes_; i++){
+        vertexIds_[i] = 0;
+    }    
     
     for(int i = 0; i < imagesize * imagesize * numplanes_ * num_of_rendertype; i++){
         result_[i] = 0.0f;
@@ -141,8 +143,10 @@ void DenRender::rend(Tetrahedron & tetra){
         float z = startz_ + dz_ * i;
         
         int tris = cutter.cut(z);
+        //printf("ok\n");
         for(int j = 0; j < tris; j++){
             //density, stream number, velocity_x, velocity_y, velocity_z
+            //printf("%d \n",  vertexIds_[i]);
             vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].a
                 = cutter.getTriangle(j).a;
             vertexbuffer_[i * VERTEXBUFFERDEPTH + vertexIds_[i]].b
@@ -164,6 +168,7 @@ void DenRender::rend(Tetrahedron & tetra){
                 rendplane(i);
             }
         }
+        //printf("ok1\n");
     }
 
 }
@@ -183,12 +188,15 @@ float * DenRender::getResult(){
 
 
 void DenRender::rendplane(int i){
+    canvas.copyHostDataToDevice(i);
+    //printf("good\n");
     for(int j = 0; j < vertexIds_[i]; j++){
         drawTriangleOnGPU(vertexbuffer_[VERTEXBUFFERDEPTH * i + j],
                           volumebuffer_[VERTEXBUFFERDEPTH * i + j],
                           canvas);
     }
     vertexIds_[i] = 0;
+    canvas.copyDeviceDataToHost(i);
 }
 
 void DenRender::init(){
