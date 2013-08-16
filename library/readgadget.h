@@ -20,11 +20,33 @@
 
 class GSnap {
 public:
+    
+    /*deprecated*/
     //isHighMem - if store all the data in the memory.
     //If gridsize == -1, then set up the gridsize to be (Npart)^(1/3)
     //parttype =? six kinds
-	GSnap(std::string filename, bool isHighMem = true,
-          int parttype =1, int gridsize = 512);
+	GSnap(std::string filename,
+          bool isHighMem = true,
+          int parttype =1,
+          int gridsize = 512)
+            __attribute__ ((deprecated));
+    
+    //read all data into memory
+    GSnap(
+          std::string filename,
+          int parttype =1,
+          int gridsize = 512
+          );
+    
+    //this reads a multi-file into memory
+    GSnap(
+          std::string prefix,
+          std::string basename,
+          int numfiles,
+          int parttype =1,
+          int gridsize = 512
+          );
+    
 	~GSnap();
 	gadget_header header;
 	uint32_t Npart;
@@ -34,19 +56,28 @@ public:
                     int imax, int jmax, int kmax, 
                     bool isPeriodical = true, 
                     bool isOrdered = false
-                    );
+                    )__attribute__ ((deprecated));
 
-	void readBlock(Point * &posblock, Point * &velocityblock, 
-                    int imin, int jmin, int kmin, 
-                    int imax, int jmax, int kmax, 
-			        bool isPeriodical = true, 
-                    bool isOrdered = false
-                   );
+	void readBlock(Point * &posblock,
+                   Point * &velocityblock,
+                   int imin, int jmin, int kmin,
+                   int imax, int jmax, int kmax,
+                   bool isPeriodical = true,
+                   bool isOrdered = false
+                   )__attribute__ ((deprecated));
 
-    /*****************SLOW, COPY DATA***************************/
+    /***********************************************************/
     // read a list of points, from position ptr
-    void readPos(std::fstream &file, Point * pos, long ptr, long count);
-	void readVel(std::fstream &file, Point * vel, long ptr, long count);
+    void readPos(std::fstream &file,
+                 Point * pos,
+                 long ptr,
+                 long count
+                 );
+	void readVel(std::fstream &file,
+                 Point * vel,
+                 long ptr,
+                 long count
+                 );
     /***********************************************************/
 
 
@@ -69,7 +100,7 @@ private:
 	string filename_;
 	int grid_size;
 
-    bool isHighMem_;
+    //bool isHighMem_;
     int startind;
     int endind;
     
@@ -81,14 +112,26 @@ private:
     uint32_t * allind_;
         
     // read a point, from position ptr
-    Point readPos(std::fstream &file, long ptr);
-	Point readVel(std::fstream &file, long ptr);
+    Point readPos(std::fstream &file, long ptr)
+        __attribute__ ((deprecated));
+	Point readVel(std::fstream &file, long ptr)
+        __attribute__ ((deprecated));
+    
+    bool isHighMem_ = true;
 
 
-	void readIndex(std::fstream &file, int *block,
-			int imin, int jmin, int kmin, int imax, 
-            int jmax, int kmax, bool isPeriodical = true, 
-            bool isOrdered = false);
+	void readIndex(
+                   std::fstream &file,
+                   int *block,
+                   int imin,
+                   int jmin,
+                   int kmin,
+                   int imax,
+                   int jmax,
+                   int kmax,
+                   bool isPeriodical = true,
+                   bool isOrdered = false
+                   );
 };
 
 #endif /* READGADGET_H_ */
