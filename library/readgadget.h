@@ -26,7 +26,7 @@ public:
     //If gridsize == -1, then set up the gridsize to be (Npart)^(1/3)
     //parttype =? six kinds
 	GSnap(std::string filename,
-          bool isHighMem = true,
+          bool isHighMem,
           int parttype =1,
           int gridsize = 512)
             __attribute__ ((deprecated));
@@ -117,7 +117,7 @@ private:
 	Point readVel(std::fstream &file, long ptr)
         __attribute__ ((deprecated));
     
-    bool isHighMem_ = true;
+    bool isHighMem_;
 
 
 	void readIndex(

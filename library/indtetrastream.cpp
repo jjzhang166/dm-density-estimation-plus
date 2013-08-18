@@ -31,7 +31,7 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
     
     iotime_ = 0;
 
-	gsnap_ = new GSnap(filename_, isHighMem, parttype, gridsize);
+	gsnap_ = new GSnap(filename_, parttype, gridsize);
     
     //printf("what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
@@ -169,13 +169,14 @@ void IndTetraStream::loadBlock(int i){
     t0_ = timediff.tv_sec + timediff.tv_usec / 1.0e6;
     
     //is use all data, no need load data each time.
-    if(!isAllData_){
+    /*if(!isAllData_){
         if(!isVelocity_){
             gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
         }else{
             gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
         }
-    }else{
+    }else*/
+    {
         convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
     }
     

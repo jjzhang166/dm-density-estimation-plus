@@ -49,6 +49,8 @@ public:
                    bool isHighMem = true,
                    bool isAllData = true);
     
+    
+    
 	int getTotalBlockNum();		//get how many subblocks are there in total
 	int getBlockSize();			//get the particle grid size in memory
 	int getBlockNumTetra();		//get number of tetrahedrons in memory

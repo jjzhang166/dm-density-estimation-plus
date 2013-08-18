@@ -12,6 +12,7 @@
 #include <cstring>
 #include <utility>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -28,6 +29,7 @@ GSnap::GSnap(
       int parttype,
       int gridsize
              ){
+    isHighMem_ = true;
     Npart = 0;
 	filename_ = filename;
     
@@ -162,23 +164,25 @@ GSnap::GSnap(string filename,
              bool isHighMem,
              int parttype,
              int gridsize){
+    GSnap(filename, parttype, gridsize);
     isHighMem_ = isHighMem;
-    this(filename, parttype, gridsize);
-    }
+}
 
 //this reads a multi-file into memory
 GSnap::GSnap(
              std::string prefix,
              std::string basename,
              int numfiles,
-             int parttype =1,
-             int gridsize = 512
+             int parttype,
+             int gridsize
       ){
+    isHighMem_ = true;
     Npart = 0;
 	totalparts = 0;
     
 	uint32_t record0, record1;
-    filename_ = prefix + basename + ".0";
+    string filename = prefix + basename + ".0";
+    filename_ = filename;
     
     fstream file(filename.c_str(), ios_base::in | ios_base::binary);
     
@@ -220,7 +224,9 @@ GSnap::GSnap(
     
     for(int i = 0; i < num_of_files; i++){
         int single_file_parts = 0;
-        string filename = prefix + basename + "." + i;
+        ostringstream ss;
+        ss << i;
+        string filename = prefix + basename + "." + ss.str();
         gadget_header single_header;
         
         Point * temppos;
