@@ -188,7 +188,11 @@ float * DenRender::getResult(){
 
 
 void DenRender::rendplane(int i){
-    canvas.copyHostDataToDevice(i);
+	if(cudaSuccess != canvas.copyHostDataToDevice(i)){
+		fprintf(stderr, cudaGetErrorString(cudaGetLastError()));
+		exit(1);
+	}
+    
     //printf("good\n");
     for(int j = 0; j < vertexIds_[i]; j++){
         drawTriangleOnGPU(vertexbuffer_[VERTEXBUFFERDEPTH * i + j],
@@ -196,7 +200,10 @@ void DenRender::rendplane(int i){
                           canvas);
     }
     vertexIds_[i] = 0;
-    canvas.copyDeviceDataToHost(i);
+	if(cudaSuccess != canvas.copyDeviceDataToHost(i)){
+		fprintf(stderr,  cudaGetErrorString(cudaGetLastError()) );
+		exit(1);
+	}
 }
 
 void DenRender::init(){

@@ -380,44 +380,44 @@ int main(int argv, char * args[]){
         if(numofrendertyps > render.NUM_OF_RENDERTRYPE_LIMIT)
             numofrendertyps = render.NUM_OF_RENDERTRYPE_LIMIT;
         
-        fstream * outstreams = new fstream[numofrendertyps];
+        //fstream * outstreams = new fstream[numofrendertyps];
         
         printf("Saving ...\n");
         for(int i = 0; i < numofrendertyps; i ++ ){
-            
+            fstream outstream;
             if(outputFilenames[renderTypes[i]] != ""){
                 
                 if(_idcut == 0){
-                    outstreams[i].open(outputFilenames[renderTypes[i]].c_str(),
+                    outstream.open(outputFilenames[renderTypes[i]].c_str(),
                                        ios::out | ios::binary);
-                    while(!outstreams[i].good()){
+                    while(!outstream.good()){
                         printf("File error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
                         printf("Input new filename:\n");
                         cin >> outputFilenames[renderTypes[i]];
-                        outstreams[i].clear();
-                        outstreams[i].open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
+                        outstream.clear();
+                        outstream.open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
                     }
-                    outstreams[i].write((char *) &imagesize, sizeof(int));
-                    outstreams[i].write((char *) &numOfCuts, sizeof(int));
-                    outstreams[i].write((char *) &boxsize, sizeof(float));
-                    outstreams[i].write((char *) &startz, sizeof(float));
-                    outstreams[i].write((char *) &dz, sizeof(float));
-                    outstreams[i].write((char *) head, sizeof(int) * 59);
+                    outstream.write((char *) &imagesize, sizeof(int));
+                    outstream.write((char *) &numOfCuts, sizeof(int));
+                    outstream.write((char *) &boxsize, sizeof(float));
+                    outstream.write((char *) &startz, sizeof(float));
+                    outstream.write((char *) &dz, sizeof(float));
+                    outstream.write((char *) head, sizeof(int) * 59);
                 }else{
-                    outstreams[i].open(outputFilenames[renderTypes[i]].c_str(),
+                    outstream.open(outputFilenames[renderTypes[i]].c_str(),
                                        ios::out | ios::binary | ios::app);
                 }
                 
                 //printf("%d %d\n", renderTypes.size(), i);
                 for(int j = 0; j < imagesize * imagesize * newNumOfCuts; j ++ ){
                     
-                    outstreams[i].write((char *) (result + j * numofrendertyps + i),
+                    outstream.write((char *) (result + j * numofrendertyps + i),
                                         sizeof(float));
                 }
                 //outstreams[i].write((char *) result,
                 //                    sizeof(float) * imagesize * imagesize * numOfCuts);
-                outstreams[i].flush();
-                outstreams[i].close();
+                outstream.flush();
+                outstream.close();
             }
             
         }

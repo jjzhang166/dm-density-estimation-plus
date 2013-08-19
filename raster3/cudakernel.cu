@@ -19,7 +19,7 @@ __host__ cudaError_t drawTriangleOnGPU(Triangle triangle, float invVolum, Canvas
     bottomright.y = max(max(triangle.a.y, triangle.b.y), triangle.c.y);
     
     Point2d vt = topleft - canvas.topleft;
-    Point2d vb = bottomright - canvas.bottomright;
+    Point2d vb = bottomright - canvas.topleft;
     
     int xind = (int) floor(vt.x / canvas.dx);
     int yind = (int) floor(vt.y / canvas.dx);
@@ -47,7 +47,7 @@ cudaError_t Canvas::copyDeviceDataToHost(int zind){
         cudaError_t err1 = cudaMemcpy(hostCanvasData[i]
                                       + zind * imagesize * imagesize,
                                       deviceCanvasData[i],
-                                      imagesize * imagesize * sizeof(float),cudaMemcpyDeviceToHost);
+                                      imagesize * imagesize * sizeof(float), cudaMemcpyDeviceToHost);
         if(err1 != cudaSuccess){
             err = err1;
         }
