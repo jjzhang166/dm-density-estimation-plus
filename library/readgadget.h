@@ -25,11 +25,18 @@ public:
     //isHighMem - if store all the data in the memory.
     //If gridsize == -1, then set up the gridsize to be (Npart)^(1/3)
     //parttype =? six kinds
+#ifdef _MSC_VER
+	__declspec(deprecated)
+#endif
 	GSnap(std::string filename,
           bool isHighMem,
           int parttype =1,
           int gridsize = 512)
-            __attribute__ ((deprecated));
+#ifndef _MSC_VER
+			__attribute__ ((deprecated));
+#else
+					;
+#endif
     
     //read all data into memory
     GSnap(
@@ -51,20 +58,37 @@ public:
 	gadget_header header;
 	uint32_t Npart;
 
+#ifdef _MSC_VER
+	__declspec(deprecated)
+#endif
 	void readPosBlock(Point * &posblock,
                     int imin, int jmin, int kmin, 
                     int imax, int jmax, int kmax, 
                     bool isPeriodical = true, 
                     bool isOrdered = false
-                    )__attribute__ ((deprecated));
+                    )
+#ifndef _MSC_VER
+			__attribute__ ((deprecated));
+#else
+					;
+#endif
 
+#ifdef _MSC_VER
+	__declspec(deprecated)
+#endif
 	void readBlock(Point * &posblock,
                    Point * &velocityblock,
                    int imin, int jmin, int kmin,
                    int imax, int jmax, int kmax,
                    bool isPeriodical = true,
                    bool isOrdered = false
-                   )__attribute__ ((deprecated));
+                   )
+				   
+#ifndef _MSC_VER
+			__attribute__ ((deprecated));
+#else
+					;
+#endif
 
     /***********************************************************/
     // read a list of points, from position ptr
@@ -112,10 +136,27 @@ private:
     uint32_t * allind_;
         
     // read a point, from position ptr
+#ifdef _MSC_VER
+	__declspec(deprecated)
+#endif
     Point readPos(std::fstream &file, long ptr)
-        __attribute__ ((deprecated));
+#ifndef _MSC_VER
+			__attribute__ ((deprecated));
+#else
+					;
+#endif
+
+
+#ifdef _MSC_VER
+	__declspec(deprecated)
+#endif
 	Point readVel(std::fstream &file, long ptr)
-        __attribute__ ((deprecated));
+#ifndef _MSC_VER
+			__attribute__ ((deprecated));
+#else
+					;
+#endif
+
     
     bool isHighMem_;
 

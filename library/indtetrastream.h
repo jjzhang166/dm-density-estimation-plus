@@ -141,9 +141,9 @@ public:
                   int memgridsize,
                   int parttype = 1,
                   int gridsize = -1,
-                  bool isHighMem = false,
-                  bool isAllData = false,
-                  bool isVelocity = false,
+                  bool isHighMem = true,
+                  bool isAllData = true,
+                  bool isVelocity = true,
                   bool isCorrection = true,
                   bool isInOrder = false,
                   int limit_tetracount = 500000);

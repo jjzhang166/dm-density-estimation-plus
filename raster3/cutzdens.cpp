@@ -48,7 +48,7 @@ namespace main_space{
    
     bool isHighMem = true;          //load all the particles into memory?
    
-    bool isAllData = false;         //return the all particle pointer?
+    bool isAllData = true;         //return the all particle pointer?
     
         
     int datagridsize = -1;          //if use -1, then use the particle gridsize as the gridsize
@@ -71,7 +71,7 @@ namespace main_space{
     int numOfCuts = 0;              //the number of cuts of the feild to render
     float dz = 0;                   //the z-distance of each two cuts
     float startz = 0;               //the starting cuts
-    bool isVelocity = false;        //whether encode velocity information
+    bool isVelocity = true;        //whether encode velocity information
     
     
     void printUsage(string pname){  //print the usage
