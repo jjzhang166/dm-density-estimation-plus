@@ -11,8 +11,14 @@ public:
 
     
     //canvas data buffer
-    float **deviceCanvasData;
+    //float **deviceCanvasData;
     float **hostCanvasData;
+
+	float * deviceCanvasData1;
+	float * deviceCanvasData2;
+	float * deviceCanvasData3;
+	float * deviceCanvasData4;
+	float * deviceCanvasData5;
     
     
     cudaError_t copyDeviceDataToHost(int zind);
@@ -25,6 +31,22 @@ public:
     RenderType type3;
     RenderType type4;
     RenderType type5;
+
+	CUDA_CALLABLE_MEMBER float ** getDeviceCanvas(int i){
+		switch(i){
+            case 0:
+                return &deviceCanvasData1;
+            case 1:
+                return &deviceCanvasData2;
+            case 2:
+                return &deviceCanvasData3;
+            case 3:
+                return &deviceCanvasData4;
+            case 4:
+                return &deviceCanvasData5;
+        }
+        return &deviceCanvasData1;
+	};
 
     CUDA_CALLABLE_MEMBER RenderType renderTypes(int i){
         switch(i){

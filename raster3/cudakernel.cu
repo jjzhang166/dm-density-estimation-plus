@@ -46,7 +46,7 @@ cudaError_t Canvas::copyDeviceDataToHost(int zind){
     for(int i = 0; i < numRenderTypes; i++){
         cudaError_t err1 = cudaMemcpy(hostCanvasData[i]
                                       + zind * imagesize * imagesize,
-                                      deviceCanvasData[i],
+                                      *(getDeviceCanvas(i)),
                                       imagesize * imagesize * sizeof(float), cudaMemcpyDeviceToHost);
         if(err1 != cudaSuccess){
             err = err1;
@@ -60,7 +60,7 @@ cudaError_t Canvas::copyDeviceDataToHost(int zind){
 cudaError_t Canvas::copyHostDataToDevice(int zind){
     cudaError_t err = cudaSuccess;
     for(int i = 0; i < numRenderTypes; i++){
-        cudaError_t err1 = cudaMemcpy(deviceCanvasData[i],
+        cudaError_t err1 = cudaMemcpy(*(getDeviceCanvas(i)),
                                       hostCanvasData[i]
                                        + zind * imagesize * imagesize,
                                       imagesize * imagesize * sizeof(float),cudaMemcpyHostToDevice);
@@ -148,7 +148,7 @@ __global__ void renderTriangle(Triangle triangle, float invVolum, Canvas canvas,
         float values[] = {invVolum, 1.0, velocity.x, velocity.y, velocity.z};
         
         for(int i = 0; i < canvas.numRenderTypes; i++){
-            canvas.deviceCanvasData[i][ind] += values[canvas.renderTypes(i)] *
+            *(*(canvas.getDeviceCanvas(i)) + ind) += values[canvas.renderTypes(i)] *
                                             divider[inTriangle];
         }
     }

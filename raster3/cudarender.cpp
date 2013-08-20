@@ -98,12 +98,12 @@ DenRender::DenRender(int imagesize,
         canvas.type5 = rentypes[4];
 
     canvas.hostCanvasData = new float*[num_of_rendertype];
-    canvas.deviceCanvasData = new float*[num_of_rendertype];
+    //canvas.deviceCanvasData = new float*[num_of_rendertype];
     
     for(int i = 0; i < num_of_rendertype; i++){
         canvas.hostCanvasData[i] = result_ +
                             imagesize * imagesize * numplanes_ * i;
-        cudaStatus = cudaMalloc((void**)&canvas.deviceCanvasData[i],
+        cudaStatus = cudaMalloc((void**)(canvas.getDeviceCanvas(i)),
                                 imagesize * imagesize * sizeof(float));
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "cudaMalloc failed");
@@ -118,10 +118,10 @@ DenRender::~DenRender(){
     delete result_;
     
     for(int i = 0; i < num_of_rendertype; i++){
-        cudaFree(canvas.deviceCanvasData[i]);
+        cudaFree(*canvas.getDeviceCanvas(i));
     }
     
-    delete canvas.deviceCanvasData;
+    //delete canvas.deviceCanvasData;
     delete canvas.hostCanvasData;
     
     delete vertexbuffer_;
@@ -189,7 +189,8 @@ float * DenRender::getResult(){
 
 void DenRender::rendplane(int i){
 	if(cudaSuccess != canvas.copyHostDataToDevice(i)){
-		fprintf(stderr, cudaGetErrorString(cudaGetLastError()));
+		fprintf(stderr, "\nCopying data to Device Failed: %s\n" 
+						, cudaGetErrorString(cudaGetLastError()));
 		exit(1);
 	}
     
@@ -201,7 +202,8 @@ void DenRender::rendplane(int i){
     }
     vertexIds_[i] = 0;
 	if(cudaSuccess != canvas.copyDeviceDataToHost(i)){
-		fprintf(stderr,  cudaGetErrorString(cudaGetLastError()) );
+		fprintf(stderr,  "\nCopying data from Device Failed: %s \n" 
+						, cudaGetErrorString(cudaGetLastError()) );
 		exit(1);
 	}
 }
