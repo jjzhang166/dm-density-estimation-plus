@@ -24,12 +24,13 @@ struct sort_pred {
     }
 };
 
-GSnap::GSnap(
-      std::string filename,
-      int parttype,
-      int gridsize
-             ){
-    isHighMem_ = true;
+void GSnap::init_singlefile(
+		string filename,
+        bool isHighMem,
+        int parttype,
+        int gridsize
+		){
+	isHighMem_ = isHighMem;
     Npart = 0;
 	filename_ = filename;
     
@@ -72,91 +73,98 @@ GSnap::GSnap(
     }
     endind = startind + header.npart[parttype];
     
-    
-    //isHighMem_ = isHighMem;
-    //isHighMem_ = false;
     //read all the data into memory
-    //if(isHighMem_){
-    printf("Loading data into memory...\n");
+    if(isHighMem_){
+		printf("Loading data into memory...\n");
     
-    allind_ = new uint32_t[totalparts];
-    allpos_ = new Point[totalparts];
-    allvel_ = new Point[totalparts];
+		allind_ = new uint32_t[totalparts];
+		allpos_ = new Point[totalparts];
+		allvel_ = new Point[totalparts];
     
-    readPos(file, allpos_, 0, totalparts);
-    readVel(file, allvel_, 0, totalparts);
-    //printf("%d, %d, %f %f %f\n", totalparts, Npart, allpos_[Npart - 1].x, allpos_[Npart - 1].y, allpos_[Npart - 1].z);
+		readPos(file, allpos_, 0, totalparts);
+		readVel(file, allvel_, 0, totalparts);
+		//printf("%d, %d, %f %f %f\n", totalparts, Npart, allpos_[Npart - 1].x, allpos_[Npart - 1].y, allpos_[Npart - 1].z);
     
-    //read indexs:
-    streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-    + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
-    + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
-    + sizeof(uint32_t);
-    file.seekg(spos, ios_base::beg);
-    file.read((char *) allind_, sizeof(uint32_t) * totalparts);
-    //printf("%d\n", allind_[0]);
+		//read indexs:
+		streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+		+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+		+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+		+ sizeof(uint32_t);
+		file.seekg(spos, ios_base::beg);
+		file.read((char *) allind_, sizeof(uint32_t) * totalparts);
+		//printf("%d\n", allind_[0]);
     
-    Point * temppos = allpos_;
-    Point * tempvel = allvel_;
-    allpos_ = new Point[Npart];
-    //allvel_ = new Point[Npart];
+		Point * temppos = allpos_;
+		Point * tempvel = allvel_;
+		allpos_ = new Point[Npart];
+		//allvel_ = new Point[Npart];
     
     
-    int indmin = 2147483647;
-    for(int i = 0; i < (int)Npart; i ++){
-        allpos_[i].x = -1;
-        if((int)Npart == (endind - startind)){
-            if((int)allind_[i] < indmin){
-                indmin = allind_[i];
-            }
-        }
-    }
+		int indmin = 2147483647;
+		for(int i = 0; i < (int)Npart; i ++){
+			allpos_[i].x = -1;
+			if((int)Npart == (endind - startind)){
+				if((int)allind_[i] < indmin){
+					indmin = allind_[i];
+				}
+			}
+		}
     
-    //printf("ind min: %d \n", indmin);
+		//printf("ind min: %d \n", indmin);
     
-    for(int i = startind; i < endind; i ++){
-        // - indmin
-        if(allind_[i] - indmin >= Npart){
-            printf("*************************WARNNING***************************\n");
-            printf("particle index is larger than the total number of particles.\n"
-                   "Result is UNPREDICTABLE!!\nPlease double check the indexes, "
-                   "make sure they starts from 0.\n");
-            printf("************************************************************\n");
-            continue;
-        }
+		for(int i = startind; i < endind; i ++){
+			// - indmin
+			if(allind_[i] - indmin >= Npart){
+				printf("*************************WARNNING***************************\n");
+				printf("particle index is larger than the total number of particles.\n"
+					   "Result is UNPREDICTABLE!!\nPlease double check the indexes, "
+					   "make sure they starts from 0.\n");
+				printf("************************************************************\n");
+				continue;
+			}
         
-        if((int)Npart == (endind - startind)){
-            allind_[i] -= indmin;
-        }
+			if((int)Npart == (endind - startind)){
+				allind_[i] -= indmin;
+			}
         
-        if(allind_[i] >= Npart){
-            continue;
-        }
+			if(allind_[i] >= Npart){
+				continue;
+			}
         
-        allpos_[allind_[i]].x = fmod((float)temppos[i].x, (float)header.BoxSize);
-        allpos_[allind_[i]].y = fmod((float)temppos[i].y, (float)header.BoxSize);
-        allpos_[allind_[i]].z = fmod((float)temppos[i].z, (float)header.BoxSize);
-        //printf("%d %d %d\n", i, allind_[i], totalparts);
+			allpos_[allind_[i]].x = fmod((float)temppos[i].x, (float)header.BoxSize);
+			allpos_[allind_[i]].y = fmod((float)temppos[i].y, (float)header.BoxSize);
+			allpos_[allind_[i]].z = fmod((float)temppos[i].z, (float)header.BoxSize);
+			//printf("%d %d %d\n", i, allind_[i], totalparts);
+		}
+    
+		//printf("ok\n");
+    
+		delete temppos;
+		allvel_ = new Point[Npart];
+		for(int i = startind; i < endind; i ++){
+			if(allind_[i] >= Npart){
+				continue;
+			}
+			allvel_[allind_[i]] = tempvel[i];
+		}
+    
+		//printf("ok1\n");
+    
+		delete allind_;
+		delete tempvel;
     }
-    
-    //printf("ok\n");
-    
-    delete temppos;
-    allvel_ = new Point[Npart];
-    for(int i = startind; i < endind; i ++){
-        if(allind_[i] >= Npart){
-            continue;
-        }
-        allvel_[allind_[i]] = tempvel[i];
-    }
-    
-    //printf("ok1\n");
-    
-    delete allind_;
-    delete tempvel;
-    //}
     
 	file.close();
+
+
+}
+
+GSnap::GSnap(
+      std::string filename,
+      int parttype,
+      int gridsize
+             ){
+	init_singlefile(filename, true, parttype, gridsize);
 }
 
 
@@ -164,8 +172,7 @@ GSnap::GSnap(string filename,
              bool isHighMem,
              int parttype,
              int gridsize){
-    GSnap(filename, parttype, gridsize);
-    isHighMem_ = isHighMem;
+	init_singlefile(filename, isHighMem, parttype, gridsize);
 }
 
 //this reads a multi-file into memory

@@ -30,7 +30,7 @@
 
 namespace main_space{
     
-    int inputmemgrid = 16;			//the input memory grid size
+    int inputmemgrid = -1;			//the input memory grid size
     string filename =  "";          //"I:\\data\\MIP-00-00-00-run_050";
                                     //the input data filename "E:\\multires_150";//
     string densityFilename = "";	//output filename
@@ -86,15 +86,14 @@ namespace main_space{
                 , "[-velx <output velocity x-component file>]"
                 , "[-vely <output velocity y-component file>]"
                 , "[-velz <output velocity z-component file>]"
-                , "[-t <numbers of tetra in memory>]"
+                , "[-t <data grid loaded in memory>] default: -1"
                 , "[-order] if the data is in order"
                 , "[-v] to show verbose"
                 , "[-dgridsize <particle gridsize>] default: -1 to use the npart^(1/3) as gridsize"
                 , "[-parttype <paritcle type>] default: 1. "
                   "Use [0 ~ NTYPE]'s species of data in the GADGET file"
                 , "[-lowmem] use low memory mode "
-                  "(don't load all part in mem, not recomended)"
-                , "[-nalldata] load all particle data into memory, only usable in highmem mode"
+                , "[-nalldata] DON'T load all particle data into memory, not recomened in high memory mode"
                 , "[-startz] the starting z-coordinates to calculate the cuts"
                 , "[-dz] the interval between each 2 z-plane"
                 , "[-numz] the number of z-planes"
@@ -181,8 +180,8 @@ namespace main_space{
                 }else if(strcmp(args[k], "-lowmem") == 0){
                     isHighMem = false;
                     k = k -1;
-                }else if(strcmp(args[k], "-alldata") == 0){
-                    isAllData = true;
+                }else if(strcmp(args[k], "-nalldata") == 0){
+                    isAllData = false;
                     k = k -1;
                 }else if(strcmp(args[k], "-startz") == 0){
                     ss << args[k + 1];
@@ -248,11 +247,15 @@ int main(int argv, char * args[]){
         datagridsize = ceil(pow(streamer.getIndTetraStream()->getHeader().npart[parttype], 1.0 / 3.0));
     }
     
-    
+    if(inputmemgrid == -1){
+		inputmemgrid = datagridsize;
+	}
+
     printf("\n=========================DENSITY ESTIMATION==========================\n");
 	printf("*****************************PARAMETERES*****************************\n");
     printf("Render Image Size       = %d\n", imagesize);
 	printf("Data File               = %s\n", filename.c_str());
+
     if(datagridsize == -1){
         printf("DataGridsize            = [to be determined by data]\n");
     }else{
@@ -276,8 +279,10 @@ int main(int argv, char * args[]){
     if(velocityZFilename != "")
         printf("Velocity Z File         = %s\n", velocityZFilename.c_str());
     
-	printf("Tetra in Mem            = %d\n", inputmemgrid);
-    printf("Rendering %d z-cuts of the density field. \nStart from z = %f, with dz = %f\n", numOfCuts, startz, dz);
+	printf("Data grid loaded in RAM = %d\n", inputmemgrid);
+    printf("Rendering %d z-cuts of the density field. \n"
+		"Start from z = %f, with dz = %f\n", 
+		numOfCuts, startz, dz);
     
     if(isSetBox){
         printf("Box                     = %f %f %f %f\n",
@@ -291,9 +296,9 @@ int main(int argv, char * args[]){
     }else{
         printf("Block Memory Operation:\n");
         if(!isAllData){
-            printf("    Use Memory Copy Mode -- but may be faster without regenerating the tetras...\n");
+            printf("    Use Memory Copy Mode -- Avoiding regenerating tetrahedrons...\n");
         }else{
-            printf("    Without Memory Copying Mode -- but may be slower in regenerating tetras...\n");
+            printf("    Without Memory Copying Mode -- gain fast memory operation...\n");
         }
         
     }

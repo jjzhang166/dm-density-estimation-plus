@@ -134,15 +134,24 @@ __global__ void renderTriangle(Triangle triangle, float invVolum, Canvas canvas,
     
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int idy = blockIdx.y * blockDim.y + threadIdx.y;
-    
+	
+	int xxi = idx + xind;
+	int yyi = idy + yind;
+	if(xxi < 0 || xxi >= canvas.imagesize || 
+		yyi <0 || yyi >= canvas.imagesize){
+		return;
+	}
+
+	int ind = xxi + yyi * canvas.imagesize;
+
     Point2d p;
-    p.x = (idx + xind) * canvas.dx + canvas.topleft.x;
-    p.y = (idy + yind) * canvas.dx + canvas.topleft.y;
+    p.x = xxi * canvas.dx + canvas.topleft.x;
+    p.y = yyi * canvas.dx + canvas.topleft.y;
     
     float u, v;
     int inTriangle = isInTriangle(triangle, p, u, v);
     if(inTriangle != -1){
-        int ind = idx + xind + (idy + yind) * canvas.imagesize;
+
         Point velocity = triangle.val1 * (1.0 - u - v)
             + triangle.val2 * u + triangle.val3 * v;
         float values[] = {invVolum, 1.0, velocity.x, velocity.y, velocity.z};
@@ -150,6 +159,7 @@ __global__ void renderTriangle(Triangle triangle, float invVolum, Canvas canvas,
         for(int i = 0; i < canvas.numRenderTypes; i++){
             *(*(canvas.getDeviceCanvas(i)) + ind) += values[canvas.renderTypes(i)] *
                                             divider[inTriangle];
+			//*(*(canvas.getDeviceCanvas(i)) + ind) = idx + idy + xind + yind;
         }
     }
 

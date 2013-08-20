@@ -35,12 +35,18 @@ class IndTetraStream {
 public:
 
     /********************************************************************
-     * USE "isAllData" to avoid data COPYING. But need memory to store all
-     * the data into memory.
-     * WARNING: isAllData can only work in high memory mode
+	isHighMem: read all the particles from the file into memory in a single time.
+	This is very fast, however, it requires the memory size be larger than data.
+
+	isAllData: if true, does not copy data, directly use all data loaded into memory.
+	Otherwise, copy the data into block each time. 
+
+	If is in high memory mode, recomended use AllData mode (default). If in low memory
+	mode, isAllData is disabled.
      ********************************************************************/
     //parttype - which type of the gadgetfile will be in use?
     //gridsize = -1: use npart^(1/3) as gridsize. Otherwise use this
+
 	IndTetraStream(std::string filename,
                    int memgridsize,
                    int parttype = 1,

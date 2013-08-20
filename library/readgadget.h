@@ -12,11 +12,14 @@
 #include "tetrahedron.h"
 #include "gadgetheader.h"
 
-/************WARNNING*****************************************
- *! LOW MEMORY VERSION CAN ONLY WORK IN REGULAR GRID
- *! high memory version can work in any grid
- *! ORDERED DATA has not been implemented
- *************************************************************/
+
+/*
+This class suppose to read gadget file in any form: single file or multiple file.
+It works in a low memory mode and a high memory mode. In low memory mode, it reads the 
+data block by block (each time it reads a block of data to the memory). In high memory
+mode, it reads all the data into the memory. The low memory mode requires the data grid
+be 2^n.
+*/
 
 class GSnap {
 public:
@@ -25,18 +28,11 @@ public:
     //isHighMem - if store all the data in the memory.
     //If gridsize == -1, then set up the gridsize to be (Npart)^(1/3)
     //parttype =? six kinds
-#ifdef _MSC_VER
-	__declspec(deprecated)
-#endif
 	GSnap(std::string filename,
           bool isHighMem,
           int parttype =1,
           int gridsize = 512)
-#ifndef _MSC_VER
-			__attribute__ ((deprecated));
-#else
 					;
-#endif
     
     //read all data into memory
     GSnap(
@@ -58,37 +54,21 @@ public:
 	gadget_header header;
 	uint32_t Npart;
 
-#ifdef _MSC_VER
-	__declspec(deprecated)
-#endif
 	void readPosBlock(Point * &posblock,
                     int imin, int jmin, int kmin, 
                     int imax, int jmax, int kmax, 
                     bool isPeriodical = true, 
                     bool isOrdered = false
-                    )
-#ifndef _MSC_VER
-			__attribute__ ((deprecated));
-#else
-					;
-#endif
+                    );
 
-#ifdef _MSC_VER
-	__declspec(deprecated)
-#endif
 	void readBlock(Point * &posblock,
                    Point * &velocityblock,
                    int imin, int jmin, int kmin,
                    int imax, int jmax, int kmax,
                    bool isPeriodical = true,
                    bool isOrdered = false
-                   )
+                   );
 				   
-#ifndef _MSC_VER
-			__attribute__ ((deprecated));
-#else
-					;
-#endif
 
     /***********************************************************/
     // read a list of points, from position ptr
@@ -97,6 +77,7 @@ public:
                  long ptr,
                  long count
                  );
+
 	void readVel(std::fstream &file,
                  Point * vel,
                  long ptr,
@@ -105,8 +86,6 @@ public:
     /***********************************************************/
 
 
-    //recomended to use this version, if high memory
-    /******************RECOMENDED USE THIS**********************/
     //Data are all sorted along indexes
     //get all the position data
     Point * getAllPos(){
@@ -136,26 +115,10 @@ private:
     uint32_t * allind_;
         
     // read a point, from position ptr
-#ifdef _MSC_VER
-	__declspec(deprecated)
-#endif
-    Point readPos(std::fstream &file, long ptr)
-#ifndef _MSC_VER
-			__attribute__ ((deprecated));
-#else
-					;
-#endif
+    Point readPos(std::fstream &file, long ptr);
 
 
-#ifdef _MSC_VER
-	__declspec(deprecated)
-#endif
-	Point readVel(std::fstream &file, long ptr)
-#ifndef _MSC_VER
-			__attribute__ ((deprecated));
-#else
-					;
-#endif
+	Point readVel(std::fstream &file, long ptr);
 
     
     bool isHighMem_;
@@ -173,6 +136,14 @@ private:
                    bool isPeriodical = true,
                    bool isOrdered = false
                    );
+
+	void init_singlefile(
+		string filename,
+        bool isHighMem,
+        int parttype,
+        int gridsize
+		);
+
 };
 
 #endif /* READGADGET_H_ */

@@ -16,6 +16,7 @@ using namespace std;
 #include "readgadget.h"
 
 //inputmemgridsize should be a divisor of the total_grid_size
+//inputmemgridsize is the limit of data in memory
 IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
                                int parttype, int gridsize,
                                bool isVelocity, bool isHighMem,
@@ -31,7 +32,7 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
     
     iotime_ = 0;
 
-	gsnap_ = new GSnap(filename_, parttype, gridsize);
+	gsnap_ = new GSnap(filename_, isHighMem, parttype, gridsize);
     
     //printf("what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
@@ -42,7 +43,9 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
 	current_ind_block = 0;
     
     printf("Particle Data Grid Size %d\n", particle_grid_size_);
-
+	if(inputmemgridsize == -1){
+		inputmemgridsize = particle_grid_size_;
+	}
     mem_grid_size_ = inputmemgridsize;
 	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
         * (mem_grid_size_);
@@ -73,11 +76,7 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
 
 	isPeriodical_ = false;
 	isInOrder_ = false;
-    
-    indTetraManager_.setBoxSize(getHeader().BoxSize);
-    indTetraManager_.setIsVelocity(isVelocity_);
-    indTetraManager_.setVelArray(velocity_);
-    indTetraManager_.setPosArray(position_);
+
     
     //write tetrahedrons
     //tetrahedron grids are not changed during the work
@@ -90,7 +89,11 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
         position_ = gsnap_->getAllPos();
         velocity_ = gsnap_->getAllVel();
     }
-    
+        
+    indTetraManager_.setBoxSize(getHeader().BoxSize);
+    indTetraManager_.setIsVelocity(isVelocity_);
+    indTetraManager_.setVelArray(velocity_);
+    indTetraManager_.setPosArray(position_);
 }
 
 void IndTetraStream::setIsInOrder(bool isinorder){
@@ -169,13 +172,13 @@ void IndTetraStream::loadBlock(int i){
     t0_ = timediff.tv_sec + timediff.tv_usec / 1.0e6;
     
     //is use all data, no need load data each time.
-    /*if(!isAllData_){
+    if(!isAllData_){
         if(!isVelocity_){
             gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
         }else{
             gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
         }
-    }else*/
+    }else
     {
         convertToTetrahedron(imax - imin + 1, jmax - jmin + 1, kmax - kmin + 1);
     }
@@ -263,15 +266,6 @@ void IndTetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 			}
 		}
 	}
-
-	//for (k = 0; k < kk-1; k++) {
-	//	for (j = 0; j < jj-1; j++) {
-	//		for (i = 0; i < ii-1; i++) {
-    //            addTetraAllVox(i, j, k, ii, jj, kk);
-	//		}
-   	//	}
-	//}
-
 
 	current_tetra_num = current_ind_tetra;
     //printf("%d\n", current_tetra_num);
