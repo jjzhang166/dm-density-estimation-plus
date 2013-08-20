@@ -1,5 +1,5 @@
 
-filename = 'i:\sandbox\try_spike_n256_s59_008.ltfe';
+filename = 'i:\sandbox\try.cuda.stream';
 %filename = '~/data/run_200'
 
 fid = fopen(filename, 'r');
