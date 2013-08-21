@@ -46,6 +46,7 @@ public:
           std::string prefix,
           std::string basename,
           int numfiles,
+		  bool isHighMem = false,
           int parttype =1,
           int gridsize = 512
           );
@@ -102,6 +103,13 @@ private:
 	//uint32_t * ids;
 	string filename_;
 	int grid_size;
+
+	bool isMultifile_;
+	string prefix_;
+	int numOfFiles_;
+	string basename_;
+	int * numOfParts;
+
 
     //bool isHighMem_;
     int startind;

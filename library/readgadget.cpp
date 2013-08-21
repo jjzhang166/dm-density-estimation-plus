@@ -30,6 +30,7 @@ void GSnap::init_singlefile(
         int parttype,
         int gridsize
 		){
+	this->isMultifile_ = false;
 	isHighMem_ = isHighMem;
     Npart = 0;
 	filename_ = filename;
@@ -180,9 +181,12 @@ GSnap::GSnap(
              std::string prefix,
              std::string basename,
              int numfiles,
+			 bool isHighMem,
              int parttype,
              int gridsize
-      ){
+      ){	
+
+	this->isMultifile_ = true; 
     isHighMem_ = true;
     Npart = 0;
 	totalparts = 0;
