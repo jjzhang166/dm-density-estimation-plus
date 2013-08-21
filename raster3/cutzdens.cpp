@@ -23,7 +23,6 @@
 //#include "grid.h"
 #include "tetrahedron.h"
 #include "indtetrastream.h"
-#include "isoplane.h"
 #include "render.h"
 #include "denrender.h"
 

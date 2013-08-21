@@ -15,41 +15,25 @@ using namespace std;
 #include "indtetrastream.h"
 #include "readgadget.h"
 
-//inputmemgridsize should be a divisor of the total_grid_size
-//inputmemgridsize is the limit of data in memory
-IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
-                               int parttype, int gridsize,
-                               bool isVelocity, bool isHighMem,
-                               bool isAllData) {
-	isVelocity_ = isVelocity;
-    if(isHighMem){
-        isAllData_ = isAllData;
-    }else{
-        isAllData_ = false;
-    }
 
-	filename_ = filename;
-    
-    iotime_ = 0;
-
-	gsnap_ = new GSnap(filename_, isHighMem, parttype, gridsize);
-    
+void IndTetraStream::init(){
     //printf("what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
 	total_parts_ = gsnap_->Npart;
 	current_tetra_num = 0;
-
+    
 	current_ind_tetra = 0;
 	current_ind_block = 0;
     
     printf("Particle Data Grid Size %d\n", particle_grid_size_);
-	if(inputmemgridsize == -1){
-		inputmemgridsize = particle_grid_size_;
+    
+	if(mem_grid_size_ == -1){
+		mem_grid_size_ = particle_grid_size_;
 	}
-    mem_grid_size_ = inputmemgridsize;
+    
 	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
-        * (mem_grid_size_);
-
+    * (mem_grid_size_);
+    
     
 	tetras_ = new IndTetrahedron[mem_tetra_size_];
 	
@@ -66,34 +50,90 @@ IndTetraStream::IndTetraStream(string filename, int inputmemgridsize,
             }
         }
     }
-
-
+    
+    
 	total_tetra_grid_num_ = particle_grid_size_ / mem_grid_size_ *
-			particle_grid_size_ / mem_grid_size_ *
-			particle_grid_size_ / mem_grid_size_;
-
+    particle_grid_size_ / mem_grid_size_ *
+    particle_grid_size_ / mem_grid_size_;
+    
 	//grids_ = NULL;
-
+    
 	isPeriodical_ = false;
 	isInOrder_ = false;
-
+    
     
     //write tetrahedrons
     //tetrahedron grids are not changed during the work
     //if use all the data, then tetrahedron index will change each load
     if(!isAllData_){
         convertToTetrahedron(mem_grid_size_ + 1,
-                         mem_grid_size_ + 1,
-                         mem_grid_size_ + 1);
+                             mem_grid_size_ + 1,
+                             mem_grid_size_ + 1);
     }else{
         position_ = gsnap_->getAllPos();
         velocity_ = gsnap_->getAllVel();
     }
-        
+    
     indTetraManager_.setBoxSize(getHeader().BoxSize);
     indTetraManager_.setIsVelocity(isVelocity_);
     indTetraManager_.setVelArray(velocity_);
     indTetraManager_.setPosArray(position_);
+}
+
+IndTetraStream::IndTetraStream(std::string prefix,
+               std::string basename,
+               int numofFiles,
+               int inputmemgridsize,
+               int parttype,
+               int gridsize,
+               bool isVelocity,
+               bool isHighMem,
+               bool isAllData){
+    
+    
+    isVelocity_ = isVelocity;
+    if(isHighMem){
+        isAllData_ = isAllData;
+    }else{
+        isAllData_ = false;
+    }
+    
+    
+    iotime_ = 0;
+    
+	gsnap_ = new GSnap(prefix, basename, numofFiles, isHighMem, parttype, gridsize);
+    
+    mem_grid_size_ = inputmemgridsize;
+    particle_grid_size_ = gridsize;
+    
+    init();
+    
+}
+
+//inputmemgridsize should be a divisor of the total_grid_size
+//inputmemgridsize is the limit of data in memory
+IndTetraStream::IndTetraStream(string filename,
+                               int inputmemgridsize,
+                               int parttype,
+                               int gridsize,
+                               bool isVelocity,
+                               bool isHighMem,
+                               bool isAllData) {
+	isVelocity_ = isVelocity;
+    if(isHighMem){
+        isAllData_ = isAllData;
+    }else{
+        isAllData_ = false;
+    }
+    
+    iotime_ = 0;
+    filename_ = filename;
+	gsnap_ = new GSnap(filename_, isHighMem, parttype, gridsize);
+    
+    mem_grid_size_ = inputmemgridsize;
+    particle_grid_size_ = gridsize;
+    
+    init();
 }
 
 void IndTetraStream::setIsInOrder(bool isinorder){
@@ -301,7 +341,42 @@ TetraStreamer::~TetraStreamer(){
     delete indstream_;
     delete tetras_;
 }
- 
+
+
+
+TetraStreamer::TetraStreamer(std::string prefix,
+                             std::string basename,
+                             int numOfFiles,
+                             int memgridsize,
+                             int parttype,
+                             int gridsize,
+                             bool isHighMem,
+                             bool isAllData,
+                             bool isVelocity,
+                             bool isCorrection,
+                             bool isInOrder,
+                             int limit_tetracount){
+    
+    indstream_ = new IndTetraStream(prefix, basename, numOfFiles,
+                                    memgridsize, parttype, gridsize,
+                                    isVelocity, isHighMem, isAllData);
+    
+    if(isCorrection){
+        indstream_->setCorrection();
+    }
+    indstream_->setIsInOrder(isInOrder);
+    
+    
+    limit_tetracount_ = limit_tetracount;
+    tetras_ = new Tetrahedron[limit_tetracount_];
+    
+    total_block_num_ = indstream_->getTotalBlockNum();
+    current_block_id_ = -1;
+    current_tetra_id_ = 0;
+    total_tetra_num_ = 0;
+    
+}
+
 TetraStreamer::TetraStreamer(std::string filename,
                              int memgridsize,
                              int parttype,

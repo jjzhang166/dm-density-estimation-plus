@@ -51,10 +51,20 @@ public:
                    int memgridsize,
                    int parttype = 1,
                    int gridsize = -1,
-                   bool isVelocity = false,
+                   bool isVelocity = true,
                    bool isHighMem = true,
                    bool isAllData = true);
     
+    
+    IndTetraStream(std::string prefix,
+                   std::string basename,
+                   int numofFiles,
+                   int memgridsize,
+                   int parttype = 1,
+                   int gridsize = -1,
+                   bool isVelocity = true,
+                   bool isHighMem = true,
+                   bool isAllData = true);
     
     
 	int getTotalBlockNum();		//get how many subblocks are there in total
@@ -89,6 +99,9 @@ public:
     };
 
 private:
+    void init();
+    
+    
 	std::string filename_;
     
     //current starting index
@@ -121,6 +134,9 @@ private:
 			int j3, int k3, int i4, int j4, int k4,
 			int isize, int jsize, int ksize);// add a tetra to the vector
 	GSnap * gsnap_;
+    
+    
+    
 
     //utility for add all the tetrahedron in a single vox
     void addTetraAllVox(int i, int j, int k, int ii, int jj, int kk);
@@ -153,6 +169,21 @@ public:
                   bool isCorrection = true,
                   bool isInOrder = false,
                   int limit_tetracount = 500000);
+    
+    
+    TetraStreamer(std::string prefix,
+                  std::string basename,
+                  int numOfFiles,
+                  int memgridsize,
+                  int parttype = 1,
+                  int gridsize = -1,
+                  bool isHighMem = true,
+                  bool isAllData = true,
+                  bool isVelocity = true,
+                  bool isCorrection = true,
+                  bool isInOrder = false,
+                  int limit_tetracount = 500000);
+    
     ~TetraStreamer();
     
     bool hasNext();

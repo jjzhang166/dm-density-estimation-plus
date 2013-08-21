@@ -30,7 +30,7 @@ void GSnap::init_singlefile(
         int parttype,
         int gridsize
 		){
-	this->isMultifile_ = false;
+	isMultifile_ = false;
 	isHighMem_ = isHighMem;
     Npart = 0;
 	filename_ = filename;
@@ -41,6 +41,7 @@ void GSnap::init_singlefile(
     
 	fstream file(filename.c_str(), ios_base::in | ios_base::binary);
     
+    //printf("%s\n", filename.c_str());
 	if (!file.good()) {
 		printf("File not exist, or corrupted!\n");
 		exit(1);
@@ -186,31 +187,94 @@ GSnap::GSnap(
              int gridsize
       ){	
 
-	this->isMultifile_ = true; 
-    isHighMem_ = true;
+	isMultifile_ = true;
+    numOfFiles_ = numfiles;
+    basename_ = basename;
+    prefix_ = prefix;
+    numOfParts_ = new int[numfiles];
+    multStartInd_ = new int[numOfFiles_];
+    multStartInd_ = new int[numOfFiles_];
+    minInd_ = new int[numOfFiles_];
+    maxInd_ = new int[numOfFiles_];
+    
+    isHighMem_ = isHighMem;
     Npart = 0;
 	totalparts = 0;
     
-	uint32_t record0, record1;
-    string filename = prefix + basename + ".0";
-    filename_ = filename;
+    for(int i = 0 ; i < numOfFiles_; i ++ ){
+        stringstream ss;
+        uint32_t record0, record1;
+        string filename;// = prefix + basename + ".0";
+        ss << prefix;
+        ss << basename;
+        ss << ".";
+        ss << i;
+        //filename_ = filename;
+        ss >> filename;
+        
+        fstream file(filename.c_str(), ios_base::in | ios_base::binary);
+        
+        if (!file.good()) {
+            printf("File not exist, or corrupted!\n");
+            exit(1);
+        }
+        
+        //read header
+        file.read((char *) &record0, sizeof(uint32_t));
+        file.read((char *) &header, sizeof(gadget_header));
+        file.read((char *) &record1, sizeof(uint32_t));
+        
+
+        if (record0 != record1) {
+            printf("Record in file not equal!\n");
+            exit(1);
+        }
+        
+
+        
+        
+        numOfParts_[i] = 0;
+        multStartInd_[i] = 0;
+        for(int j = 0; j < N_TYPE; j++){
+            numOfParts_[i] += header.npart[j];
+            if(j < parttype){
+                multStartInd_[i] += header.npart[j];
+            }
+        }
+        multEndInd_[i] = multStartInd_[i] + header.npart[parttype];
+        
+        
+        //find index
+        streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+		+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+		+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+		+ sizeof(uint32_t) + multStartInd_[i] * sizeof(uint32_t);
+        
+        
+		file.seekg(spos, ios_base::beg);
+        
+        
+        uint32_t * indexs = new uint32_t[header.npart[parttype]];
+        
+        file.read((char *) indexs, sizeof(uint32_t) * header.npart[parttype]);
+        minInd_[i] = header.npartTotal[parttype] + 10000;
+        maxInd_[i] = 0;
+        for(int j = 0; j < (int)header.npart[parttype]; j++){
+            if(minInd_[i] > (int)indexs[j]){
+                minInd_[i] = (int)indexs[j];
+            }
+            if(maxInd_[i] < (int)indexs[j]){
+                maxInd_[i] = (int)indexs[j];
+            }
+        }
+        
+        delete indexs;
+
+        
+        
+        file.close();
     
-    fstream file(filename.c_str(), ios_base::in | ios_base::binary);
-    
-	if (!file.good()) {
-		printf("File not exist, or corrupted!\n");
-		exit(1);
-	}
-    
-	//read header
-	file.read((char *) &record0, sizeof(uint32_t));
-	file.read((char *) &header, sizeof(gadget_header));
-	file.read((char *) &record1, sizeof(uint32_t));
-   	if (record0 != record1) {
-		printf("Record in file not equal!\n");
-		exit(1);
-	}
-    file.close();
+    }
     
     if(gridsize == -1){
         Npart = header.npartTotal[parttype];
@@ -220,80 +284,79 @@ GSnap::GSnap(
         Npart = grid_size * grid_size * grid_size;
     }
     
-    int num_of_files = numfiles;
-
-    
+    int totalparts = 0;
     for(int i = 0; i < N_TYPE; i++){
         totalparts += header.npartTotal[i];
     }
     
-    printf("Loading data into memory...\n");
-    
-    allind_ = new uint32_t[Npart];
-    allpos_ = new Point[Npart];
-    allvel_ = new Point[Npart];
-    
-    for(int i = 0; i < num_of_files; i++){
-        int single_file_parts = 0;
-        ostringstream ss;
-        ss << i;
-        string filename = prefix + basename + "." + ss.str();
-        gadget_header single_header;
+    if(isHighMem_){
+        printf("Loading data into memory...\n");
         
-        Point * temppos;
-        Point * tempvel;
-        uint32_t * tempind;
-        int single_startind = 0;
-        int single_endind = 0;
+        allind_ = new uint32_t[Npart];
+        allpos_ = new Point[Npart];
+        allvel_ = new Point[Npart];
         
-        fstream file(filename.c_str(), ios_base::in | ios_base::binary);
-        file.read((char *) &record0, sizeof(uint32_t));
-        file.read((char *) &single_header, sizeof(gadget_header));
-        file.read((char *) &record1, sizeof(uint32_t));
-        if (record0 != record1) {
-            printf("Record in file not equal!\n");
-            exit(1);
-        }
-        file.close();
-        
-        for(int j = 0; j < N_TYPE; j++){
-            single_file_parts += single_header.npart[i];
-            if(j < parttype){
-                single_startind += single_header.npart[i];
-            }
-        }
-        
-        single_endind = single_startind + single_header.npart[parttype];
-        temppos = new Point[single_file_parts];
-        tempvel = new Point[single_file_parts];
-        tempind = new uint32_t[single_file_parts];
-        
-        readPos(file, temppos, 0, single_file_parts);
-        readVel(file, tempvel, 0, single_file_parts);
-        
-        //read indexs:
-        streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-        + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
-        + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
-        + sizeof(uint32_t);
-        file.seekg(spos, ios_base::beg);
-        file.read((char *) tempind, sizeof(uint32_t) * single_file_parts);
-        
-        for(int j = single_startind; j < single_endind; j ++){
+        for(int i = 0; i < numOfFiles_; i++){
+            int single_file_parts = 0;
+            ostringstream ss;
+            ss << i;
+            string filename = prefix + basename + "." + ss.str();
+            gadget_header single_header;
             
-            if(tempind[j] >= Npart){
-                continue;
+            Point * temppos;
+            Point * tempvel;
+            uint32_t * tempind;
+            int single_startind = 0;
+            int single_endind = 0;
+            uint32_t record0, record1;
+            fstream file(filename.c_str(), ios_base::in | ios_base::binary);
+            file.read((char *) &record0, sizeof(uint32_t));
+            file.read((char *) &single_header, sizeof(gadget_header));
+            file.read((char *) &record1, sizeof(uint32_t));
+            if (record0 != record1) {
+                printf("Record in file not equal!\n");
+                exit(1);
+            }
+            file.close();
+            
+            for(int j = 0; j < N_TYPE; j++){
+                single_file_parts += single_header.npart[i];
+                if(j < parttype){
+                    single_startind += single_header.npart[i];
+                }
             }
             
-            allpos_[tempind[j]].x = fmod((float)temppos[j].x, (float)header.BoxSize);
-            allpos_[tempind[j]].y = fmod((float)temppos[j].y, (float)header.BoxSize);
-            allpos_[tempind[j]].z = fmod((float)temppos[j].z, (float)header.BoxSize);
-            allvel_[tempind[j]] = tempvel[j];
-            //printf("%d %d %d\n", i, allind_[i], totalparts);
+            single_endind = single_startind + single_header.npart[parttype];
+            temppos = new Point[single_file_parts];
+            tempvel = new Point[single_file_parts];
+            tempind = new uint32_t[single_file_parts];
+            
+            readPos(file, temppos, 0, single_file_parts);
+            readVel(file, tempvel, 0, single_file_parts);
+            
+            //read indexs:
+            streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+            + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+            + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+            + sizeof(uint32_t);
+            file.seekg(spos, ios_base::beg);
+            file.read((char *) tempind, sizeof(uint32_t) * single_file_parts);
+            
+            for(int j = single_startind; j < single_endind; j ++){
+                
+                if(tempind[j] >= Npart){
+                    continue;
+                }
+                
+                allpos_[tempind[j]].x = fmod((float)temppos[j].x, (float)header.BoxSize);
+                allpos_[tempind[j]].y = fmod((float)temppos[j].y, (float)header.BoxSize);
+                allpos_[tempind[j]].z = fmod((float)temppos[j].z, (float)header.BoxSize);
+                allvel_[tempind[j]] = tempvel[j];
+                //printf("%d %d %d\n", i, allind_[i], totalparts);
+            }
+            file.close();
         }
-        file.close();
     }
-    
     
     
 }
@@ -530,6 +593,17 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 	}
 }
 
+void GSnap::readIndex(std::string &file, int *block_count,
+                      int imin, int jmin, int kmin,
+                      int imax, int jmax, int kmax,
+                      bool isPeriodical, bool isOrdered){
+    fstream fs(file.c_str(), ios_base::in | ios_base::binary);
+    readIndex(fs, block_count,
+              imin, jmin, kmin,
+              imax, jmax, kmax,
+              isPeriodical, isOrdered);
+}
+
 Point GSnap::readPos(std::fstream &file, long ptr){
 	Point retp; 
 
@@ -548,6 +622,17 @@ Point GSnap::readPos(std::fstream &file, long ptr){
     //printf("ok4.5\n");
 
 	return retp;
+}
+
+
+Point GSnap::readPos(std::string &file, long ptr){
+    fstream fs(file.c_str(), ios_base::in | ios_base::binary);
+    return readPos(fs, ptr);
+}
+
+Point GSnap::readVel(std::string &file, long ptr){
+    fstream fs(file.c_str(), ios_base::in | ios_base::binary);
+    return readVel(fs, ptr);
 }
 
 Point GSnap::readVel(std::fstream &file, long ptr){
@@ -575,6 +660,16 @@ void GSnap::readPos(std::fstream &file, Point * pos, long ptr, long count){
 	file.read((char *) pos, sizeof(Point) * count);
     
 }
+
+void GSnap::readPos(std::string &file,
+             Point * pos,
+             long ptr,
+             long count
+             ){
+    fstream fs(file.c_str(), ios_base::in | ios_base::binary);
+    readPos(fs, pos, ptr, count);
+}
+
 void GSnap::readVel(std::fstream &file, Point * vel, long ptr, long count){
     streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 			+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
@@ -582,12 +677,26 @@ void GSnap::readVel(std::fstream &file, Point * vel, long ptr, long count){
     file.seekg(spos, ios_base::beg);
     file.read((char *) vel, sizeof(Point) * count);
 }
-
+void GSnap::readVel(std::string &file,
+             Point * vel,
+             long ptr,
+             long count
+             ){
+    fstream fs(file.c_str(), ios_base::in | ios_base::binary);
+    readVel(fs, vel, ptr, count);
+}
 
 GSnap::~GSnap() {
     if (isHighMem_){
         delete allpos_;
         delete allvel_;
+    }
+    if (isMultifile_){
+        delete numOfParts_;
+        delete multStartInd_;
+        delete multEndInd_;
+        delete maxInd_;
+        delete minInd_;
     }
 }
 

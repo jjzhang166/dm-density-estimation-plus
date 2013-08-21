@@ -9,40 +9,53 @@ IFLAG= -I /usr/include/GL/ -I${LIB}
 #IFLAG= -I /usr/include/GL/ -I${LIB} -I ~/Tools/glew/include/
 
 
+RENDPROG=renddens_1slide
 RENDOBJ=main.o buffers.o isoplane.o processbar.o render.o\
 		   indtetrastream.o isoplancut.o readgadget.o \
 		   tetrahedron.o triangle.o tetracut.o \
 		   tetrastream.o indtetrahedron.o
 
+TPROG=testisoz
 TOBJ=testisozcutter.o buffers.o isoplane.o processbar.o render.o\
 		   indtetrastream.o isoplancut.o readgadget.o \
 		   tetrahedron.o triangle.o tetracut.o \
 		   tetrastream.o indtetrahedron.o
-
+TDRPROG=testdender
 TDROBJ=testdensrender.o buffers.o processbar.o\
 		   indtetrastream.o readgadget.o tetrastream.o\
 		   tetrahedron.o triangle.o indtetrahedron.o\
 		   denrender.o tetracut.o
 
+ZDENSPROG=CutZRender
 ZDENSOBJ=cutzdens.o buffers.o processbar.o\
 		   indtetrastream.o readgadget.o tetrastream.o\
 		   tetrahedron.o triangle.o indtetrahedron.o\
 		   denrender.o tetracut.o
 
+TFILEPROG=TFileZrender
+TFILEOBJ=tfile_render.o buffers.o processbar.o\
+		   indtetrastream.o readgadget.o tetrastream.o\
+		   tetrahedron.o triangle.o indtetrahedron.o\
+		   denrender.o tetracut.o tfilestream.o
+
+
+CUDAZDENSPROG=cudaZDensRender
 CUDAZDENSOBJ=cutzdens.o processbar.o\
 			 indtetrastream.o readgadget.o tetrastream.o\
 			 cudakernel.o indtetrahedron.o cudarender.o\
 			 tetracut.o
 
+DENSVIEWPROG=DensViewer
 DENSVIEWOBJ=viewfun.o densviewer.o
 
 
 all: obj
-	$(CC) $(RENDOBJ) -o renddens_1slide $(LFLAGS)
-	$(CC) $(TOBJ) -o testisoz $(LFLAGS)
-	$(CC) $(TDROBJ) -o testdender $(LFLAGS)
-	$(CC) $(ZDENSOBJ) -o zdensrender $(LFLAGS)
-	$(CC) $(DENSVIEWOBJ) -o DensViewer $(LFLAGS)
+	$(CC) $(RENDOBJ) -o $(RENDPROG) $(LFLAGS)
+	$(CC) $(TOBJ) -o $(TPROG) $(LFLAGS)
+	$(CC) $(TDROBJ) -o $(TDRPROG) $(LFLAGS)
+	$(CC) $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
+	$(CC) $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
+	$(CC) $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
 	@echo success
 
 obj:
@@ -51,7 +64,7 @@ obj:
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
 		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
 		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
- 			$(IFLAG)  
+ 		   tfile_render.cpp ${LIB}/tfilestream.cpp  $(IFLAG)  
 
 
 profile:
@@ -77,13 +90,13 @@ cuda:
 			cutzdens.cpp $(IFLAG)  
 
 	$(CUDACC) -c cudarender.cpp cudakernel.cu $(IFLAG)
-	$(CUDACC) -o cudaZDensRender $(CUDAZDENSOBJ) 	
+	$(CUDACC) -o $(CUDAZDENSPROG) $(CUDAZDENSOBJ) 	
 
 clean:
 	rm -f *.o
-	rm -f renddens_1slide 
-	rm -f testisoz
-	rm -f testdender
-	rm -f zdensrender
-	rm -f cudaZDensRender
-	rm -f DensViewer
+	rm -f $(RENDPROG)  
+	rm -f $(TPROG)
+	rm -f $(TDRPROG)
+	rm -f $(ZDENSPROG)
+	rm -f $(DENSVIEWPROG)
+	rm -f $(CUDAZDENSPROG)

@@ -78,8 +78,20 @@ public:
                  long ptr,
                  long count
                  );
+    
+    void readPos(std::string &file,
+                 Point * pos,
+                 long ptr,
+                 long count
+                 );
 
 	void readVel(std::fstream &file,
+                 Point * vel,
+                 long ptr,
+                 long count
+                 );
+    
+    void readVel(std::string &file,
                  Point * vel,
                  long ptr,
                  long count
@@ -108,7 +120,11 @@ private:
 	string prefix_;
 	int numOfFiles_;
 	string basename_;
-	int * numOfParts;
+	int * numOfParts_;
+    int * multStartInd_;
+    int * multEndInd_;
+    int * minInd_;
+    int * maxInd_;
 
 
     //bool isHighMem_;
@@ -124,9 +140,10 @@ private:
         
     // read a point, from position ptr
     Point readPos(std::fstream &file, long ptr);
-
+    Point readPos(std::string &file, long ptr);
 
 	Point readVel(std::fstream &file, long ptr);
+    Point readVel(std::string &file, long ptr);
 
     
     bool isHighMem_;
@@ -134,6 +151,19 @@ private:
 
 	void readIndex(
                    std::fstream &file,
+                   int *block,
+                   int imin,
+                   int jmin,
+                   int kmin,
+                   int imax,
+                   int jmax,
+                   int kmax,
+                   bool isPeriodical = true,
+                   bool isOrdered = false
+                   );
+    
+    void readIndex(
+                   std::string &file,
                    int *block,
                    int imin,
                    int jmin,
