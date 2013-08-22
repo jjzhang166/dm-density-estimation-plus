@@ -23,3 +23,4 @@ private:
 };
 
 #endif /* PROCESS_BAR_H_ */
+

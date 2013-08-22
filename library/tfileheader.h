@@ -5,9 +5,10 @@
 
 class TFileHeader{
 public:
-    uint32_t numOfTetrahedrons;
+    uint64_t numOfTetrahedrons;
     float boxSize;
-    int other[62];
+    int other[60];
 };
 
 #endif
+

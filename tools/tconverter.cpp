@@ -23,31 +23,34 @@ int inputmemgrid = -1;
 Tetrahedron tetrabuffer[BUFFERSIZE];
 
 void printUsage(string pname){
-    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n",
+    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
            pname.c_str(),
            "-df <single_gadgetfile name>",
            "-mf <prefix> <basename> <numoffiles>",
            "-of <output t-file name>",
            "-parttype <particletype>, default: -1",
-           "-dgridsize <data gridsize>, defualt: -1"
+           "-dgridsize <data gridsize>, default: -1",
+           "-tgrid <grid in memory for tetra>, default: -1" 
            );
 }
 
 
 void savefile(TetraStreamer &streamer){
     if(datagridsize == -1){
-        datagridsize = ceil(pow(streamer.getIndTetraStream()->getHeader().npart[parttype], 1.0 / 3.0));
+        datagridsize = (int)ceil(pow(streamer.getIndTetraStream()->getHeader().npartTotal[parttype], 1.0 / 3.0));
     }
     
     if(inputmemgrid == -1){
 		inputmemgrid = datagridsize;
 	}
-    
+   
+     
     
     TFileHeader header;
-    header.numOfTetrahedrons = 0;
+    header.numOfTetrahedrons = 0l;
     header.boxSize = streamer.getIndTetraStream()->getHeader().BoxSize;
     int numTetras = 0;
+   
     
     fstream outputstream(outputfile.c_str(), ios::out | ios::binary);
     if(!outputstream.good()){
@@ -55,11 +58,13 @@ void savefile(TetraStreamer &streamer){
         exit(1);
     }
     
-    int tetra_count = 0;
-    int tcount = datagridsize * datagridsize * datagridsize * 6 / 10;
+    uint64_t tetra_count = 0;
+    uint64_t tcount = datagridsize * datagridsize * datagridsize / 10 * 6;
     if(tcount == 0){
         tcount = 1;
     }
+
+    //printf("%d %d \n", tcount, datagridsize);
     streamer.reset();
     while(streamer.hasNext()){
         int nums;
@@ -94,7 +99,7 @@ void savefile(TetraStreamer &streamer){
     outputstream.seekg(0, outputstream.beg);
     outputstream.write((char *) &header, sizeof(TFileHeader));
     outputstream.close();
-    printf("\nFinished. In total %d tetrahedrons output.\n", tetra_count);
+    printf("\nFinished. In total %ld tetrahedrons output.\n", tetra_count);
 }
 
 
@@ -108,15 +113,14 @@ int main(int argv, char * args[]){
     }else{
         while(k < argv){
             stringstream ss;
+            //printf("%s\n", args[k]);
             if(strcmp(args[k], "-df") == 0){
                 ss << args[k + 1];
                 ss >> singlefilename;
             }else if(strcmp(args[k], "-mf") == 0){
-                ss << args[k + 1];
-                ss >> prefix;
+                prefix = args[k + 1];
                 k++;
-                ss << args[k + 1];
-                ss >> base_name;
+                base_name = args[k + 1];
                 k++;
                 ss << args[k + 1];
                 ss >> numoffiles;
@@ -129,13 +133,17 @@ int main(int argv, char * args[]){
             }else if(strcmp(args[k], "-parttype") == 0){
                 ss << args[k + 1];
                 ss >> parttype;
+            }else if(strcmp(args[k], "-tgrid") == 0){
+                ss << args[k + 1];
+                ss >> inputmemgrid;
             }else{
                 printUsage(args[0]);
                 exit(1);
             }
             k += 2;
         }
-        
+        //printf("%d\n", numoffiles);
+
         if(singlefilename == "" && numoffiles == 0){
             printUsage(args[0]);
             exit(1);
@@ -147,7 +155,8 @@ int main(int argv, char * args[]){
 
     
     if(numoffiles != 0){
-        TetraStreamer streamer(prefix,
+       //printf("ok1\n"); 
+       TetraStreamer streamer(prefix,
                                base_name,
                                numoffiles,
                                inputmemgrid,
@@ -158,6 +167,8 @@ int main(int argv, char * args[]){
                                true,
                                true,
                                false);
+       //printf("ok2\n"); 
+       savefile(streamer);
         
     }else{
         TetraStreamer streamer(singlefilename,

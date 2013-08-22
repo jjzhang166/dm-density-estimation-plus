@@ -34,7 +34,7 @@ void IndTetraStream::init(){
 	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
     * (mem_grid_size_);
     
-    
+    printf("Allocating %d memory size of indtetrahedron\n", mem_tetra_size_); 
 	tetras_ = new IndTetrahedron[mem_tetra_size_];
 	
     //if use all data, no need to build new pointers
