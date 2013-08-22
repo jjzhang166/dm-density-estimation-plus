@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "densviewer", "densviewer\de
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "density_cudarender", "density_cudarender\density_cudarender.vcxproj", "{E8C3BDAE-0DF1-44F6-A324-9938A5B0D95B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tfilerender", "tfilerender\tfilerender.vcxproj", "{7C02D7C4-914C-46D3-8626-BEB248354A10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,12 @@ Global
 		{E8C3BDAE-0DF1-44F6-A324-9938A5B0D95B}.Release|Win32.Build.0 = Release|Win32
 		{E8C3BDAE-0DF1-44F6-A324-9938A5B0D95B}.Release|x64.ActiveCfg = Release|x64
 		{E8C3BDAE-0DF1-44F6-A324-9938A5B0D95B}.Release|x64.Build.0 = Release|x64
+		{7C02D7C4-914C-46D3-8626-BEB248354A10}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7C02D7C4-914C-46D3-8626-BEB248354A10}.Debug|Win32.Build.0 = Debug|Win32
+		{7C02D7C4-914C-46D3-8626-BEB248354A10}.Debug|x64.ActiveCfg = Debug|Win32
+		{7C02D7C4-914C-46D3-8626-BEB248354A10}.Release|Win32.ActiveCfg = Release|Win32
+		{7C02D7C4-914C-46D3-8626-BEB248354A10}.Release|Win32.Build.0 = Release|Win32
+		{7C02D7C4-914C-46D3-8626-BEB248354A10}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

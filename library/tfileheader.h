@@ -1,7 +1,9 @@
 #ifndef __LYTFILEHEADER__
 #define __LYTFILEHEADER__
+#include <integers>
 
 //a file contains only tetrahedrons
+
 
 class TFileHeader{
 public:
