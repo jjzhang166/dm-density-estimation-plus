@@ -13,7 +13,7 @@
 using namespace std;
 
 string prefix = "";
-string basename = "";
+string base_name = "";
 string singlefilename = "";
 string outputfile = "";
 int parttype = 1;
@@ -116,7 +116,7 @@ int main(int argv, char * args[]){
                 ss >> prefix;
                 k++;
                 ss << args[k + 1];
-                ss >> basename;
+                ss >> base_name;
                 k++;
                 ss << args[k + 1];
                 ss >> numoffiles;
@@ -148,7 +148,7 @@ int main(int argv, char * args[]){
     
     if(numoffiles != 0){
         TetraStreamer streamer(prefix,
-                               basename,
+                               base_name,
                                numoffiles,
                                inputmemgrid,
                                parttype,
