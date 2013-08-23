@@ -1,9 +1,7 @@
 #ifndef __LYTFILEHEADER__
 #define __LYTFILEHEADER__
+#include <stdint.h>
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <integers>
-#endif
 
 
 //a file contains only tetrahedrons
@@ -11,8 +9,14 @@
 
 class TFileHeader{
 public:
-    uint64_t numOfTetrahedrons;
-    float boxSize;
+    
+//#if defined(_WIN32) || defined(_WIN64)
+//	unsigned __int64 numOfTetrahedrons;
+//#else
+	uint64_t numOfTetrahedrons;
+//#endif
+    //
+	float boxSize;
     int other[60];
 };
 

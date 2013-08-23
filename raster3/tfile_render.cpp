@@ -6,6 +6,7 @@
 #include <cmath>
 #include <algorithm>    // std::find
 #include <vector>
+#include <stdint.h>
 
 #include "denrender.h"
 #include "tfilestream.h"
@@ -147,7 +148,7 @@ int main(int argv, char * args[]){
         mem_cut_limit = numOfCuts;
     }
     
-    long tetra_count = 0;
+    uint64_t tetra_count = 0;
     int repeatTimes = (int)ceil((float) numOfCuts / (float) mem_cut_limit);
     int repeatNumOfCuts = numOfCuts > mem_cut_limit ?
         mem_cut_limit : numOfCuts;
@@ -200,7 +201,7 @@ int main(int argv, char * args[]){
         
         //render
         
-        long tcount = tfilestream.getNumofTetras() / 10;
+        uint64_t tcount = tfilestream.getNumofTetras() / 10;
         
         if(mem_cut_limit == numOfCuts){
             printf("Start rendering ...\n");

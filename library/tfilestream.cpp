@@ -31,7 +31,7 @@ int TFileStream::getNumofTetras(){
 }
 
 bool TFileStream::hasNext(){
-    if(currentBlockID_ * blocksize_ < (int)header_.numOfTetrahedrons){
+    if((uint64_t)currentBlockID_ * (uint64_t)blocksize_ < (uint64_t)header_.numOfTetrahedrons){
         return true;
     }else{
         return false;
@@ -40,14 +40,14 @@ bool TFileStream::hasNext(){
 
 Tetrahedron * TFileStream::getNext(int & numtetras){
     if(hasNext()){
-        int numts = getNumofTetras() - currentBlockID_ * blocksize_;
+        uint64_t numts = getNumofTetras() - currentBlockID_ * blocksize_;
         if(numts >= blocksize_){
             numts = blocksize_;
         }
         
         currentBlockID_ ++;
         currentNumOfTetras_ = numts;
-        numtetras = currentNumOfTetras_;
+        numtetras = (int) currentNumOfTetras_;
         
         inputfile_.read((char *) blockTetras_,
                         sizeof(Tetrahedron) * currentNumOfTetras_);
