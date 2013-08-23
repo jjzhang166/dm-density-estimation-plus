@@ -31,14 +31,14 @@ public:
 	GSnap(std::string filename,
           bool isHighMem,
           int parttype =1,
-          int gridsize = 512)
+          int gridsize = -1)
 					;
     
     //read all data into memory
     GSnap(
           std::string filename,
           int parttype =1,
-          int gridsize = 512
+          int gridsize = -1
           );
     
     //this reads a multi-file into memory
@@ -48,7 +48,7 @@ public:
           int numfiles,
 		  bool isHighMem = false,
           int parttype =1,
-          int gridsize = 512
+          int gridsize = -1
           );
     
 	~GSnap();

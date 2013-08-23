@@ -72,9 +72,9 @@ void getRedshiftDistoredTetra(Tetrahedron &target,
 
 
 void savefile(TetraStreamer &streamer){
-    //if(isRedShiftDist){
-    //    streamer.setRedshiftDistort(redshiftAxis);
-    //}
+    if(isRedShiftDist){
+        streamer.setRedshiftDistort(redshiftAxis);
+    }
     
     if(datagridsize == -1){
         datagridsize = (int)ceil(pow(streamer.getIndTetraStream()->getHeader().npartTotal[parttype], 1.0 / 3.0));
@@ -113,9 +113,9 @@ void savefile(TetraStreamer &streamer){
         tetras = streamer.getNext(nums);
 
         for(int i= 0; i < nums; i++){
-            float boxsize =  streamer.getIndTetraStream()->getHeader().BoxSize;
+            //float boxsize =  streamer.getIndTetraStream()->getHeader().BoxSize;
             
-            if(isRedShiftDist){
+            /*if(isRedShiftDist){
                 
                 Tetrahedron newtetra = tetras[i];
                 getRedshiftDistoredTetra(newtetra, redshiftAxis,
@@ -123,7 +123,7 @@ void savefile(TetraStreamer &streamer){
                                          ->getHeader().redshift);
                 tetrabuffer[numTetras] = newtetra;
                 
-                /*if(tetras[i].maxx() > boxsize && tetras[i].minx() < boxsize && newtetra.minx() > boxsize){
+                if(tetras[i].maxx() > boxsize && tetras[i].minx() < boxsize && newtetra.minx() > boxsize){
                     tetra_count ++;
                     numTetras ++;
                     tetrabuffer[numTetras] = newtetra - boxsize;
@@ -163,9 +163,9 @@ void savefile(TetraStreamer &streamer){
                     tetrabuffer[numTetras].v2.z -= boxsize;
                     tetrabuffer[numTetras].v3.z -= boxsize;
                     tetrabuffer[numTetras].v4.z -= boxsize;
-                }*/
+                }
                 
-            }else{
+            }else*/{
                 tetrabuffer[numTetras] = tetras[i];
             }
             
