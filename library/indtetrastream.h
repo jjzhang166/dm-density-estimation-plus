@@ -97,8 +97,23 @@ public:
     double getRunningTime(){
         return iotime_;
     };
+    
+    
+    void setRedshiftDistort(Point distortAxis);
+    
+    static void getRedshiftDistoredPoint(Point & target,
+                                         Point &velocity,
+                                         Point & distortAxis,
+                                         float redshift,
+                                         float boxSize);
+    
 
 private:
+    bool isRedshiftDistorted_;
+    Point redshiftDistortAxis_;
+    bool isReshiftDistortionCalculated_;
+    
+    
     void init();
     
     
@@ -198,6 +213,8 @@ public:
     };
     
     void reset();
+    
+    void setRedshiftDistort(Point distortAxis);
 
 private:
     IndTetraStream * indstream_;

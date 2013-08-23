@@ -15,8 +15,12 @@ using namespace std;
 #include "indtetrastream.h"
 #include "readgadget.h"
 
+#define H0 100
 
 void IndTetraStream::init(){
+    isRedshiftDistorted_ = false;
+    isReshiftDistortionCalculated_ = false;
+    
     //printf("what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
 	total_parts_ = gsnap_->Npart;
@@ -136,6 +140,43 @@ IndTetraStream::IndTetraStream(string filename,
     init();
 }
 
+
+void IndTetraStream::getRedshiftDistoredPoint(Point & target,
+                                              Point &velocity,
+                                              Point & distortAxis,
+                                              float redshift,
+                                              float boxSize
+                                              ){
+    float a = 1.0 / (1.0 + redshift);
+    
+    Point displacement = distortAxis
+    * velocity.dot(distortAxis)
+    * sqrt(a) * (1.0 / H0) * 1000; //to kpc/h
+    
+    target = target + displacement;
+    target.x = fmod(target.x, boxSize);
+    target.y = fmod(target.y, boxSize);
+    target.z = fmod(target.z, boxSize);
+}
+
+
+void IndTetraStream::setRedshiftDistort(Point distortAxis){
+    isRedshiftDistorted_ = true;
+    redshiftDistortAxis_ = distortAxis;
+    if(isAllData_){
+        if(!isReshiftDistortionCalculated_){
+            for(int i = 0; i < total_parts_; i++){
+                getRedshiftDistoredPoint(position_[i],
+                                         velocity_[i],
+                                         redshiftDistortAxis_,
+                                         getHeader().redshift,
+                                         getHeader().BoxSize);
+            }
+            isReshiftDistortionCalculated_ = true;
+        }
+    }
+}
+
 void IndTetraStream::setIsInOrder(bool isinorder){
 	isInOrder_ = isinorder;
 }
@@ -217,6 +258,15 @@ void IndTetraStream::loadBlock(int i){
             gsnap_->readPosBlock(position_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_);
         }else{
             gsnap_->readBlock(position_, velocity_, imin, jmin, kmin, imax, jmax, kmax, isPeriodical_, isInOrder_); 
+            if(isRedshiftDistorted_){
+                for(int l = 0; l < (mem_grid_size_ + 1) * (mem_grid_size_ + 1) * (mem_grid_size_ + 1); l++){
+                    getRedshiftDistoredPoint(position_[l],
+                                             velocity_[l],
+                                             redshiftDistortAxis_,
+                                             getHeader().redshift,
+                                             getHeader().BoxSize);
+                }
+            }
         }
     }else
     {
@@ -479,4 +529,8 @@ void TetraStreamer::reset(){
     current_block_id_ = -1;
     current_tetra_id_ = 0;
     total_tetra_num_ = 0;
+}
+
+void TetraStreamer::setRedshiftDistort(Point distortAxis){
+    indstream_->setRedshiftDistort(distortAxis);
 }

@@ -4,6 +4,7 @@
 
 using namespace std;
 
+
 CUDA_CALLABLE_MEMBER IndTetrahedronManager::IndTetrahedronManager(
                                                                   Point * parray,
                                                                   REAL box,

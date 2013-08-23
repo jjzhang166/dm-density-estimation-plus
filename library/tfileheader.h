@@ -1,6 +1,10 @@
 #ifndef __LYTFILEHEADER__
 #define __LYTFILEHEADER__
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <integers>
+#endif
+
 
 //a file contains only tetrahedrons
 

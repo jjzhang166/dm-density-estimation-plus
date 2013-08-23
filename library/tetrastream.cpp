@@ -143,17 +143,28 @@ void TetraStream::loadBlock(int i){
 
 void TetraStream::splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
     static Point * vertexs[4];
+    static Point * velocity[4];
 	static Point * temp_;
 	vertexs[0] = &(tetra.v1);
 	vertexs[1] = &(tetra.v2);
 	vertexs[2] = &(tetra.v3);
 	vertexs[3] = &(tetra.v4);
+    
+    velocity[0] = &(tetra.velocity1);
+	velocity[1] = &(tetra.velocity2);
+	velocity[2] = &(tetra.velocity3);
+	velocity[3] = &(tetra.velocity4);
+    
 	for(int i = 0; i < 4; i ++){
 		for(int j = i+1; j < 4; j++){
 			if((vertexs[i]->x) < (vertexs[j]->x)){
 				temp_ = vertexs[j];
 				vertexs[j] = vertexs[i];
 				vertexs[i] = temp_;
+                
+ 				temp_ = velocity[j];
+				velocity[j] = velocity[i];
+				velocity[i] = temp_;
 			}
 		}
 	}
@@ -181,17 +192,28 @@ void TetraStream::splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1){
 
 void TetraStream::splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
     static Point * vertexs[4];
+    static Point * velocity[4];
 	static Point * temp_;
 	vertexs[0] = &(tetra.v1);
 	vertexs[1] = &(tetra.v2);
 	vertexs[2] = &(tetra.v3);
 	vertexs[3] = &(tetra.v4);
+    
+    velocity[0] = &(tetra.velocity1);
+	velocity[1] = &(tetra.velocity2);
+	velocity[2] = &(tetra.velocity3);
+	velocity[3] = &(tetra.velocity4);
+    
 	for(int i = 0; i < 4; i ++){
 		for(int j = i+1; j < 4; j++){
 			if((vertexs[i]->y) < (vertexs[j]->y)){
 				temp_ = vertexs[j];
 				vertexs[j] = vertexs[i];
 				vertexs[i] = temp_;
+                
+                temp_ = velocity[j];
+				velocity[j] = velocity[i];
+				velocity[i] = temp_;
 			}
 		}
 	}
@@ -220,16 +242,28 @@ void TetraStream::splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1){
 void TetraStream::splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
     static Point * vertexs[4];
 	static Point * temp_;
+    static Point * velocity[4];
+    
 	vertexs[0] = &(tetra.v1);
 	vertexs[1] = &(tetra.v2);
 	vertexs[2] = &(tetra.v3);
 	vertexs[3] = &(tetra.v4);
+    
+    velocity[0] = &(tetra.velocity1);
+	velocity[1] = &(tetra.velocity2);
+	velocity[2] = &(tetra.velocity3);
+	velocity[3] = &(tetra.velocity4);
+    
 	for(int i = 0; i < 4; i ++){
 		for(int j = i+1; j < 4; j++){
 			if((vertexs[i]->z) < (vertexs[j]->z)){
 				temp_ = vertexs[j];
 				vertexs[j] = vertexs[i];
 				vertexs[i] = temp_;
+                
+                temp_ = velocity[j];
+				velocity[j] = velocity[i];
+				velocity[i] = temp_;
 			}
 		}
 	}

@@ -147,7 +147,7 @@ int main(int argv, char * args[]){
         mem_cut_limit = numOfCuts;
     }
     
-    int tetra_count = 0;
+    long tetra_count = 0;
     int repeatTimes = (int)ceil((float) numOfCuts / (float) mem_cut_limit);
     int repeatNumOfCuts = numOfCuts > mem_cut_limit ?
         mem_cut_limit : numOfCuts;
@@ -200,7 +200,7 @@ int main(int argv, char * args[]){
         
         //render
         
-        int tcount = tfilestream.getNumofTetras();
+        long tcount = tfilestream.getNumofTetras() / 10;
         
         if(mem_cut_limit == numOfCuts){
             printf("Start rendering ...\n");
@@ -227,7 +227,7 @@ int main(int argv, char * args[]){
         
         printf("\n");
         if(mem_cut_limit == numOfCuts){
-            printf("Finished. In total %d tetrahedron rendered.\n", tetra_count);
+            printf("Finished. In total %ld tetrahedron rendered.\n", tetra_count);
         }
         
         //head used 256 bytes
@@ -297,7 +297,7 @@ int main(int argv, char * args[]){
     }
     //outstream.open(gridfilename.c_str(), ios::out | ios::binary);
     if(mem_cut_limit != numOfCuts){
-        printf("Finished. In total %d tetrahedron rendered.\n", tetra_count);
+        printf("Finished. In total %ld tetrahedron rendered.\n", tetra_count);
     }else{
         printf("Finished!\n");
     }

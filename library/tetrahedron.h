@@ -112,6 +112,8 @@ public:
     CUDA_CALLABLE_MEMBER void setVelArray(Point * varray);
     CUDA_CALLABLE_MEMBER void setBoxSize(REAL box);
     
+    CUDA_CALLABLE_MEMBER void setRedShitDistortion(Point distortAxis);
+    
     //test wheter the point is in this tetra
 	CUDA_CALLABLE_MEMBER bool isInTetra(const IndTetrahedron &tetra_, const Point &p) const;
 	CUDA_CALLABLE_MEMBER bool isInTetra(const IndTetrahedron &tetra_,
@@ -141,14 +143,13 @@ public:
     //return the period tetrahedrons
 	CUDA_CALLABLE_MEMBER Tetrahedron * getPeroidTetras(const IndTetrahedron &tetra_);
     
-    
-    
 private:
     Tetrahedron tetras_p[8];    //used for solve the peoridical condition
     REAL box_;
     Point * positionArray;
     Point * velocityArray;
     bool isVelocity_;           //does velocity participated in the calculation?
+    
 };
 
 
