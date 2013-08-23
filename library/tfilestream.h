@@ -15,7 +15,7 @@ public:
     Tetrahedron * getNext(int & numtetras);
     
     TFileHeader getHeader();
-    int getNumofTetras();
+    uint64_t getNumofTetras();
 
     void reset();
 

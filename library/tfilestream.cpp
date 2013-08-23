@@ -26,7 +26,7 @@ TFileHeader TFileStream::getHeader(){
     return header_;
 }
 
-int TFileStream::getNumofTetras(){
+uint64_t TFileStream::getNumofTetras(){
     return header_.numOfTetrahedrons;
 }
 

@@ -1,3 +1,4 @@
+//#define __STDC_FORMAT_MACROS
 #include <cstdio>
 #include <iostream>
 #include <sstream>
@@ -8,6 +9,7 @@
 #include <vector>
 #include <stdint.h>
 
+
 #include "denrender.h"
 #include "tfilestream.h"
 #include "tetrahedron.h"
@@ -16,7 +18,7 @@
 
 using namespace std;
 string filename = "";
-int blocksize = 65536;
+int blocksize = 819200;
 int imagesize = 512;
 
 string densityFilename = "";	//output filename
@@ -201,12 +203,12 @@ int main(int argv, char * args[]){
         
         //render
         
-        uint64_t tcount = tfilestream.getNumofTetras() / 10;
+        uint64_t tcount = tfilestream.getNumofTetras() / 50;
         
         if(mem_cut_limit == numOfCuts){
-            printf("Start rendering ...\n");
+			printf("Start rendering, %lld tetrahedrons ...\n", tfilestream.getNumofTetras());
         }else{
-            printf("Rendering %d/%d...\n", _idcut + 1, repeatTimes);
+            printf("Rendering %d/%d, %lld tetrahedrons ...\n", _idcut + 1, repeatTimes, tfilestream.getNumofTetras());
         }
         
         tfilestream.reset();
