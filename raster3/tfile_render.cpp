@@ -230,7 +230,7 @@ int main(int argv, char * args[]){
         
         printf("\n");
         if(mem_cut_limit == numOfCuts){
-            printf("Finished. In total %ld tetrahedron rendered.\n", tetra_count);
+            printf("Finished. In total %lld tetrahedron rendered.\n", tetra_count);
         }
         
         //head used 256 bytes
@@ -300,7 +300,7 @@ int main(int argv, char * args[]){
     }
     //outstream.open(gridfilename.c_str(), ios::out | ios::binary);
     if(mem_cut_limit != numOfCuts){
-        printf("Finished. In total %ld tetrahedron rendered.\n", tetra_count);
+        printf("Finished. In total %lld tetrahedron rendered.\n", tetra_count);
     }else{
         printf("Finished!\n");
     }
