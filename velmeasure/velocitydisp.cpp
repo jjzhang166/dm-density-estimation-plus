@@ -33,6 +33,7 @@ Point wvector;
 Point rvector;
 uint32_t z_w[NUMBINS];
 
+
 Point * allpos;
 Point * allvel;
 
@@ -62,6 +63,9 @@ struct kdtreeNode
 
 typedef KDTree::KDTree<3,kdtreeNode> treeType;
 treeType kdtree;
+
+
+vector<kdtreeNode> retVec;
 
 //find the particles in between 2 cube shells
 //r1 and r2 are the 1/2 of the edge length of the 2 cube
@@ -205,6 +209,7 @@ int main(int argv, char * args[]){
     allvel = psnap -> getAllVel();
 
     size_t nparts = psnap -> Npart;
+    retVec.reserve(nparts);
     
     // make random 3d points
     printf("Building tree ...\n");
@@ -220,8 +225,9 @@ int main(int argv, char * args[]){
     
     
     for(size_t i = 0; i < nparts; i ++){
-        vector<kdtreeNode> retVec;
-#ifdef TREE_CODE        
+        
+#ifdef TREE_CODE    
+        retVec.clear();
         findPartsInShell(kdtree, allpos[i],
                          radius / SQRT2, radius + shellsize,
                          retVec);
