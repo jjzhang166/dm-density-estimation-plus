@@ -3,7 +3,24 @@
 
 #define PI 3.14159265358979323846
 
-typedef float REAL;
+//use double as position variables
+//#define __POS_DOUBLE
+
+//use 64 bit integers as idtype
+//#define __ID_UINT64
+
+#ifdef __POS_DOUBLE
+#define REAL double
+#else
+#define REAL float
+#endif
+
+#ifdef __ID_UINT64
+#define IDTYPE uint64_t
+#else
+#define IDTYPE uint32_t
+#endif
+
 
 class Halo{
 public:
