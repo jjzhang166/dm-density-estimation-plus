@@ -41,8 +41,8 @@ bool TFileStream::hasNext(){
 Tetrahedron * TFileStream::getNext(int & numtetras){
     if(hasNext()){
         uint64_t numts = getNumofTetras() - currentBlockID_ * blocksize_;
-        if(numts >= blocksize_){
-            numts = blocksize_;
+        if(numts >= (uint64_t) blocksize_){
+            numts = (uint64_t) blocksize_;
         }
         
         currentBlockID_ ++;

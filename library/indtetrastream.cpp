@@ -77,7 +77,11 @@ void IndTetraStream::init(){
         position_ = gsnap_->getAllPos();
         velocity_ = gsnap_->getAllVel();
     }
-    
+   
+    //for(int i = 0; i < 100; i ++ ){
+    //    printf("Position: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
+    //}
+
     indTetraManager_.setBoxSize(getHeader().BoxSize);
     indTetraManager_.setIsVelocity(isVelocity_);
     indTetraManager_.setVelArray(velocity_);

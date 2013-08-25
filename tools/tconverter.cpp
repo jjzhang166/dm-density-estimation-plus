@@ -20,7 +20,7 @@ string outputfile = "";
 int parttype = 1;
 int numoffiles = 0;
 int datagridsize = -1;
-int inputmemgrid = -1;
+int inputmemgrid = 16;
 Tetrahedron tetrabuffer[BUFFERSIZE + 20];
 
 bool isRedShiftDist = false;  
@@ -169,7 +169,7 @@ void savefile(TetraStreamer &streamer){
                 tetrabuffer[numTetras] = tetras[i];
             }
             
-            
+            //printf("%f %f %f\n", tetras[i].v1.x, tetras[i].v1.y, tetras[i].v1.z);      
             
             numTetras ++;
             //printf("ok %d\n", tetra_count);

@@ -320,7 +320,7 @@ GSnap::GSnap(
             
             Point * temppos;
             Point * tempvel;
-            uint32_t * tempind;
+            uint64_t * tempind;
             int single_startind = 0;
             int single_endind = 0;
             uint32_t record0, record1;
@@ -338,7 +338,7 @@ GSnap::GSnap(
                 printf("Record in file not equal!\n");
                 exit(1);
             }
-            file.close();
+            //file.close();
             
             for(int j = 0; j < N_TYPE; j++){
                 single_file_parts += single_header.npart[j];
@@ -354,21 +354,27 @@ GSnap::GSnap(
             
             temppos = new Point[single_file_parts];
             tempvel = new Point[single_file_parts];
-            tempind = new uint32_t[single_file_parts];
+            tempind = new uint64_t[single_file_parts];
             
             readPos(file, temppos, 0, single_file_parts);
             readVel(file, tempvel, 0, single_file_parts);
             
             //read indexs:
             streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-            + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
-            + sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+            + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t)
+            + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t)
             + sizeof(uint32_t);
+
             file.seekg(spos, ios_base::beg);
-            file.read((char *) tempind, sizeof(uint32_t) * single_file_parts);
+            file.read((char *) tempind, sizeof(uint64_t) * single_file_parts);
             
             for(int j = single_startind; j < single_endind; j ++){
                 
+                //printf("IDs -> j= %d, tempid = %ld, singlparts =%d, nparts = %d\n", 
+                //                j, tempind[j], single_file_parts, Npart);
+                //printf("%d %d %ld %d\n", j, single_file_parts, tempind[j], totalparts);    
+                //printf("Pos -> %f %f %f\n", temppos[j].x, temppos[j].y, temppos[j].z);
+
                 if(tempind[j] >= Npart){
                     continue;
                 }
@@ -382,6 +388,9 @@ GSnap::GSnap(
                 //printf("%d %d %d %d\n", j, single_file_parts, tempind[j], totalparts);
             }
             file.close();
+            delete temppos;
+            delete tempind;
+            delete tempvel;
         }
     }
     
