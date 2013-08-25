@@ -25,7 +25,7 @@ using namespace std;
 
 string singlefilename = "";
 string prefix = "";
-string basename = "";
+string basename_ = "";
 int numOfFiles = 0;
 float radius = 10000.0;
 float shellsize = 1000.0;
@@ -179,7 +179,7 @@ int main(int argv, char * args[]){
         singlefilename = args[1];
     }else if(argv == 4){
         prefix = args[1];
-        basename = args[2];
+        basename_ = args[2];
         numOfFiles = atoi(args[3]);
     }else{
         printUsage(args[0]);
@@ -196,7 +196,7 @@ int main(int argv, char * args[]){
     }
 
     if(numOfFiles != 0){
-        psnap = new GSnap(prefix, basename, numOfFiles, true, 1 -1);
+        psnap = new GSnap(prefix, basename_, numOfFiles, true, 1 -1);
     }else{
         psnap = new GSnap(singlefilename, true, 1, -1);
     }
