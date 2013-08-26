@@ -177,8 +177,7 @@ void printUsage(string pname){
            );
     fprintf(stderr, "Options\n"
                     "-bins <num of bins>, default: 2000\n"
-                    "-binsize <size of bin>, default: 1.0 (km/s)\n"
-                    "-maxw <maxium positive velocity measured>, default: 1000 (km/s)");
+                    "-binsize <size of bin>, default: 1.0 (km/s)\n");
 }
 
 
@@ -232,9 +231,6 @@ int main(int argv, char * args[]){
         }else if(strcmp(args[k], "-binsize") == 0){
             ss << args[k + 1];
             ss >> bin_size;
-        }else if(strcmp(args[k], "-maxw") == 0){
-            ss << args[k + 1];
-            ss >> max_w;
         }else{
             printUsage(args[0]);
             exit(1);
@@ -246,7 +242,8 @@ int main(int argv, char * args[]){
     fprintf(stderr, "shellsize = %f (kpc)\n", shellsize);
     fprintf(stderr, "numofbins = %d\n", num_of_bins);
     fprintf(stderr, "bin_size = %f (km/s)\n", bin_size);
-    fprintf(stderr, "max_w = %f (km/s)\n", max_w);
+    
+    max_w = num_of_bins / 2 * bin_size;
     
     z_w = new uint32_t[num_of_bins];
     if(numOfFiles == 0 && singlefilename == ""){
