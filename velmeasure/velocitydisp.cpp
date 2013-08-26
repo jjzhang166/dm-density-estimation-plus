@@ -27,8 +27,8 @@ string singlefilename = "";
 string prefix = "";
 string basename_ = "";
 int numOfFiles = 0;
-float radius = 10000.0;
-float shellsize = 1000.0;
+float radius = 1000.0;
+float shellsize = 100.0;
 Point wvector;
 Point rvector;
 uint32_t z_w[NUMBINS];
@@ -163,11 +163,11 @@ void findPartsInShell(treeType &tree, Point & p,
 }
 
 void printUsage(string pname){
-    printf("Usage: %s <Single Filename>\n",
+    fprintf(stderr, "Usage: %s <Single Filename>\n",
            pname.c_str()
            );
-    printf("-OR-\n");
-    printf("%s <prefix> <basename> <numOfFiles> \n",
+    fprintf(stderr, "-OR-\n");
+    fprintf(stderr, "%s <prefix> <basename> <numOfFiles> \n",
            pname.c_str()
            );
 }
@@ -212,7 +212,8 @@ int main(int argv, char * args[]){
     retVec.reserve(nparts);
     
     // make random 3d points
-    printf("Building tree ...\n");
+#ifdef TREE_CODE
+    fprintf(stderr, "Building tree ...\n");
     for ( size_t n = 0; n < nparts; ++n)
     {
         kdtreeNode node;
@@ -220,18 +221,22 @@ int main(int argv, char * args[]){
         kdtree.insert( node);
     }
     kdtree.optimise();
-    
-    printf("KDTree Built. Nparts: %ld\n", nparts);
-    
-    
+    fprintf(stderr, "KDTree Built. Nparts: %ld\n", nparts);
+#endif
+
+    size_t m_count = nparts / 50;    
     for(size_t i = 0; i < nparts; i ++){
-        
+        if(i % m_count == 0){
+             fprintf(stderr, ">");
+        }
 #ifdef TREE_CODE    
         retVec.clear();
         findPartsInShell(kdtree, allpos[i],
                          radius / SQRT2, radius + shellsize,
                          retVec);
-
+        
+        //printf("retsize = %ld, capacit = %ld, nparts = %ld\n", 
+        //                retVec.size(), retVec.capacity(), nparts);
         for(size_t j = 0; j < retVec.size(); j ++){
             //printf("ok1 %d\n", i);
             rvector = allpos[retVec[j].index] - allpos[i];
@@ -249,6 +254,7 @@ int main(int argv, char * args[]){
                 }
             }
         }
+        //printf("\n");
 #else
         for(size_t j = 0; j < nparts; j ++){
             //printf("ok1 %d\n", i);
@@ -268,12 +274,13 @@ int main(int argv, char * args[]){
             }
         }
 #endif
-        
+        //printf("\n");
     }
-    
+    fprintf(stderr, "\n");
+
     for(int i = 0; i < NUMBINS; i++){
         float w = (float)(i - NUMBINS / 2) / (float)(NUMBINS / 2) * MAX_W;
-        printf("%f %d\n", w, z_w[i]);
+        fprintf(stdout, "%f %d\n", w, z_w[i]);
     }
     
     delete psnap;
