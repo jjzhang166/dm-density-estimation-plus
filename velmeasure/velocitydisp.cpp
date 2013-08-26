@@ -274,7 +274,14 @@ int main(int argv, char * args[]){
     }
 
     if(numOfFiles != 0){
-        psnap = new GSnap(prefix, basename_, numOfFiles, true, 1 -1);
+        fprintf(stderr, "Create file!\n");
+        psnap = new GSnap(
+                        prefix, 
+                        basename_, 
+                        numOfFiles, 
+                        true, 
+                        1, 
+                        -1);
     }else{
         psnap = new GSnap(singlefilename, true, 1, -1);
     }
