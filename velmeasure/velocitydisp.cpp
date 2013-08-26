@@ -320,6 +320,7 @@ int main(int argv, char * args[]){
         kdtree.insert( node);
         if(n % m_count == 0){
             fprintf(stderr, ">");
+            cout.flush();
         }
     }
     fprintf(stderr, "\n");
@@ -332,7 +333,8 @@ int main(int argv, char * args[]){
     
     for( size_t i = 0; i < nparts; i ++){
         if(i % m_count == 0){
-             fprintf(stderr, ">");
+            fprintf(stderr, ">");
+            cout.flush();
         }
 #ifdef TREE_CODE    
         retVec.clear();
