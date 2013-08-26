@@ -323,10 +323,7 @@ int main(int argv, char * args[]){
 
     size_t m_count = nparts / 50;
     
-#ifdef __OMP__
-    #pragma omp parallel for
-#endif
-    for(size_t i = 0; i < nparts; i ++){
+    for( size_t i = 0; i < nparts; i ++){
         if(i % m_count == 0){
              fprintf(stderr, ">");
         }
@@ -338,6 +335,11 @@ int main(int argv, char * args[]){
         
         //printf("retsize = %ld, capacit = %ld, nparts = %ld\n", 
         //                retVec.size(), retVec.capacity(), nparts);
+#ifdef __OMP__
+# pragma omp parallel \
+shared ( retVec, allpos, allvel, z_w, radius, shellsize)
+        #pragma omp for
+#endif
         for(size_t j = 0; j < retVec.size(); j ++){
             //printf("ok1 %d\n", i);
             rvector = allpos[retVec[j].index] - allpos[i];
@@ -355,6 +357,7 @@ int main(int argv, char * args[]){
                     #pragma omp atomic
 #endif
                     z_w[ind] ++;
+                        
                     
                 }
             }
