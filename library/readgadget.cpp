@@ -258,8 +258,8 @@ GSnap::GSnap(
         //printf("ok1.5.3\n");
         //find index
         streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-		+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
-		+ sizeof(uint32_t) + totalparts * sizeof(REAL) * 3 + sizeof(uint32_t)
+		+ sizeof(uint32_t) + numOfParts_[i] * sizeof(REAL) * 3 + sizeof(uint32_t)
+		+ sizeof(uint32_t) + numOfParts_[i] * sizeof(REAL) * 3 + sizeof(uint32_t)
 		+ sizeof(uint32_t) + multStartInd_[i] * sizeof(uint32_t);
         
         
