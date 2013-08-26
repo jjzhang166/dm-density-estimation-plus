@@ -19,9 +19,9 @@
 using namespace std;
 
 
-int NUMBINS = 2000;
-double BINSIZE = 1.0;
-double MAX_W = 1000.0;
+int num_of_bins = 2000;
+double bin_size = 1.0;
+double max_w = 1000.0;
 
 
 #define SQRT2 1.41421356237
@@ -36,7 +36,7 @@ float radius = 1000.0;
 float shellsize = 100.0;
 Point wvector;
 Point rvector;
-uint32_t * z_w = new uint32_t[NUMBINS];
+uint32_t * z_w = new uint32_t[num_of_bins];
 
 
 Point * allpos;
@@ -177,7 +177,7 @@ void printUsage(string pname){
            );
     fprintf(stderr, "Options\n"
                     "-bins <num of bins>, default: 2000\n"
-                    "-binsize <size of bin>, default: 1.0 (km/s)\n"
+                    "-bin_size <size of bin>, default: 1.0 (km/s)\n"
                     "-maxw <maxium positive velocity measured>, default: 1000 (km/s)");
 }
 
@@ -215,13 +215,13 @@ int main(int argv, char * args[]){
         stringstream ss;
         if(strcmp(args[k], "-bins") == 0){
             ss << args[k + 1];
-            ss >> NUMBINS; 
-        }else if(strcmp(args[k], "-binsize") == 0){
+            ss >> num_of_bins; 
+        }else if(strcmp(args[k], "-bin_size") == 0){
             ss << args[k + 1];
-            ss >> BINSIZE;
+            ss >> bin_size;
         }else if(strcmp(args[k], "-maxw") == 0){
             ss << args[k + 1];
-            ss >> MAX_W;
+            ss >> max_w;
         }else{
             printUsage(args[0]);
             exit(1);
@@ -229,17 +229,11 @@ int main(int argv, char * args[]){
         k += 2;
     }
 
-    fprintf(stderr, "radius = %f (kpc)\n"
-                    "shellsize = %f (kpc)\n"
-                    "numofbins = %d\n",
-                    "binsize = %f (km/s)\n"
-                    "max_w = %f (km/s)\n"
-                    , 
-                    radius, 
-                    shellsize, 
-                    NUMBINS,
-                    BINSIZE, 
-                    MAX_W);
+    fprintf(stderr, "radius = %f (kpc)\n", radius);
+    fprintf(stderr, "shellsize = %f (kpc)\n", shellsize);
+    fprintf(stderr, "numofbins = %d\n", num_of_bins);
+    fprintf(stderr, "bin_size = %f (km/s)\n", bin_size);
+    fprintf(stderr, "max_w = %f (km/s)\n", max_w);
     
     
     if(numOfFiles == 0 && singlefilename == ""){
@@ -247,7 +241,7 @@ int main(int argv, char * args[]){
         exit(1);
     }
     
-    for(int i = 0; i < NUMBINS; i++){
+    for(int i = 0; i < num_of_bins; i++){
         z_w[i] = 0;
     }
 
@@ -299,9 +293,9 @@ int main(int argv, char * args[]){
                 wvector = allvel[retVec[j].index] - allvel[i];
                 float w = wvector.dot(rvector);
                 
-                int ind = (int) floor(w / MAX_W * (NUMBINS / 2) + NUMBINS / 2);
+                int ind = (int) floor(w / max_w * (num_of_bins / 2) + num_of_bins / 2);
                 //printf("%f %d\n", w);
-                if(ind >= 0 && ind < NUMBINS){
+                if(ind >= 0 && ind < num_of_bins){
                     z_w[ind] ++;
                 }
             }
@@ -318,9 +312,9 @@ int main(int argv, char * args[]){
                 wvector = allvel[j] - allvel[i];
                 float w = wvector.dot(rvector);
                 
-                int ind = (int) floor(w / MAX_W * (NUMBINS / 2) + NUMBINS / 2);
+                int ind = (int) floor(w / max_w * (num_of_bins / 2) + num_of_bins / 2);
                 //printf("%f %d\n", w);
-                if(ind >= 0 && ind < NUMBINS){
+                if(ind >= 0 && ind < num_of_bins){
                     z_w[ind] ++;
                 }
             }
@@ -330,8 +324,8 @@ int main(int argv, char * args[]){
     }
     fprintf(stderr, "\n");
 
-    for(int i = 0; i < NUMBINS; i++){
-        float w = (float)(i - NUMBINS / 2) / (float)(NUMBINS / 2) * MAX_W;
+    for(int i = 0; i < num_of_bins; i++){
+        float w = (float)(i - num_of_bins / 2) / (float)(num_of_bins / 2) * max_w;
         fprintf(stdout, "%f %d\n", w, z_w[i]);
     }
     delete z_w; 
