@@ -274,7 +274,7 @@ int main(int argv, char * args[]){
     }
 
     if(numOfFiles != 0){
-        fprintf(stderr, "Create file!\n");
+        //fprintf(stderr, "Create file!\n");
         psnap = new GSnap(
                         prefix, 
                         basename_, 
