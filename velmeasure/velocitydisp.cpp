@@ -318,7 +318,7 @@ int main(int argv, char * args[]){
         kdtreeNode node;
         node.index = n;
         kdtree.insert( node);
-        if(i % m_count == 0){
+        if(n % m_count == 0){
             fprintf(stderr, ">");
         }
     }
