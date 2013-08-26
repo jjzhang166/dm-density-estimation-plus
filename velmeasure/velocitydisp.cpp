@@ -1,3 +1,5 @@
+//#define __OMP__
+
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -10,6 +12,10 @@
 #include <set>
 #include <cfloat>
 
+#ifdef __OMP__
+#include <omp.h>
+#endif
+
 #include <kdtree++/kdtree.hpp>
 
 #include "readgadget.h"
@@ -17,7 +23,7 @@
 #define FIND_EPSILON FLT_EPSILON
 
 
-#define TREE_CODE
+//#define TREE_CODE
 
 using namespace std;
 
@@ -315,7 +321,11 @@ int main(int argv, char * args[]){
     fprintf(stderr, "KDTree Built. Nparts: %ld\n", nparts);
 #endif
 
-    size_t m_count = nparts / 50;    
+    size_t m_count = nparts / 50;
+    
+#ifdef __OMP__
+    #pragma omp parallel for
+#endif
     for(size_t i = 0; i < nparts; i ++){
         if(i % m_count == 0){
              fprintf(stderr, ">");
@@ -341,7 +351,11 @@ int main(int argv, char * args[]){
                 int ind = (int) floor(w / max_w * (num_of_bins / 2) + num_of_bins / 2);
                 //printf("%f %d\n", w);
                 if(ind >= 0 && ind < num_of_bins){
+#ifdef __OMP__
+                    #pragma omp atomic
+#endif
                     z_w[ind] ++;
+                    
                 }
             }
         }
