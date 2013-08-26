@@ -309,19 +309,26 @@ int main(int argv, char * args[]){
     }
     
     // make random 3d points
+    size_t m_count = nparts / 50;
 #ifdef TREE_CODE
     fprintf(stderr, "Building tree ...\n");
     for ( size_t n = 0; n < nparts; ++n)
     {
+        
         kdtreeNode node;
         node.index = n;
         kdtree.insert( node);
+        if(i % m_count == 0){
+            fprintf(stderr, ">");
+        }
     }
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Optimising tree ...\n");
     kdtree.optimise();
     fprintf(stderr, "KDTree Built. Nparts: %ld\n", nparts);
 #endif
 
-    size_t m_count = nparts / 50;
+    
     
     for( size_t i = 0; i < nparts; i ++){
         if(i % m_count == 0){
