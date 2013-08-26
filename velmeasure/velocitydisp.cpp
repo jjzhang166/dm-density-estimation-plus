@@ -163,11 +163,11 @@ void findPartsInShell(treeType &tree, Point & p,
 }
 
 void printUsage(string pname){
-    fprintf(stderr, "Usage: %s <Single Filename>\n",
+    fprintf(stderr, "Usage: %s <Single Filename> <radius> <shellsize>\n",
            pname.c_str()
            );
     fprintf(stderr, "-OR-\n");
-    fprintf(stderr, "%s <prefix> <basename> <numOfFiles> \n",
+    fprintf(stderr, "%s <prefix> <basename> <numOfFiles> <radius> <shellsize>\n",
            pname.c_str()
            );
 }
@@ -179,12 +179,24 @@ int main(int argv, char * args[]){
     GSnap * psnap;
     
     
-    if(argv == 2){
+    if(argv == 4){
         singlefilename = args[1];
-    }else if(argv == 4){
+        stringstream s0, s1;
+        s0 << args[2];
+        s0 >> radius;
+        s1 << args[3];
+        s1 >> shellsize;
+        
+    }else if(argv == 6){
         prefix = args[1];
         basename_ = args[2];
         numOfFiles = atoi(args[3]);
+
+        stringstream s0, s1;
+        s0 << args[4];
+        s0 >> radius;
+        s1 << args[5];
+        s1 >> shellsize;
     }else{
         printUsage(args[0]);
         exit(1);
