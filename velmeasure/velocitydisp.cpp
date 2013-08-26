@@ -16,12 +16,17 @@
 
 #define TREE_CODE
 
-#define NUMBINS 2000
-#define BINSIZE 1.0
-#define MAX_W 1000.0
+using namespace std;
+
+
+int NUMBINS = 2000;
+double BINSIZE = 1.0;
+double MAX_W = 1000.0;
+
+
 #define SQRT2 1.41421356237
 
-using namespace std;
+//using namespace std;
 
 string singlefilename = "";
 string prefix = "";
@@ -31,7 +36,7 @@ float radius = 1000.0;
 float shellsize = 100.0;
 Point wvector;
 Point rvector;
-uint32_t z_w[NUMBINS];
+uint32_t * z_w = new uint32_t[NUMBINS];
 
 
 Point * allpos;
@@ -170,6 +175,10 @@ void printUsage(string pname){
     fprintf(stderr, "%s <prefix> <basename> <numOfFiles> <radius> <shellsize>\n",
            pname.c_str()
            );
+    fprintf(stderr, "Options\n"
+                    "-bins <num of bins>, default: 2000\n"
+                    "-binsize <size of bin>, default: 1.0 (km/s)\n"
+                    "-maxw <maxium positive velocity measured>, default: 1000 (km/s)");
 }
 
 
@@ -178,16 +187,19 @@ void printUsage(string pname){
 int main(int argv, char * args[]){
     GSnap * psnap;
     
-    
-    if(argv == 4){
+    int k = 0;
+    if(argv < 4){
+        printUsage(args[0]);
+        exit(1);
+    }else if(argv == 4 || args[5][0] == '-'){
         singlefilename = args[1];
         stringstream s0, s1;
         s0 << args[2];
         s0 >> radius;
         s1 << args[3];
         s1 >> shellsize;
-        
-    }else if(argv == 6){
+        k = 4;
+    }else if(argv >= 6){
         prefix = args[1];
         basename_ = args[2];
         numOfFiles = atoi(args[3]);
@@ -197,10 +209,38 @@ int main(int argv, char * args[]){
         s0 >> radius;
         s1 << args[5];
         s1 >> shellsize;
-    }else{
-        printUsage(args[0]);
-        exit(1);
+        k = 6;
     }
+    while(k < argv){
+        stringstream ss;
+        if(strcmp(args[k], "-bins") == 0){
+            ss << args[k + 1];
+            ss >> NUMBINS; 
+        }else if(strcmp(args[k], "-binsize") == 0){
+            ss << args[k + 1];
+            ss >> BINSIZE;
+        }else if(strcmp(args[k], "-maxw") == 0){
+            ss << args[k + 1];
+            ss >> MAX_W;
+        }else{
+            printUsage(args[0]);
+            exit(1);
+        }
+        k += 2;
+    }
+
+    fprintf(stderr, "radius = %f (kpc)\n"
+                    "shellsize = %f (kpc)\n"
+                    "numofbins = %d\n",
+                    "binsize = %f (km/s)\n"
+                    "max_w = %f (km/s)\n"
+                    , 
+                    radius, 
+                    shellsize, 
+                    NUMBINS,
+                    BINSIZE, 
+                    MAX_W);
+    
     
     if(numOfFiles == 0 && singlefilename == ""){
         printUsage(args[0]);
@@ -294,6 +334,6 @@ int main(int argv, char * args[]){
         float w = (float)(i - NUMBINS / 2) / (float)(NUMBINS / 2) * MAX_W;
         fprintf(stdout, "%f %d\n", w, z_w[i]);
     }
-    
+    delete z_w; 
     delete psnap;
 }
