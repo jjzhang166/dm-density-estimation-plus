@@ -8,10 +8,13 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <cfloat>
 
 #include <kdtree++/kdtree.hpp>
 
 #include "readgadget.h"
+
+#define FIND_EPSILON FLT_EPSILON
 
 
 #define TREE_CODE
@@ -24,7 +27,7 @@ double bin_size = 1.0;
 double max_w = 1000.0;
 
 
-#define SQRT2 1.41421356237
+#define SQRT3 1.73205080757
 
 //using namespace std;
 
@@ -84,41 +87,55 @@ void findPartsInShell(treeType &tree, Point & p,
     
     treeType::_Region_ * region = new treeType::_Region_(tempnod);
     
-    //up
-    region->_M_low_bounds[0] = p.x - r2;
-    region->_M_high_bounds[0] = p.x + r2;
-    
-    region->_M_low_bounds[1] = p.y - r2;
-    region->_M_high_bounds[1] = p.y + r2;
-    
-    region->_M_low_bounds[2] = p.z + r1;
-    region->_M_high_bounds[2] = p.z + r2;
-    
-    tree.find_within_range(*region,
-                           back_insert_iterator<vector<kdtreeNode> >(retVec));
-    
-    //down
-    region->_M_low_bounds[0] = p.x - r2;
+    //test
+    /*region->_M_low_bounds[0] = p.x - r2;
     region->_M_high_bounds[0] = p.x + r2;
     
     region->_M_low_bounds[1] = p.y - r2;
     region->_M_high_bounds[1] = p.y + r2;
     
     region->_M_low_bounds[2] = p.z - r2;
-    region->_M_high_bounds[2] = p.z - r1;
+    region->_M_high_bounds[2] = p.z + r2;
+    
+    tree.find_within_range(*region,
+                           back_insert_iterator<vector<kdtreeNode> >(retVec));
+    */
+    
+    //up
+    region->_M_low_bounds[0] = p.x - r2;
+    region->_M_high_bounds[0] = p.x + r2 + FIND_EPSILON;
+    
+    region->_M_low_bounds[1] = p.y - r2;
+    region->_M_high_bounds[1] = p.y + r2 + FIND_EPSILON;
+    
+    region->_M_low_bounds[2] = p.z + r1;
+    region->_M_high_bounds[2] = p.z + r2 + FIND_EPSILON;
+    
+    tree.find_within_range(*region,
+                           back_insert_iterator<vector<kdtreeNode> >(retVec));
+    
+    //down
+    region->_M_low_bounds[0] = p.x - r2;
+    region->_M_high_bounds[0] = p.x + r2 + FIND_EPSILON;
+    
+    region->_M_low_bounds[1] = p.y - r2;
+    region->_M_high_bounds[1] = p.y + r2 + FIND_EPSILON;
+    
+    region->_M_low_bounds[2] = p.z - r2;
+    region->_M_high_bounds[2] = p.z - r1 + FIND_EPSILON;
     
     tree.find_within_range(*region,
                            back_insert_iterator<vector<kdtreeNode> >(retVec));
     
     //left
     region->_M_low_bounds[0] = p.x - r2;
-    region->_M_high_bounds[0] = p.x - r1;
+    region->_M_high_bounds[0] = p.x - r1 + FIND_EPSILON;
     
     region->_M_low_bounds[1] = p.y - r2;
-    region->_M_high_bounds[1] = p.y + r2;
+    region->_M_high_bounds[1] = p.y + r2 + FIND_EPSILON;
     
     region->_M_low_bounds[2] = p.z - r1;
-    region->_M_high_bounds[2] = p.z + r1;
+    region->_M_high_bounds[2] = p.z + r1 + FIND_EPSILON;
     
     tree.find_within_range(*region,
                            back_insert_iterator<vector<kdtreeNode> >(retVec));
@@ -126,13 +143,13 @@ void findPartsInShell(treeType &tree, Point & p,
     
     //right
     region->_M_low_bounds[0] = p.x + r1;
-    region->_M_high_bounds[0] = p.x + r2;
+    region->_M_high_bounds[0] = p.x + r2 + FIND_EPSILON;
     
     region->_M_low_bounds[1] = p.y - r2;
-    region->_M_high_bounds[1] = p.y + r2;
+    region->_M_high_bounds[1] = p.y + r2 + FIND_EPSILON;
     
     region->_M_low_bounds[2] = p.z - r1;
-    region->_M_high_bounds[2] = p.z + r1;
+    region->_M_high_bounds[2] = p.z + r1 + FIND_EPSILON;
     
     tree.find_within_range(*region,
                            back_insert_iterator<vector<kdtreeNode> >(retVec));
@@ -140,13 +157,13 @@ void findPartsInShell(treeType &tree, Point & p,
 
     //front
     region->_M_low_bounds[0] = p.x - r1;
-    region->_M_high_bounds[0] = p.x + r1;
+    region->_M_high_bounds[0] = p.x + r1 + FIND_EPSILON;
     
     region->_M_low_bounds[1] = p.y  - r2;
-    region->_M_high_bounds[1] = p.y - r1;
+    region->_M_high_bounds[1] = p.y - r1 + FIND_EPSILON;
     
     region->_M_low_bounds[2] = p.z - r1;
-    region->_M_high_bounds[2] = p.z + r1;
+    region->_M_high_bounds[2] = p.z + r1 + FIND_EPSILON;
     
     tree.find_within_range(*region,
                            back_insert_iterator<vector<kdtreeNode> >(retVec));
@@ -154,17 +171,18 @@ void findPartsInShell(treeType &tree, Point & p,
     
     //back
     region->_M_low_bounds[0] = p.x - r1;
-    region->_M_high_bounds[0] = p.x + r1;
+    region->_M_high_bounds[0] = p.x + r1 + FIND_EPSILON;
     
     region->_M_low_bounds[1] = p.y  + r1;
-    region->_M_high_bounds[1] = p.y + r2;
+    region->_M_high_bounds[1] = p.y + r2 + FIND_EPSILON;
     
     region->_M_low_bounds[2] = p.z - r1;
-    region->_M_high_bounds[2] = p.z + r1;
+    region->_M_high_bounds[2] = p.z + r1 + FIND_EPSILON;
     
     tree.find_within_range(*region,
                            back_insert_iterator<vector<kdtreeNode> >(retVec));
     
+
 }
 
 void printUsage(string pname){
@@ -288,7 +306,7 @@ int main(int argv, char * args[]){
 #ifdef TREE_CODE    
         retVec.clear();
         findPartsInShell(kdtree, allpos[i],
-                         radius / SQRT2, radius + shellsize,
+                         radius / SQRT3 / 1.01, radius + shellsize * 1.01,
                          retVec);
         
         //printf("retsize = %ld, capacit = %ld, nparts = %ld\n", 
