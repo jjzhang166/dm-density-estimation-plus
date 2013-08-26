@@ -256,10 +256,10 @@ int main(int argv, char * args[]){
         k += 2;
     }
 
-    fprintf(stderr, "radius = %f (kpc)\n", radius);
-    fprintf(stderr, "shellsize = %f (kpc)\n", shellsize);
+    fprintf(stderr, "radius = %f (kpc / h)\n", radius);
+    fprintf(stderr, "shellsize = %f (kpc / h)\n", shellsize);
     fprintf(stderr, "numofbins = %d\n", num_of_bins);
-    fprintf(stderr, "bin_size = %f (km/s)\n", bin_size);
+    fprintf(stderr, "bin_size = %f (km/s / h)\n", bin_size);
     
     max_w = num_of_bins / 2 * bin_size;
     
@@ -281,9 +281,19 @@ int main(int argv, char * args[]){
     
     allpos = psnap -> getAllPos();
     allvel = psnap -> getAllVel();
-
     size_t nparts = psnap -> Npart;
     retVec.reserve(nparts);
+    
+    //z = 1/a - 1
+    //a = 1 / (z + 1)
+    double redshift = psnap->header.redshift;
+    double a = 1.0 / ( redshift + 1.0);
+    double sqa = sqrt(a);
+    
+    //convert velocity to km/s (peculiar velocity)
+    for(size_t i = 0; i < nparts; i++){
+        allvel[i] = allvel[i] * sqa;
+    }
     
     // make random 3d points
 #ifdef TREE_CODE
