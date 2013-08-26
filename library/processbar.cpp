@@ -15,10 +15,10 @@ ProcessBar::ProcessBar(int maxvalue, int type){
 
 void ProcessBar::start(){
 	if(type_ == 0){
-		printf("=========[---10---20---30---40---50---60---70---80---90--100]========\n");
-		printf("=========[");
+		fprintf(stderr,"=========[---10---20---30---40---50---60---70---80---90--100]========\n");
+		fprintf(stderr,"=========[");
 	}else if(type_ == 1){
-		printf("Computation starting ...\n");
+		fprintf(stderr,"Computation starting ...\n");
 	}
 
 }
@@ -34,7 +34,7 @@ void ProcessBar::setvalue(int value){
 				if(type_ == 0){
 					std::cout<<"<";
 				}else if(type_ == 1){
-					printf("%i percent finished ...\n", (int)ceil(rate * 100));
+					fprintf(stderr,"%i percent finished ...\n", (int)ceil(rate * 100));
 				}
 
 				std::cout.flush();
@@ -46,8 +46,8 @@ void ProcessBar::setvalue(int value){
 
 void ProcessBar::end(){
 	if(type_ == 0){
-		printf("]========\n");
+		fprintf(stderr,"]========\n");
 	}else if(type_ == 1){
-		printf("Computation Finishing ...\n");
+		fprintf(stderr,"Computation Finishing ...\n");
 	}
 }

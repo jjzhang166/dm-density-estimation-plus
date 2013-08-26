@@ -41,9 +41,9 @@ void GSnap::init_singlefile(
     
 	fstream file(filename.c_str(), ios_base::in | ios_base::binary);
     
-    //printf("%s\n", filename.c_str());
+    //fprintf(stderr,"%s\n", filename.c_str());
 	if (!file.good()) {
-		printf("File not exist, or corrupted!\n");
+		fprintf(stderr,"File not exist, or corrupted!\n");
 		exit(1);
 	}
     
@@ -51,9 +51,9 @@ void GSnap::init_singlefile(
 	file.read((char *) &record0, sizeof(uint32_t));
 	file.read((char *) &header, sizeof(gadget_header));
 	file.read((char *) &record1, sizeof(uint32_t));
-    //printf("r0 = %d, r1 = %d headsize = %d\n", (int)record0, (int)record1, sizeof(gadget_header));
+    //fprintf(stderr,"r0 = %d, r1 = %d headsize = %d\n", (int)record0, (int)record1, sizeof(gadget_header));
 	if (record0 != record1) {
-		printf("Record in file not equal!\n");
+		fprintf(stderr,"Record in file not equal!\n");
 		return;
 	}
     
@@ -77,7 +77,7 @@ void GSnap::init_singlefile(
     
     //read all the data into memory
     if(isHighMem_){
-		printf("Loading data into memory...\n");
+		fprintf(stderr,"Loading data into memory...\n");
     
 		allind_ = new uint32_t[totalparts];
 		allpos_ = new Point[totalparts];
@@ -85,7 +85,7 @@ void GSnap::init_singlefile(
     
 		readPos(file, allpos_, 0, totalparts);
 		readVel(file, allvel_, 0, totalparts);
-		//printf("%d, %d, %f %f %f\n", totalparts, Npart, allpos_[Npart - 1].x, allpos_[Npart - 1].y, allpos_[Npart - 1].z);
+		//fprintf(stderr,"%d, %d, %f %f %f\n", totalparts, Npart, allpos_[Npart - 1].x, allpos_[Npart - 1].y, allpos_[Npart - 1].z);
     
 		//read indexs:
 		streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
@@ -94,7 +94,7 @@ void GSnap::init_singlefile(
 		+ sizeof(uint32_t);
 		file.seekg(spos, ios_base::beg);
 		file.read((char *) allind_, sizeof(uint32_t) * totalparts);
-		//printf("%d\n", allind_[0]);
+		//fprintf(stderr,"%d\n", allind_[0]);
     
 		Point * temppos = allpos_;
 		Point * tempvel = allvel_;
@@ -112,16 +112,16 @@ void GSnap::init_singlefile(
 			}
 		}
     
-		//printf("ind min: %d \n", indmin);
+		//fprintf(stderr,"ind min: %d \n", indmin);
     
 		for(int i = startind; i < endind; i ++){
 			// - indmin
 			if(allind_[i] - indmin >= Npart){
-				printf("*************************WARNNING***************************\n");
-				printf("particle index is larger than the total number of particles.\n"
+				fprintf(stderr,"*************************WARNNING***************************\n");
+				fprintf(stderr,"particle index is larger than the total number of particles.\n"
 					   "Result is UNPREDICTABLE!!\nPlease double check the indexes, "
 					   "make sure they starts from 0.\n");
-				printf("************************************************************\n");
+				fprintf(stderr,"************************************************************\n");
 				continue;
 			}
         
@@ -136,10 +136,10 @@ void GSnap::init_singlefile(
 			allpos_[allind_[i]].x = fmod((float)temppos[i].x, (float)header.BoxSize);
 			allpos_[allind_[i]].y = fmod((float)temppos[i].y, (float)header.BoxSize);
 			allpos_[allind_[i]].z = fmod((float)temppos[i].z, (float)header.BoxSize);
-			//printf("%d %d %d\n", i, allind_[i], totalparts);
+			//fprintf(stderr,"%d %d %d\n", i, allind_[i], totalparts);
 		}
     
-		//printf("ok\n");
+		//fprintf(stderr,"ok\n");
     
 		delete temppos;
 		allvel_ = new Point[Npart];
@@ -150,7 +150,7 @@ void GSnap::init_singlefile(
 			allvel_[allind_[i]] = tempvel[i];
 		}
     
-		//printf("ok1\n");
+		//fprintf(stderr,"ok1\n");
     
 		delete allind_;
 		delete tempvel;
@@ -186,7 +186,7 @@ GSnap::GSnap(
              int parttype,
              int gridsize
       ){	
-    //printf("%s %s %d\n", prefix.c_str(), basename.c_str(), numfiles);
+    //fprintf(stderr,"%s %s %d\n", prefix.c_str(), basename.c_str(), numfiles);
 	isMultifile_ = true;
     numOfFiles_ = numfiles;
     basename_ = basename;
@@ -201,9 +201,9 @@ GSnap::GSnap(
     Npart = 0;
 	totalparts = 0;
    
-    //printf("ok1.5\n"); 
+    //fprintf(stderr,"ok1.5\n"); 
     for(int i = 0 ; i < numOfFiles_; i ++ ){
-        //printf("ok1.5.0\n");
+        //fprintf(stderr,"ok1.5.0\n");
         stringstream ss;
         uint32_t record0, record1;
         string filename = "";// = prefix + basename + ".0";
@@ -215,14 +215,14 @@ GSnap::GSnap(
         //ss >> filename;
         
         filename = prefix_ + basename_ + "." + ss.str();
-        //printf("ok1.5.0\n");
+        //fprintf(stderr,"ok1.5.0\n");
 
-        //printf("ok1.5.1 filename: %s\n", filename.c_str());
+        //fprintf(stderr,"ok1.5.1 filename: %s\n", filename.c_str());
         
         fstream file(filename.c_str(), ios_base::in | ios_base::binary);
         
         if (!file.good()) {
-            printf("File not exist, or corrupted!\n");
+            fprintf(stderr,"File not exist, or corrupted!\n");
             exit(1);
         }
         
@@ -233,29 +233,29 @@ GSnap::GSnap(
         
 
         if (record0 != record1) {
-            printf("Record in file not equal!\n");
+            fprintf(stderr,"Record in file not equal!\n");
             exit(1);
         }
         
 
         
-        //printf("ok1.5.2\n");
+        //fprintf(stderr,"ok1.5.2\n");
         numOfParts_[i] = 0;
         multStartInd_[i] = 0;
-        //printf("ok1.5.2.1\n");
+        //fprintf(stderr,"ok1.5.2.1\n");
         for(int j = 0; j < N_TYPE; j++){
-            //printf("ok1.5.2.1.0 %d %d %d %d\n", i, j, parttype, numOfFiles_);
+            //fprintf(stderr,"ok1.5.2.1.0 %d %d %d %d\n", i, j, parttype, numOfFiles_);
             numOfParts_[i] += header.npart[j];
-            //printf("ok1.5.2.1.1 %d %d %d %d\n", i, j, parttype, numOfFiles_);
+            //fprintf(stderr,"ok1.5.2.1.1 %d %d %d %d\n", i, j, parttype, numOfFiles_);
             if(j < parttype){
                 multStartInd_[i] += header.npart[j];
             }
-            //printf("ok1.5.2.1.2 %d %d %d %d\n", i, j, parttype, numOfFiles_);
+            //fprintf(stderr,"ok1.5.2.1.2 %d %d %d %d\n", i, j, parttype, numOfFiles_);
         }
 
         multEndInd_[i] = multStartInd_[i] + header.npart[parttype];
         
-        //printf("ok1.5.3\n");
+        //fprintf(stderr,"ok1.5.3\n");
         //find index
         streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 		+ sizeof(uint32_t) + numOfParts_[i] * sizeof(REAL) * 3 + sizeof(uint32_t)
@@ -288,7 +288,7 @@ GSnap::GSnap(
     
     }
 
-    //printf("ok1.6\n");
+    //fprintf(stderr,"ok1.6\n");
     
     if(gridsize == -1){
         Npart = header.npartTotal[parttype];
@@ -304,7 +304,7 @@ GSnap::GSnap(
     }
     
     if(isHighMem_){
-        printf("Loading data into memory, %d particles ...\n", Npart);
+        fprintf(stderr,"Loading data into memory, %d particles ...\n", Npart);
         
         allind_ = new uint32_t[Npart];
         allpos_ = new Point[Npart];
@@ -326,7 +326,7 @@ GSnap::GSnap(
             uint32_t record0, record1;
             fstream file(filename.c_str(), ios_base::in | ios_base::binary);
             if(!file.good()){
-                printf("File %s corrupted!\n", filename.c_str());
+                fprintf(stderr,"File %s corrupted!\n", filename.c_str());
                 exit(1);
             }
 
@@ -335,7 +335,7 @@ GSnap::GSnap(
             file.read((char *) &record1, sizeof(uint32_t));
            
             if (record0 != record1) {
-                printf("Record in file not equal!\n");
+                fprintf(stderr,"Record in file not equal!\n");
                 exit(1);
             }
             //file.close();
@@ -350,7 +350,7 @@ GSnap::GSnap(
             single_endind = single_startind + single_header.npart[parttype];
             
             
-            printf("File %s.%d, particles: %d\n", basename_.c_str(), i, single_file_parts);
+            fprintf(stderr,"File %s.%d, particles: %d\n", basename_.c_str(), i, single_file_parts);
             
             temppos = new Point[single_file_parts];
             tempvel = new Point[single_file_parts];
@@ -370,22 +370,22 @@ GSnap::GSnap(
             
             for(int j = single_startind; j < single_endind; j ++){
                 
-                //printf("IDs -> j= %d, tempid = %ld, singlparts =%d, nparts = %d\n", 
+                //fprintf(stderr,"IDs -> j= %d, tempid = %ld, singlparts =%d, nparts = %d\n", 
                 //                j, tempind[j], single_file_parts, Npart);
-                //printf("%d %d %ld %d\n", j, single_file_parts, tempind[j], totalparts);    
-                //printf("Pos -> %f %f %f\n", temppos[j].x, temppos[j].y, temppos[j].z);
+                //fprintf(stderr,"%d %d %ld %d\n", j, single_file_parts, tempind[j], totalparts);    
+                //fprintf(stderr,"Pos -> %f %f %f\n", temppos[j].x, temppos[j].y, temppos[j].z);
 
                 if(tempind[j] >= Npart){
                     continue;
                 }
                 
 
-                //printf("%d %d %d %d\n", j, single_file_parts, tempind[j], totalparts);
+                //fprintf(stderr,"%d %d %d %d\n", j, single_file_parts, tempind[j], totalparts);
                 allpos_[tempind[j]].x = fmod((float)temppos[j].x, (float)header.BoxSize);
                 allpos_[tempind[j]].y = fmod((float)temppos[j].y, (float)header.BoxSize);
                 allpos_[tempind[j]].z = fmod((float)temppos[j].z, (float)header.BoxSize);
                 allvel_[tempind[j]] = tempvel[j];
-                //printf("%d %d %d %d\n", j, single_file_parts, tempind[j], totalparts);
+                //fprintf(stderr,"%d %d %d %d\n", j, single_file_parts, tempind[j], totalparts);
             }
             file.close();
             delete temppos;
@@ -394,7 +394,7 @@ GSnap::GSnap(
         }
     }
     
-    printf("Data loaded!\n");
+    fprintf(stderr,"Data loaded!\n");
 }
 
 
@@ -410,12 +410,12 @@ void GSnap::readPosBlock(Point * &posblock,
     
     if(isHighMem_){
         //copy block memory
-        //printf("%d\n", ii);
+        //fprintf(stderr,"%d\n", ii);
         for(int j = jmin; j < jmax + 1; j++){
             for(int k = kmin; k < kmax + 1; k++){
                 int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
                 int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
-                //printf("%d %d %d\n", sindsr, num, Npart);
+                //fprintf(stderr,"%d %d %d\n", sindsr, num, Npart);
                 if(imax < grid_size){
                     memcpy((char *)(posblock + sinddes),
                            (char *)(allpos_ + sindsr),
@@ -490,7 +490,7 @@ void GSnap::readBlock(Point * &posblock, Point * &velocityblock,
             for(int k = kmin; k < kmax + 1; k++){
                 int sindsr = (imin % grid_size) + (j % grid_size) * grid_size + (k % grid_size) * grid_size * grid_size;
                 int sinddes = 0 + ((j-jmin)) * ii + ((k-kmin)) * jj * ii;
-                //printf("%d %d %d\n", sindsr, num, Npart);
+                //fprintf(stderr,"%d %d %d\n", sindsr, num, Npart);
                 if(imax < grid_size){
                     memcpy((char *)(posblock + sinddes),
                            (char *)(allpos_ + sindsr),
@@ -587,13 +587,13 @@ void GSnap::readIndex(std::fstream &file, int *block_count,
 			}
 			int ind;
             
-            //printf("ok3\n");
+            //fprintf(stderr,"ok3\n");
             if(!isHighMem_){
                 file.read((char *) &ind, sizeof(int));              
             }else{
                 ind = i;//allind_[i];
             }
-            //printf("ok3.5\n");
+            //fprintf(stderr,"ok3.5\n");
 
 			int ir = ind % grid_size;
 			int jr = (ind / grid_size) % grid_size;
@@ -643,7 +643,7 @@ void GSnap::readIndex(std::string &file, int *block_count,
 Point GSnap::readPos(std::fstream &file, long ptr){
 	Point retp; 
 
-    //printf("ok4\n");
+    //fprintf(stderr,"ok4\n");
     if(!isHighMem_){
 	    streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
 			+ sizeof(uint32_t) + ptr * sizeof(REAL) * 3;
@@ -655,7 +655,7 @@ Point GSnap::readPos(std::fstream &file, long ptr){
     }else{
         retp = allpos_[ptr];
     }
-    //printf("ok4.5\n");
+    //fprintf(stderr,"ok4.5\n");
 
 	return retp;
 }
@@ -683,7 +683,7 @@ Point GSnap::readVel(std::fstream &file, long ptr){
 	    file.read((char *) &retp.y, sizeof(REAL));
 	    file.read((char *) &retp.z, sizeof(REAL));
     }else{
-        //printf("ok5\n");
+        //fprintf(stderr,"ok5\n");
         retp = allvel_[ptr];
     }
 	return retp;

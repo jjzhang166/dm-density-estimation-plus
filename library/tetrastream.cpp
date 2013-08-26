@@ -28,7 +28,7 @@ TetraStream::TetraStream(string filename, int inputmemgridsize, bool isVelocity)
 	current_ind_tetra = 0;
 	current_ind_block = 0;
     
-    printf("Particle Data Grid Size %d\n", particle_grid_size_);
+    fprintf(stderr,"Particle Data Grid Size %d\n", particle_grid_size_);
 
     mem_grid_size_ = inputmemgridsize;
 	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
@@ -133,7 +133,7 @@ void TetraStream::loadBlock(int i){
 	}
 
 	//for(int ffi =0; ffi < ((imax - imin + 1)*(jmax - jmin + 1)*(kmax - kmin + 1)); ffi ++){
-	//	printf("---%e\n", position_[ffi].x);
+	//	fprintf(stderr,"---%e\n", position_[ffi].x);
 	//}
 
 
@@ -355,7 +355,7 @@ void TetraStream::addTetra(int ind1, int ind2, int ind3, int ind4) {
 			}else*/{
 				tetras_[current_ind_tetra] = t;
 				current_ind_tetra ++;
-				//printf("%d\n", current_ind_tetra);
+				//fprintf(stderr,"%d\n", current_ind_tetra);
 			}
 		}
 		

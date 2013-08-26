@@ -12,7 +12,7 @@ TFileStream::TFileStream(std::string filename, int blocksize){
     if(inputfile_.good()){
         inputfile_.read((char *)&header_, sizeof(TFileHeader));
     }else{
-        printf("File Corrupted!\n");
+        fprintf(stderr,"File Corrupted!\n");
         exit(1);
     }
 }

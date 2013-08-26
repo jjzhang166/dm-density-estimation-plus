@@ -21,7 +21,7 @@ void IndTetraStream::init(){
     isRedshiftDistorted_ = false;
     isReshiftDistortionCalculated_ = false;
     
-    //printf("what's up\n");
+    //fprintf(stderr,"what's up\n");
 	particle_grid_size_ = (int)ceil(pow(gsnap_->Npart, 1.0 / 3.0));
 	total_parts_ = gsnap_->Npart;
 	current_tetra_num = 0;
@@ -29,7 +29,7 @@ void IndTetraStream::init(){
 	current_ind_tetra = 0;
 	current_ind_block = 0;
     
-    printf("Particle Data Grid Size %d\n", particle_grid_size_);
+    fprintf(stderr,"Particle Data Grid Size %d\n", particle_grid_size_);
     
 	if(mem_grid_size_ == -1){
 		mem_grid_size_ = particle_grid_size_;
@@ -38,7 +38,7 @@ void IndTetraStream::init(){
 	mem_tetra_size_ = 6 * (mem_grid_size_) * (mem_grid_size_)
     * (mem_grid_size_);
     
-    printf("Allocating %d memory size of indtetrahedron\n", mem_tetra_size_); 
+    fprintf(stderr,"Allocating %d memory size of indtetrahedron\n", mem_tetra_size_); 
 	tetras_ = new IndTetrahedron[mem_tetra_size_];
 	
     //if use all data, no need to build new pointers
@@ -79,7 +79,7 @@ void IndTetraStream::init(){
     }
    
     //for(int i = 0; i < 100; i ++ ){
-    //    printf("Position: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
+    //    fprintf(stderr,"Position: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
     //}
 
     indTetraManager_.setBoxSize(getHeader().BoxSize);
@@ -282,7 +282,7 @@ void IndTetraStream::loadBlock(int i){
     iotime_ += t1_ - t0_;
     
     //current_tetra_num = 6 * (imax - imin) * (jmax - imin) * (kmax - kmin);
-    //printf(">>>%d %d\n", 6 * (imax - imin) * (jmax - jmin) * (kmax - kmin), 6*mem_grid_size_*mem_grid_size_*mem_grid_size_);
+    //fprintf(stderr,">>>%d %d\n", 6 * (imax - imin) * (jmax - jmin) * (kmax - kmin), 6*mem_grid_size_*mem_grid_size_*mem_grid_size_);
 
 
 
@@ -362,7 +362,7 @@ void IndTetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 	}
 
 	current_tetra_num = current_ind_tetra;
-    //printf("%d\n", current_tetra_num);
+    //fprintf(stderr,"%d\n", current_tetra_num);
 
 }
 
@@ -499,7 +499,7 @@ Tetrahedron* TetraStreamer::getNext(int& num_tetras_){
         }
         
         //test
-        //printf("%d %d\n", current_tetra_id_, total_tetra_num_);
+        //fprintf(stderr,"%d %d\n", current_tetra_id_, total_tetra_num_);
         
         if(tetramanager->posa(indtetras_[current_tetra_id_]).x < 0 ||
            tetramanager->posb(indtetras_[current_tetra_id_]).x < 0 ||
@@ -510,7 +510,7 @@ Tetrahedron* TetraStreamer::getNext(int& num_tetras_){
             int temp_num_tetra = tetramanager->getNumPeriodical(indtetras_[current_tetra_id_]);
             
             //test
-            //printf("%d\n", temp_num_tetra);
+            //fprintf(stderr,"%d\n", temp_num_tetra);
             
             Tetrahedron * period_tetras = tetramanager->getPeroidTetras(indtetras_[current_tetra_id_]);
             
