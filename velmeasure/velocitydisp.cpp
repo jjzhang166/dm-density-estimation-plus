@@ -36,7 +36,7 @@ float radius = 1000.0;
 float shellsize = 100.0;
 Point wvector;
 Point rvector;
-uint32_t * z_w = new uint32_t[num_of_bins];
+uint32_t * z_w;
 
 
 Point * allpos;
@@ -177,7 +177,7 @@ void printUsage(string pname){
            );
     fprintf(stderr, "Options\n"
                     "-bins <num of bins>, default: 2000\n"
-                    "-bin_size <size of bin>, default: 1.0 (km/s)\n"
+                    "-binsize <size of bin>, default: 1.0 (km/s)\n"
                     "-maxw <maxium positive velocity measured>, default: 1000 (km/s)");
 }
 
@@ -191,32 +191,45 @@ int main(int argv, char * args[]){
     if(argv < 4){
         printUsage(args[0]);
         exit(1);
-    }else if(argv == 4 || args[5][0] == '-'){
+    }else if((argv == 4) || (args[4][0] == '-')){
         singlefilename = args[1];
         stringstream s0, s1;
         s0 << args[2];
         s0 >> radius;
         s1 << args[3];
         s1 >> shellsize;
+        
+        fprintf(stderr, "Fileame: %s\n", singlefilename.c_str());
         k = 4;
+        
     }else if(argv >= 6){
         prefix = args[1];
         basename_ = args[2];
         numOfFiles = atoi(args[3]);
 
+        fprintf(stderr, "Prefix: %s\n", prefix.c_str());
+        fprintf(stderr, "BaseName: %s\n", basename_.c_str());
+        fprintf(stderr, "Num of Files: %d\n", numOfFiles);
+        
         stringstream s0, s1;
         s0 << args[4];
         s0 >> radius;
         s1 << args[5];
         s1 >> shellsize;
         k = 6;
+    }else{
+        printUsage(args[0]);
+        exit(1);
     }
+    
+   // fprintf(stderr, "%d %d\n", k, argv);
     while(k < argv){
         stringstream ss;
+        //fprintf(stderr, "%s\n", args[k]);
         if(strcmp(args[k], "-bins") == 0){
             ss << args[k + 1];
             ss >> num_of_bins; 
-        }else if(strcmp(args[k], "-bin_size") == 0){
+        }else if(strcmp(args[k], "-binsize") == 0){
             ss << args[k + 1];
             ss >> bin_size;
         }else if(strcmp(args[k], "-maxw") == 0){
@@ -235,7 +248,7 @@ int main(int argv, char * args[]){
     fprintf(stderr, "bin_size = %f (km/s)\n", bin_size);
     fprintf(stderr, "max_w = %f (km/s)\n", max_w);
     
-    
+    z_w = new uint32_t[num_of_bins];
     if(numOfFiles == 0 && singlefilename == ""){
         printUsage(args[0]);
         exit(1);
