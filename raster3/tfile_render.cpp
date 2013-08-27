@@ -295,9 +295,13 @@ int main(int argv, char * args[]){
         printf("Saving ...\n");
         for(int i = 0; i < numofrendertyps; i ++ ){
             for(int j = 0; j < imagesize * imagesize * newNumOfCuts; j ++ ){
-                
-                pOutputStreams[i].write((char *) (result + j * numofrendertyps + i),
+                if(pOutputStreams[i].good()){
+					pOutputStreams[i].write((char *) (result + j * numofrendertyps + i),
                                         sizeof(float));
+					//printf("%e\n", *(result + j * numofrendertyps + i));
+				}else{
+					printf("Output Error. Type %d!\n", i);
+				}
             }
         }
         //delete outstreams;
