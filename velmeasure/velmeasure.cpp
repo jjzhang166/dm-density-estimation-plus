@@ -307,6 +307,8 @@ int main(int argv, char * args[]){
     // make random 3d points
     size_t m_count = nparts / 50;
 
+    fprintf(stderr, "BoxSize = %f\n", psnap->header.BoxSize);
+    fprintf(stderr, "a = %f\n", a);
     fprintf(stderr, "Building tree ...\n");
     for ( size_t n = 0; n < nparts; ++n)
     {
