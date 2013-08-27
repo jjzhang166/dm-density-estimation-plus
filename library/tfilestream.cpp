@@ -60,6 +60,9 @@ Tetrahedron * TFileStream::getNext(int & numtetras){
 
 
 void TFileStream::reset(){
+	if(inputfile_.eof()){
+		inputfile_.clear();
+	}
     inputfile_.seekg (sizeof(TFileHeader), inputfile_.beg);
     currentBlockID_ = 0;
     currentNumOfTetras_ = 0;

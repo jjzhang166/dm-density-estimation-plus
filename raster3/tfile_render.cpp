@@ -202,6 +202,8 @@ int main(int argv, char * args[]){
         
         
         //render
+
+		tfilestream.reset();
         
         uint64_t tcount = tfilestream.getNumofTetras() / 50;
         
@@ -211,12 +213,13 @@ int main(int argv, char * args[]){
             printf("Rendering %d/%d, %lld tetrahedrons ...\n", _idcut + 1, repeatTimes, tfilestream.getNumofTetras());
         }
         
-        tfilestream.reset();
+        
         while(tfilestream.hasNext()){
             int nums;
             Tetrahedron * tetras;
             tetras = tfilestream.getNext(nums);
             for(int i= 0; i < nums; i++){
+				//test
                 render.rend(tetras[i]);
                 if((tetra_count %  tcount )== 0){
                     printf(">");
