@@ -329,6 +329,7 @@ int main(int argv, char * args[]){
     fstream outputStream(outputfilename.c_str(), ios::out | ios::binary);
     if(!outputStream.good()){
         fprintf(stderr, "Cannot OPEN/CREATE output file: %s\n", outputfilename.c_str());
+        exit(1);
     }
 
     uint64_t temp_numpairs = 0;
