@@ -216,10 +216,12 @@ int main(int argv, char * args[]){
         prefix = args[1];
         basename_ = args[2];
         numOfFiles = atoi(args[3]);
+        outputfilename = args[4];
 
         fprintf(stderr, "Prefix: %s\n", prefix.c_str());
         fprintf(stderr, "BaseName: %s\n", basename_.c_str());
         fprintf(stderr, "Num of Files: %d\n", numOfFiles);
+        fprintf(stderr, "OutputFile: %s\n", outputfilename.c_str());
         k = 6;
     }else{
         printUsage(args[0]);
