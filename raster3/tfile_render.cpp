@@ -33,6 +33,7 @@ int numOfCuts = 0;
 //to render a larger scene, rend several times for them
 
 vector<RenderType> renderTypes; //what data component will be rendered
+fstream * pOutputStreams; //what data component will be rendered
 
 float startz = 0;
 float dz = 0;
@@ -137,9 +138,23 @@ int main(int argv, char * args[]){
         }
     }
     
+    int numofrendertyps = renderTypes.size();
+    if(numofrendertyps > DenRender::NUM_OF_RENDERTRYPE_LIMIT)
+        numofrendertyps = DenRender::NUM_OF_RENDERTRYPE_LIMIT;
     
+    
+    string outputFilenames[] = {
+        densityFilename,
+        streamFilename,
+        velocityXFilename,
+        velocityYFilename,
+        velocityZFilename
+    };
+    
+    pOutputStreams = new fstream[numofrendertyps];
+
     TFileStream tfilestream(filename, blocksize);
-    
+
     double boxsize = tfilestream.getHeader().boxSize;
     if(numOfCuts == 0){
         numOfCuts = imagesize;
@@ -180,6 +195,39 @@ int main(int argv, char * args[]){
            numOfCuts, startz, dz);
     printf("*********************************************************************\n");
     
+    
+    
+    
+    //head used 256 bytes
+    //the first is imagesize
+    //the second the numOfCuts
+    //the third is a float number boxsize
+    //the 4-th is a float number startz
+    //the 5-th is a fload number dz
+    //All others are 0
+    int head[59];
+    
+    for(int i = 0; i < numofrendertyps; i ++ ){
+        if(outputFilenames[renderTypes[i]] != ""){
+            pOutputStreams[i].open(outputFilenames[renderTypes[i]].c_str(),
+                                    ios::out | ios::binary);
+            while(!pOutputStreams[i].good()){
+                printf("File error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
+                printf("Input new filename:\n");
+                cin >> outputFilenames[renderTypes[i]];
+                pOutputStreams[i].clear();
+                pOutputStreams[i].open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
+            }
+            pOutputStreams[i].write((char *) &imagesize, sizeof(int));
+            pOutputStreams[i].write((char *) &numOfCuts, sizeof(int));
+            pOutputStreams[i].write((char *) &boxsize, sizeof(float));
+            pOutputStreams[i].write((char *) &startz, sizeof(float));
+            pOutputStreams[i].write((char *) &dz, sizeof(float));
+            pOutputStreams[i].write((char *) head, sizeof(int) * 59);
+        }
+        
+    }
+    //delete outstreams;
     
     
     
@@ -236,71 +284,30 @@ int main(int argv, char * args[]){
             printf("Finished. In total %lld tetrahedron rendered.\n", tetra_count);
         }
         
-        //head used 256 bytes
-        //the first is imagesize
-        //the second the numOfCuts
-        //the third is a float number boxsize
-        //the 4-th is a float number startz
-        //the 5-th is a fload number dz
-        //All others are 0
-        int head[59];
+
         
-        string outputFilenames[] = {
-            densityFilename,
-            streamFilename,
-            velocityXFilename,
-            velocityYFilename,
-            velocityZFilename
-        };
+
         
-        int numofrendertyps = renderTypes.size();
-        if(numofrendertyps > render.NUM_OF_RENDERTRYPE_LIMIT)
-            numofrendertyps = render.NUM_OF_RENDERTRYPE_LIMIT;
+
         
         //fstream * outstreams = new fstream[numofrendertyps];
         
         printf("Saving ...\n");
         for(int i = 0; i < numofrendertyps; i ++ ){
-            fstream outstream;
-            if(outputFilenames[renderTypes[i]] != ""){
+            for(int j = 0; j < imagesize * imagesize * newNumOfCuts; j ++ ){
                 
-                if(_idcut == 0){
-                    outstream.open(outputFilenames[renderTypes[i]].c_str(),
-                                   ios::out | ios::binary);
-                    while(!outstream.good()){
-                        printf("File error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
-                        printf("Input new filename:\n");
-                        cin >> outputFilenames[renderTypes[i]];
-                        outstream.clear();
-                        outstream.open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
-                    }
-                    outstream.write((char *) &imagesize, sizeof(int));
-                    outstream.write((char *) &numOfCuts, sizeof(int));
-                    outstream.write((char *) &boxsize, sizeof(float));
-                    outstream.write((char *) &startz, sizeof(float));
-                    outstream.write((char *) &dz, sizeof(float));
-                    outstream.write((char *) head, sizeof(int) * 59);
-                }else{
-                    outstream.open(outputFilenames[renderTypes[i]].c_str(),
-                                   ios::out | ios::binary | ios::app);
-                }
-                
-                //printf("%d %d\n", renderTypes.size(), i);
-                for(int j = 0; j < imagesize * imagesize * newNumOfCuts; j ++ ){
-                    
-                    outstream.write((char *) (result + j * numofrendertyps + i),
-                                    sizeof(float));
-                }
-                //outstreams[i].write((char *) result,
-                //                    sizeof(float) * imagesize * imagesize * numOfCuts);
-                outstream.flush();
-                outstream.close();
+                pOutputStreams[i].write((char *) (result + j * numofrendertyps + i),
+                                        sizeof(float));
             }
-            
         }
         //delete outstreams;
         
     }
+    
+    for(int i = 0; i < numofrendertyps; i ++ ){
+        pOutputStreams[i].close();
+    }
+    
     //outstream.open(gridfilename.c_str(), ios::out | ios::binary);
     if(mem_cut_limit != numOfCuts){
         printf("Finished. In total %lld tetrahedron rendered.\n", tetra_count);
