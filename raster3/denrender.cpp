@@ -33,6 +33,9 @@
 using namespace std;
 
 
+
+
+
 namespace RenderSpace {
     //buffer *fbuffer;
     //the buffer for drawing triangles
@@ -47,6 +50,13 @@ namespace RenderSpace {
     GLenum glFormats[] = {GL_RED, GL_RG, GL_RGB, GL_RGBA};
     
     static bool glut_is_initialized = false;
+    
+    
+    
+    typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+    typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
+    static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = NULL;
+    static glXMakeContextCurrentARBProc   glXMakeContextCurrentARB   = NULL;
 }
 
 //the depth of the triangle buffer
@@ -64,7 +74,9 @@ void DenRender::init(){
 
     
     if(!glut_is_initialized){
-        int argv = 1;
+        
+        
+        /*int argv = 1;
         char * args[1];
         args[0] = (char *) "LTFE Render";
         
@@ -77,7 +89,67 @@ void DenRender::init(){
         glewExperimental = GL_TRUE;
         glewInit();
 #endif
-        glut_is_initialized = true;
+        
+        
+        
+        glut_is_initialized = true;*/
+        
+        glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc) glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
+        
+        if(glXCreateContextAttribsARB == NULL){
+            printf("Cannot create CreateContextAttribsARB!\n");
+            exit(1);
+        }
+        glXMakeContextCurrentARB   = (glXMakeContextCurrentARBProc)   glXGetProcAddressARB( (const GLubyte *) "glXMakeContextCurrent"      );
+        if(glXMakeContextCurrentARB == NULL){
+            printf("Cannot create MakeContextCurrent!\n");
+            exit(1);
+        }
+        
+        const char *displayName = NULL;
+        Display* display = XOpenDisplay( displayName );
+        
+        if(display == NULL){
+            printf("Cannot create display!\n");
+            exit(1);
+        }
+        
+        static int visualAttribs[] = { None };
+        int numberOfFramebufferConfigurations = 0;
+        GLXFBConfig* fbConfigs = glXChooseFBConfig( display, DefaultScreen(display), visualAttribs, &amp;numberOfFramebufferConfigurations );
+        
+        if(fbConfigs == NULL){
+            printf("Cannot get ChooseFBConfig!\n");
+            exit(1);
+        }
+        
+        int context_attribs[] = {
+            GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
+            GLX_CONTEXT_MINOR_VERSION_ARB, 2,
+            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
+            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+            None
+        };
+        
+        GLXContext openGLContext = glXCreateContextAttribsARB( display, fbConfigs[0], 0, True, context_attribs);
+        
+        int pbufferAttribs[] = {
+            GLX_PBUFFER_WIDTH,  32,
+            GLX_PBUFFER_HEIGHT, 32,
+            None
+        };
+        GLXPbuffer pbuffer = glXCreatePbuffer( display, fbConfigs[0], pbufferAttribs );
+        
+        // clean up:
+        XFree( fbConfigs );
+        XSync( display, False );
+        
+        if ( !glXMakeContextCurrent( display, pbuffer, pbuffer, openGLContext ) )
+        {
+            printf("Cannot get MakeContextCurrent!\n");
+            exit(1);
+        }
+
     }
     fbuffer = new buffer(imagesize_, imagesize_);
     fbuffer->setBuffer();
