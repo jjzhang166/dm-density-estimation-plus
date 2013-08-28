@@ -8,6 +8,7 @@
 #else
 #include <GL/glew.h>
 #include <GL/glut.h>
+//#include <GL/glx.h>
 #endif
 
 #include <cmath>
@@ -53,10 +54,12 @@ namespace RenderSpace {
     
     
     
-    typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+    /*typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
     typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
     static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = NULL;
     static glXMakeContextCurrentARBProc   glXMakeContextCurrentARB   = NULL;
+    */
+    
 }
 
 //the depth of the triangle buffer
@@ -76,7 +79,7 @@ void DenRender::init(){
     if(!glut_is_initialized){
         
         
-        /*int argv = 1;
+        int argv = 1;
         char * args[1];
         args[0] = (char *) "LTFE Render";
         
@@ -92,8 +95,9 @@ void DenRender::init(){
         
         
         
-        glut_is_initialized = true;*/
+        glut_is_initialized = true;
         
+        /*
         glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc) glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
         
         if(glXCreateContextAttribsARB == NULL){
@@ -116,7 +120,8 @@ void DenRender::init(){
         
         static int visualAttribs[] = { None };
         int numberOfFramebufferConfigurations = 0;
-        GLXFBConfig* fbConfigs = glXChooseFBConfig( display, DefaultScreen(display), visualAttribs, &amp;numberOfFramebufferConfigurations );
+        GLXFBConfig* fbConfigs = glXChooseFBConfig( display, DefaultScreen(display), 
+                        visualAttribs, &numberOfFramebufferConfigurations );
         
         if(fbConfigs == NULL){
             printf("Cannot get ChooseFBConfig!\n");
@@ -148,7 +153,7 @@ void DenRender::init(){
         {
             printf("Cannot get MakeContextCurrent!\n");
             exit(1);
-        }
+        }*/
 
     }
     fbuffer = new buffer(imagesize_, imagesize_);
