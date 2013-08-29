@@ -21,7 +21,7 @@ public:
                                   float boxsize,
                                   string prefix,
                                   string outputbasename,
-                                  int outputBufferSize = 512
+                                  int outputBufferSize = 1024
                                 );
     
             ~TriConverter        ();
@@ -37,11 +37,13 @@ private:
     
     int outputBufferSize_;
     
-    Triangle * vertexbuffer_;
+    float * vertexbuffer_;
+    //float * densbuffer_;
+    //float * velocitybuffer_;
     int * vertexIds_;
     int * totalTriangles_;
     
-    fstream * outputStreams_;
+    //fstream * outputStreams_;
     
     void    outputPlane(int i);
     

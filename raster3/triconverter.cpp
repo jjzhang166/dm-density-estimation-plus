@@ -12,13 +12,13 @@
 
 #include "triconverter.h"
 
+#define NUM_FLOATS_VERTEX 7
+#define NUM_FLOATS_VELOCITY 9
+#define VELFILESUFFIX "vel"
+#define DENFILESUFFIX "den"
+#define TRIFILESUFFIX "tri"
+
 using namespace std;
-
-
-
-
-
-
 
 TriConverter::TriConverter(int imagesize,
                      float boxsize,
@@ -38,8 +38,10 @@ TriConverter::TriConverter(int imagesize,
     prefix_ = prefix;
     outputBaseName_ = outputbasename;
     
-    //color and vertex
-    vertexbuffer_ = new Triangle[outputBufferSize_ * imagesize_];
+    vertexbuffer_   = new float[NUM_FLOATS_VERTEX * outputBufferSize_ * numplanes_];
+    //densbuffer_     = new float[1 * outputBufferSize_ * numplanes_];
+    //velocitybuffer_ = new float[NUM_FLOATS_VELOCITY * outputBufferSize_ * numplanes_];
+    
     vertexIds_ = new int[imagesize_];
     totalTriangles_ = new int[imagesize_];
     
@@ -48,37 +50,99 @@ TriConverter::TriConverter(int imagesize,
         totalTriangles_[i] = 0;
     }
     
-    outputStreams_ = new fstream[imagesize_];
+    //outputStreams_ = new fstream[imagesize_];
     
     for(int i = 0; i < imagesize_; i++){
+
         stringstream ss;
         ss << i;
-        string outfilename = prefix_ + outputBaseName_ + "." + ss.str();
-        outputStreams_[i].open(outfilename.c_str(), ios::out | ios::binary);
-        if(!outputStreams_[i].good()){
-            printf("Bad file: %s!\n", outfilename.c_str());
-            exit(1);
-        }
+        string trifile = prefix_ + outputBaseName_ + "."TRIFILESUFFIX"." + ss.str();
+        //string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
+        //string velfile = prefix_ + outputBaseName_ + "."VELFILESUFFIX"." + ss.str();
+
         TriHeader header;
         header.numOfTriangles = 0;
         header.boxSize = boxsize_;
-        outputStreams_[i].write((char *) &header, sizeof(header));
+        
+        fstream tristream(trifile.c_str(), ios::out | ios::binary);
+        if(!tristream.good()){
+            printf("Bad file: %s!\n", trifile.c_str());
+            exit(1);
+        }
+        tristream.write((char *) &header, sizeof(header));
+        tristream.close();
+        
+        /*fstream denstream(denfile.c_str(), ios::out | ios::binary);
+        if(!denstream.good()){
+            printf("Bad file: %s!\n", denfile.c_str());
+            exit(1);
+        }
+        denstream.write((char *) &header, sizeof(header));
+        denstream.close();*/
+        
+        /*fstream velstream(velfile.c_str(), ios::out | ios::binary);
+        if(!velstream.good()){
+            printf("Bad file: %s!\n", velfile.c_str());
+            exit(1);
+        }
+        velstream.write((char *) &header, sizeof(header));
+        velstream.close();*/
     }
 }
 
 TriConverter::~TriConverter(){
     delete vertexIds_;
     delete vertexbuffer_;
-    delete outputStreams_;
+    //delete densbuffer_;
+    //delete velocitybuffer_;
+    //delete outputStreams_;
 }
 
 //render the i-th buffer
 void TriConverter::outputPlane(int i){
-    outputStreams_[i].write(
-                            (char * )(vertexbuffer_ + outputBufferSize_ * i),
-                            sizeof(Triangle) * vertexIds_[i]
-                            );
+    fstream oFstream;
+    stringstream ss;
+    ss << i;
+    
+    string trifile = prefix_ + outputBaseName_ + "."TRIFILESUFFIX"." + ss.str();
+    //string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
+    //string velfile = prefix_ + outputBaseName_ + "."VELFILESUFFIX"." + ss.str();
+    
+    fstream tristream(trifile.c_str(), ios::out | ios::binary | ios::app);
+    if(!tristream.good()){
+        printf("Bad file: %s!\n", trifile.c_str());
+        exit(1);
+    }
+    /*fstream denstream(denfile.c_str(), ios::out | ios::binary | ios::app);
+    if(!denstream.good()){
+        printf("Bad file: %s!\n", denfile.c_str());
+        exit(1);
+    }*/
+    
+    /*
+    fstream velstream(velfile.c_str(), ios::out | ios::binary | ios::app);
+    if(!velstream.good()){
+        printf("Bad file: %s!\n", velfile.c_str());
+        exit(1);
+    }*/
+    
+    //outputStreams_[i]
+    tristream.write((char * )(vertexbuffer_ + NUM_FLOATS_VERTEX * outputBufferSize_ * i),
+                    sizeof(float) * vertexIds_[i] * NUM_FLOATS_VERTEX
+                    );
+    /*denstream.write((char * )(densbuffer_ +  outputBufferSize_ * i),
+                    sizeof(float) * vertexIds_[i]
+                    );*/
+    /*velstream.write((char * )(velocitybuffer_ + NUM_FLOATS_VELOCITY * outputBufferSize_ * i),
+                    sizeof(float) * vertexIds_[i] * NUM_FLOATS_VELOCITY
+                    );*/
+    
     vertexIds_[i] = 0;
+    
+    
+    tristream.close();
+    //denstream.close();
+    //velstream.close();
 }
 
 void TriConverter::process(Tetrahedron & tetra){
@@ -97,8 +161,42 @@ void TriConverter::process(Tetrahedron & tetra){
 
         int tris = cutter.cut(z);
         for(int j = 0; j < tris; j++){
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i]
-                = cutter.getTriangle(j);
+            
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 0]
+                = cutter.getTriangle(j).a.x;
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 1]
+                = cutter.getTriangle(j).a.y;
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 2]
+                = cutter.getTriangle(j).b.x;
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 3]
+                = cutter.getTriangle(j).b.y;
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 4]
+                = cutter.getTriangle(j).c.x;
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 5]
+                = cutter.getTriangle(j).c.y;
+            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 7]
+                = 1.0 / tetra.volume;
+            
+            /*velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 0]
+                = cutter.getTriangle(j).val1.x;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 1]
+                = cutter.getTriangle(j).val1.y;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 2]
+                = cutter.getTriangle(j).val1.z;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 3]
+                = cutter.getTriangle(j).val2.x;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 4]
+                = cutter.getTriangle(j).val2.y;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 5]
+                = cutter.getTriangle(j).val2.z;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 6]
+                = cutter.getTriangle(j).val3.x;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 7]
+                = cutter.getTriangle(j).val3.y;
+            velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 8]
+                = cutter.getTriangle(j).val3.z;*/
+
+            //densbuffer_[vertexIds_[i] + outputBufferSize_ * i] = tetra.volume;
             
             vertexIds_[i] ++;
             totalTriangles_[i] ++;
@@ -118,12 +216,47 @@ void TriConverter::finish(){
         if(vertexIds_[i] > 0){
             outputPlane(i);
         }
-        //write header
+        
+        stringstream ss;
+        ss << i;
+        
+        string trifile = prefix_ + outputBaseName_ + "."TRIFILESUFFIX"." + ss.str();
+        //string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
+        //string velfile = prefix_ + outputBaseName_ + "."VELFILESUFFIX"." + ss.str();
+        
+        fstream tristream(trifile.c_str(), ios::out | ios::binary | ios::app);
+        if(!tristream.good()){
+            printf("Bad file: %s!\n", trifile.c_str());
+            exit(1);
+        }
+        /*fstream denstream(denfile.c_str(), ios::out | ios::binary | ios::app);
+        if(!denstream.good()){
+            printf("Bad file: %s!\n", denfile.c_str());
+            exit(1);
+        }*/
+        /*fstream velstream(velfile.c_str(), ios::out | ios::binary | ios::app);
+        if(!velstream.good()){
+            printf("Bad file: %s!\n", velfile.c_str());
+            exit(1);
+        }*/
+        
+        
         TriHeader header;
         header.numOfTriangles = totalTriangles_[i];
         header.boxSize = boxsize_;
-        outputStreams_[i].seekg(0, outputStreams_[i].beg);
-        outputStreams_[i].write((char *) &header, sizeof(header));
+        
+        
+        tristream.seekg(0, tristream.beg);
+        tristream.write((char *) &header, sizeof(header));
+        tristream.close();
+        
+        /*denstream.seekg(0, denstream.beg);
+        denstream.write((char *) &header, sizeof(header));
+        denstream.close();*/
+        
+        /*velstream.seekg(0, velstream.beg);
+        velstream.write((char *) &header, sizeof(header));
+        velstream.close();*/
     }
     
 }

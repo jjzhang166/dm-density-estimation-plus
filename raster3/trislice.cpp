@@ -42,7 +42,7 @@ void savefile(TetraStreamer &streamer){
                  streamer.getIndTetraStream()->getHeader().BoxSize,
                  outputPrefix,
                  outputBaseName);
-    printf("ok3\n");
+    //printf("ok3\n");
     
     if(datagridsize == -1){
         datagridsize = (int)ceil(pow(streamer.getIndTetraStream()->getHeader().npartTotal[parttype], 1.0 / 3.0));

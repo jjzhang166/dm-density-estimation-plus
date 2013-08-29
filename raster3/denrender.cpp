@@ -53,13 +53,6 @@ namespace RenderSpace {
     static bool glut_is_initialized = false;
     
     
-    
-    /*typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-    typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
-    static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = NULL;
-    static glXMakeContextCurrentARBProc   glXMakeContextCurrentARB   = NULL;
-    */
-    
 }
 
 //the depth of the triangle buffer
@@ -96,64 +89,6 @@ void DenRender::init(){
         
         
         glut_is_initialized = true;
-        
-        /*
-        glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc) glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
-        
-        if(glXCreateContextAttribsARB == NULL){
-            printf("Cannot create CreateContextAttribsARB!\n");
-            exit(1);
-        }
-        glXMakeContextCurrentARB   = (glXMakeContextCurrentARBProc)   glXGetProcAddressARB( (const GLubyte *) "glXMakeContextCurrent"      );
-        if(glXMakeContextCurrentARB == NULL){
-            printf("Cannot create MakeContextCurrent!\n");
-            exit(1);
-        }
-        
-        const char *displayName = NULL;
-        Display* display = XOpenDisplay( displayName );
-        
-        if(display == NULL){
-            printf("Cannot create display!\n");
-            exit(1);
-        }
-        
-        static int visualAttribs[] = { None };
-        int numberOfFramebufferConfigurations = 0;
-        GLXFBConfig* fbConfigs = glXChooseFBConfig( display, DefaultScreen(display), 
-                        visualAttribs, &numberOfFramebufferConfigurations );
-        
-        if(fbConfigs == NULL){
-            printf("Cannot get ChooseFBConfig!\n");
-            exit(1);
-        }
-        
-        int context_attribs[] = {
-            GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
-            GLX_CONTEXT_MINOR_VERSION_ARB, 2,
-            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
-            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
-            None
-        };
-        
-        GLXContext openGLContext = glXCreateContextAttribsARB( display, fbConfigs[0], 0, True, context_attribs);
-        
-        int pbufferAttribs[] = {
-            GLX_PBUFFER_WIDTH,  32,
-            GLX_PBUFFER_HEIGHT, 32,
-            None
-        };
-        GLXPbuffer pbuffer = glXCreatePbuffer( display, fbConfigs[0], pbufferAttribs );
-        
-        // clean up:
-        XFree( fbConfigs );
-        XSync( display, False );
-        
-        if ( !glXMakeContextCurrent( display, pbuffer, pbuffer, openGLContext ) )
-        {
-            printf("Cannot get MakeContextCurrent!\n");
-            exit(1);
-        }*/
 
     }
     fbuffer = new buffer(imagesize_, imagesize_);
@@ -243,11 +178,6 @@ DenRender::~DenRender(){
     delete vertexbuffer_;
     delete fbuffer;
     delete result_;
-    //delete *args_;
-    //delete args_;
-    //delete image_;
-    //delete streams_;
-    //delete density_;
 }
 
 //render the i-th buffer
@@ -320,17 +250,6 @@ void DenRender::rendplane(int i){
                   (result_ + imagesize_ * imagesize_ * i * num_of_rendertype));
     fbuffer->unbindTex();
     
-    //avoiding clamping
-    /*float * imp = image_ + imagesize_ * imagesize_ * i;
-	int numpix = imagesize_ * imagesize_;
-    for(int j = 0; j < numpix; j++){
-        if(imp[j] > 1.0){
-            printf("%f\n",imp[j]);
-        }
-    }*/
-    //int j = 1000;
-    //    printf("%e\n", *(image_ + imagesize_ * imagesize_ * i + j));
-    
 }
 
 void DenRender::rend(Tetrahedron & tetra){
@@ -347,10 +266,6 @@ void DenRender::rend(Tetrahedron & tetra){
     
     int starti = max(floor((tetra.v1.z  - startz_ )/ dz_), 0.0f);
     int endi = min(ceil((tetra.v4.z  - startz_) / dz_), (float)numplanes_);
-    
-    //printf("starti endi = %f %d %f %d\n", startz_ + dz_ * starti, starti, startz_ + dz_ * endi, endi);
-    //printf("allz = %f %f %f %f\n",
-    //       tetra.v1.z, tetra.v2.z, tetra.v3.z, tetra.v4.z);
     
     for(int i = starti; i < endi; i++){
         float z = startz_ + dz_ * i;
@@ -397,19 +312,6 @@ void DenRender::rend(Tetrahedron & tetra){
                                   + 2 + k] = 0.0;
                 }
             }
-                        
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 3] = 1;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 4] = 1;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 5] = 1;
-            
             
 
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
@@ -433,21 +335,6 @@ void DenRender::rend(Tetrahedron & tetra){
                 }
             }
             
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 8] = tetra.invVolume;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 9] = 1;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 10] = 1;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 11] = 1;
             
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
@@ -471,28 +358,6 @@ void DenRender::rend(Tetrahedron & tetra){
                 }
             }
             
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 14] = tetra.invVolume;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 15] = 1;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 16] = 1;
-            
-            //vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH
-            //              + vertexIds_[i] * NUM_FLOATS_TRIANGLE
-            //              + 17] = 1;
-
-            
-            /*printf("Triangles: %d\n", i);
-            float *p = vertexbuffer_ + 15 * i * VERTEXBUFFERDEPTH + vertexIds_[i] * 15;
-            printf("%f %f %e %e %e\n", *p, *(p+1), *(p+2), *(p+3), *(p+4));
-            printf("%f %f %e %e %e\n", *(p+5), *(p+6), *(p+7), *(p+8), *(p+9));
-            printf("%f %f %e %e %e\n", *(p+10), *(p+11), *(p+12), *(p+13), *(p+14));*/
             
             vertexIds_[i] ++;
             
