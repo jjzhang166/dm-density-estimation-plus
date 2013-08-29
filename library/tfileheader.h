@@ -17,7 +17,7 @@ public:
 //#endif
     //
 	float boxSize;
-    int other[60];
+    int other[61];
 };
 
 #endif

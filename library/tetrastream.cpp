@@ -406,11 +406,7 @@ void TetraStream::convertToTetrahedron(int ii, int jj, int kk) {
 }
 
 void TetraStream::setCorrection(/*GridManager * grid*/){
-	//this->grids_ = grid;
-	//double boxOfGrids = (REAL)(grids_->getEndPoint().x - grids_->getStartPoint().x);
     box = getHeader().BoxSize;
-	//ng = (REAL)grids_->getGridSize();
-	//vox_vol = boxOfGrids * boxOfGrids * boxOfGrids / ng / ng / ng;
 	isPeriodical_ = true;
 }
 

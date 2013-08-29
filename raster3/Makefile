@@ -15,6 +15,13 @@ RENDOBJ=main.o buffers.o isoplane.o processbar.o render.o\
 		   tetrahedron.o triangle.o tetracut.o \
 		   tetrastream.o indtetrahedron.o
 
+TRISLICEPROG=TriSlicer
+TRISLICEOBJ=trislice.o triconverter.o	\
+			indtetrastream.o	\
+		   	readgadget.o tetrastream.o	\
+		   	tetrahedron.o triangle.o indtetrahedron.o\
+		   	tetracut.o
+
 TPROG=testisoz
 TOBJ=testisozcutter.o buffers.o isoplane.o processbar.o render.o\
 		   indtetrastream.o isoplancut.o readgadget.o \
@@ -56,6 +63,7 @@ all: obj
 	$(CC) $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
 	$(CC) $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
 	$(CC) $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
+	$(CC) $(TRISLICEOBJ) -o $(TRISLICEPROG) $(LFLAGS)
 	@echo success
 
 obj:
@@ -64,7 +72,7 @@ obj:
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
 		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
 		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
- 		   tfile_render.cpp ${LIB}/tfilestream.cpp  $(IFLAG)  
+ 		   tfile_render.cpp ${LIB}/tfilestream.cpp triconverter.cpp trislice.cpp $(IFLAG)  
 
 
 profile:

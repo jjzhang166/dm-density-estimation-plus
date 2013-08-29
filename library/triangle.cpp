@@ -15,6 +15,18 @@ CUDA_CALLABLE_MEMBER Triangle& Triangle::operator=(const Triangle &rhs){
 	return *this;
 }
 
+CUDA_CALLABLE_MEMBER Triangle& Triangle::operator=(const Triangle3d &rhs){
+	a = rhs.a;
+	b = rhs.b;
+	c = rhs.c;
+    
+    val1 = rhs.val1;
+    val2 = rhs.val2;
+    val3 = rhs.val3;
+	return *this;
+}
+
+
 CUDA_CALLABLE_MEMBER Triangle::Triangle(const Triangle &tri){
 	a = tri.a;
 	b = tri.b;

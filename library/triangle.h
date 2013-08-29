@@ -66,19 +66,6 @@ public:
 };
 
 
-class Triangle{
-public:
-    Point2d a;
-    Point val1;
-    Point2d b;
-    Point val2;
-    Point2d c;
-    Point val3;
-    CUDA_CALLABLE_MEMBER Triangle & operator=(const Triangle &rhs);
-	CUDA_CALLABLE_MEMBER Triangle(const Triangle &tri);
-	CUDA_CALLABLE_MEMBER Triangle();
-    CUDA_CALLABLE_MEMBER REAL getArea();
-};
 
 //triangles in 3D
 class Triangle3d{
@@ -93,6 +80,22 @@ public:
 	CUDA_CALLABLE_MEMBER Triangle3d(const Triangle3d &tri);
 	CUDA_CALLABLE_MEMBER Triangle3d();
 
+    CUDA_CALLABLE_MEMBER REAL getArea();
+};
+
+
+class Triangle{
+public:
+    Point2d a;
+    Point val1;
+    Point2d b;
+    Point val2;
+    Point2d c;
+    Point val3;
+    CUDA_CALLABLE_MEMBER Triangle & operator=(const Triangle &rhs);
+    CUDA_CALLABLE_MEMBER Triangle & operator=(const Triangle3d &rhs);
+	CUDA_CALLABLE_MEMBER Triangle(const Triangle &tri);
+	CUDA_CALLABLE_MEMBER Triangle();
     CUDA_CALLABLE_MEMBER REAL getArea();
 };
 
