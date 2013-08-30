@@ -198,7 +198,7 @@ void DenRender::rendplane(int i){
     for(int j = 0; j < vertexIds_[i]; j++){
         drawTriangleOnGPU(vertexbuffer_[VERTEXBUFFERDEPTH * i + j],
                           volumebuffer_[VERTEXBUFFERDEPTH * i + j],
-                          canvas);
+                         canvas);
     }
     vertexIds_[i] = 0;
 	if(cudaSuccess != canvas.copyDeviceDataToHost(i)){

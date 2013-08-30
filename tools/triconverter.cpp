@@ -158,6 +158,7 @@ void TriConverter::process(Tetrahedron & tetra){
     for(int i = starti; i < endi; i++){
         float z = startz_ + dz_ * i;
 
+        //test
         int tris = cutter.cut(z);
         for(int j = 0; j < tris; j++){
             

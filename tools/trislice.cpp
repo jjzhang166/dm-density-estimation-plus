@@ -66,7 +66,7 @@ void savefile(TetraStreamer &streamer){
     //printf("%d %d \n", tcount, datagridsize);
     streamer.reset();
     while(streamer.hasNext()){
-        int nums;
+        int nums = 0;
         
         Tetrahedron * tetras;
         tetras = streamer.getNext(nums);
