@@ -32,6 +32,10 @@ namespace main_space{
     int inputmemgrid = -1;			//the input memory grid size
     string filename =  "";          //"I:\\data\\MIP-00-00-00-run_050";
                                     //the input data filename "E:\\multires_150";//
+    string prefix = "";
+    string base_name = "";
+    int numoffiles = 0;
+    
     string densityFilename = "";	//output filename
     string velocityXFilename = "";	//velocity x output filename
     string velocityYFilename = "";  //velocity y output filename
@@ -75,11 +79,12 @@ namespace main_space{
     
     void printUsage(string pname){  //print the usage
         fprintf(stdout,
-                "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n "
+                "Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
                 "%s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n"
                 , pname.c_str()
                 , "[-imsize <imagesize>]"
                 , "[-df <datafilename>]"
+                , "[-mf <prefix> <basename> <numoffiles>]"
                 , "[-dens <output density file>]"
                 , "[-stream <output stream data file>]"
                 , "[-velx <output velocity x-component file>]"
@@ -206,6 +211,13 @@ namespace main_space{
                     ss >> setStartPoint.z;
                     ss >> gridboxsize;
                     k += 2;
+                }else if(strcmp(args[k], "-mf") == 0){
+                    prefix = args[k + 1];
+                    k++;
+                    base_name = args[k + 1];
+                    k++;
+                    ss << args[k + 1];
+                    ss >> numoffiles;
                 }else{
                     printUsage(args[0]);
                     exit(1);
@@ -225,8 +237,36 @@ int main(int argv, char * args[]){
     
 	readParameters(argv, args);
     
+    TetraStreamer * pStreamer;
+    if(numoffiles != 0){
+        pStreamer = new TetraStreamer(prefix,
+                                      base_name,
+                                      numoffiles,
+                                      inputmemgrid,
+                                      parttype,
+                                      datagridsize,
+                                      isHighMem,
+                                      isAllData,
+                                      isVelocity,
+                                      true,
+                                      isInOrder);
+        
+    }else{
+        pStreamer = new TetraStreamer(filename,
+                                      inputmemgrid,
+                                      parttype,
+                                      datagridsize,
+                                      isHighMem,
+                                      isAllData,
+                                      isVelocity,
+                                      true,
+                                      isInOrder);
+        
+    }
+    
     //test
-    TetraStreamer streamer(filename,
+    TetraStreamer &streamer = *pStreamer;
+    /*streamer(filename,
                            inputmemgrid,
                            parttype,
                            datagridsize,
@@ -234,7 +274,7 @@ int main(int argv, char * args[]){
                            isAllData,
                            isVelocity,
                            true,
-                           isInOrder);
+                           isInOrder);*/
     
     boxsize = streamer.getIndTetraStream()->getHeader().BoxSize;
     if(numOfCuts == 0){
