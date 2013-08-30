@@ -3,7 +3,8 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-
+#include <cstring>
+#include <cstdlib>
 #include "tetrahedron.h"
 #include "indtetrastream.h"
 #include "tfileheader.h"
