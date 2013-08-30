@@ -2,11 +2,11 @@
 CC=g++
 CUDACC=nvcc
 LIB=../library
-LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
+#LFLAGS=-framework Carbon -framework OpenGL -framework GLUT 
 #LFLAGS= -lGL -lglut -lGLEW
-#LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
-IFLAG= -I /usr/include/GL/ -I${LIB}
-#IFLAG= -I /usr/include/GL/ -I${LIB} -I ~/Tools/glew/include/
+LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
+#IFLAG= -I /usr/include/GL/ -I${LIB}
+IFLAG= -I /usr/include/GL/ -I${LIB} -I ~/Tools/glew/include/
 
 
 RENDPROG=renddens_1slide

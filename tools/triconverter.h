@@ -21,7 +21,7 @@ public:
                                   float boxsize,
                                   string prefix,
                                   string outputbasename,
-                                  int outputBufferSize = 1024
+                                  int outputBufferSize = 65536
                                 );
     
             ~TriConverter        ();
