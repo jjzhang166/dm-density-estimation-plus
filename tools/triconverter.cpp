@@ -10,13 +10,12 @@
 
 #include "tetracut.h"
 
+#include "triheader.h"
+
 #include "triconverter.h"
 
 #define NUM_FLOATS_VERTEX 6
 #define NUM_FLOATS_VELOCITY 9
-#define VELFILESUFFIX "vel"
-#define DENFILESUFFIX "den"
-#define TRIFILESUFFIX "tri"
 
 using namespace std;
 

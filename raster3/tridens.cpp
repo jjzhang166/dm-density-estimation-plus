@@ -6,15 +6,10 @@
 
 #include "tetrahedron.h"
 #include "indtetrastream.h"
-#include "tfileheader.h"
-#include "triconverter.h"
+#include "triheader.h"
 #include "trirender.h"
 
 using namespace std;
-
-#define VELFILESUFFIX "vel"
-#define DENFILESUFFIX "den"
-#define TRIFILESUFFIX "tri"
 
 string prefix = "";
 string base_name = "";

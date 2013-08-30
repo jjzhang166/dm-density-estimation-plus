@@ -15,14 +15,6 @@ RENDOBJ=main.o buffers.o isoplane.o processbar.o render.o\
 		   tetrahedron.o triangle.o tetracut.o \
 		   tetrastream.o indtetrahedron.o
 
-TRISLICEPROG=TriSlicer
-TRISLICEOBJ=trislice.o triconverter.o	\
-			indtetrastream.o	\
-		   	readgadget.o tetrastream.o	\
-		   	tetrahedron.o triangle.o indtetrahedron.o\
-		   	tetracut.o
-
-
 TRIDENSPROG=TriDens
 TRIDENSOBJ=tridens.o trirender.o buffers.o processbar.o\
 		   indtetrastream.o readgadget.o tetrastream.o\
@@ -76,7 +68,6 @@ all: obj
 	$(CC) $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
 	$(CC) $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
 	$(CC) $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
-	$(CC) $(TRISLICEOBJ) -o $(TRISLICEPROG) $(LFLAGS)
 	$(CC) $(TRIDENSOBJ) -o $(TRIDENSPROG) $(LFLAGS)
 	@echo success
 
@@ -86,7 +77,7 @@ obj:
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
 		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
 		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
- 		   tfile_render.cpp ${LIB}/tfilestream.cpp triconverter.cpp trislice.cpp \
+ 		   tfile_render.cpp ${LIB}/tfilestream.cpp \
 		   tridens.cpp trirender.cpp $(IFLAG)  
 
 
@@ -124,3 +115,4 @@ clean:
 	rm -f $(DENSVIEWPROG)
 	rm -f $(CUDAZDENSPROG)
 	rm -f $(TRIDENSPROG)
+	rm -f $(TFILEPROG)
