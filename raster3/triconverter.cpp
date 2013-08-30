@@ -12,7 +12,7 @@
 
 #include "triconverter.h"
 
-#define NUM_FLOATS_VERTEX 7
+#define NUM_FLOATS_VERTEX 6
 #define NUM_FLOATS_VELOCITY 9
 #define VELFILESUFFIX "vel"
 #define DENFILESUFFIX "den"
@@ -39,7 +39,7 @@ TriConverter::TriConverter(int imagesize,
     outputBaseName_ = outputbasename;
     
     vertexbuffer_   = new float[NUM_FLOATS_VERTEX * outputBufferSize_ * numplanes_];
-    //densbuffer_     = new float[1 * outputBufferSize_ * numplanes_];
+    densbuffer_     = new float[1 * outputBufferSize_ * numplanes_];
     //velocitybuffer_ = new float[NUM_FLOATS_VELOCITY * outputBufferSize_ * numplanes_];
     
     vertexIds_ = new int[imagesize_];
@@ -57,7 +57,7 @@ TriConverter::TriConverter(int imagesize,
         stringstream ss;
         ss << i;
         string trifile = prefix_ + outputBaseName_ + "."TRIFILESUFFIX"." + ss.str();
-        //string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
+        string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
         //string velfile = prefix_ + outputBaseName_ + "."VELFILESUFFIX"." + ss.str();
 
         TriHeader header;
@@ -72,13 +72,13 @@ TriConverter::TriConverter(int imagesize,
         tristream.write((char *) &header, sizeof(header));
         tristream.close();
         
-        /*fstream denstream(denfile.c_str(), ios::out | ios::binary);
+        fstream denstream(denfile.c_str(), ios::out | ios::binary);
         if(!denstream.good()){
             printf("Bad file: %s!\n", denfile.c_str());
             exit(1);
         }
         denstream.write((char *) &header, sizeof(header));
-        denstream.close();*/
+        denstream.close();
         
         /*fstream velstream(velfile.c_str(), ios::out | ios::binary);
         if(!velstream.good()){
@@ -93,7 +93,7 @@ TriConverter::TriConverter(int imagesize,
 TriConverter::~TriConverter(){
     delete vertexIds_;
     delete vertexbuffer_;
-    //delete densbuffer_;
+    delete densbuffer_;
     //delete velocitybuffer_;
     //delete outputStreams_;
 }
@@ -105,7 +105,7 @@ void TriConverter::outputPlane(int i){
     ss << i;
     
     string trifile = prefix_ + outputBaseName_ + "."TRIFILESUFFIX"." + ss.str();
-    //string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
+    string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
     //string velfile = prefix_ + outputBaseName_ + "."VELFILESUFFIX"." + ss.str();
     
     fstream tristream(trifile.c_str(), ios::out | ios::binary | ios::app);
@@ -113,11 +113,11 @@ void TriConverter::outputPlane(int i){
         printf("Bad file: %s!\n", trifile.c_str());
         exit(1);
     }
-    /*fstream denstream(denfile.c_str(), ios::out | ios::binary | ios::app);
+    fstream denstream(denfile.c_str(), ios::out | ios::binary | ios::app);
     if(!denstream.good()){
         printf("Bad file: %s!\n", denfile.c_str());
         exit(1);
-    }*/
+    }
     
     /*
     fstream velstream(velfile.c_str(), ios::out | ios::binary | ios::app);
@@ -130,9 +130,9 @@ void TriConverter::outputPlane(int i){
     tristream.write((char * )(vertexbuffer_ + NUM_FLOATS_VERTEX * outputBufferSize_ * i),
                     sizeof(float) * vertexIds_[i] * NUM_FLOATS_VERTEX
                     );
-    /*denstream.write((char * )(densbuffer_ +  outputBufferSize_ * i),
+    denstream.write((char * )(densbuffer_ +  outputBufferSize_ * i),
                     sizeof(float) * vertexIds_[i]
-                    );*/
+                    );
     /*velstream.write((char * )(velocitybuffer_ + NUM_FLOATS_VELOCITY * outputBufferSize_ * i),
                     sizeof(float) * vertexIds_[i] * NUM_FLOATS_VELOCITY
                     );*/
@@ -141,7 +141,7 @@ void TriConverter::outputPlane(int i){
     
     
     tristream.close();
-    //denstream.close();
+    denstream.close();
     //velstream.close();
 }
 
@@ -162,20 +162,29 @@ void TriConverter::process(Tetrahedron & tetra){
         int tris = cutter.cut(z);
         for(int j = 0; j < tris; j++){
             
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 0]
+            
+            vertexbuffer_[outputBufferSize_ * i * NUM_FLOATS_VERTEX + vertexIds_[i] * NUM_FLOATS_VERTEX + 0]
                 = cutter.getTriangle(j).a.x;
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 1]
+            vertexbuffer_[outputBufferSize_ * i * NUM_FLOATS_VERTEX + vertexIds_[i] * NUM_FLOATS_VERTEX + 1]
                 = cutter.getTriangle(j).a.y;
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 2]
+            vertexbuffer_[outputBufferSize_ * i * NUM_FLOATS_VERTEX + vertexIds_[i] * NUM_FLOATS_VERTEX + 2]
                 = cutter.getTriangle(j).b.x;
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 3]
+            vertexbuffer_[outputBufferSize_ * i * NUM_FLOATS_VERTEX + vertexIds_[i] * NUM_FLOATS_VERTEX + 3]
                 = cutter.getTriangle(j).b.y;
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 4]
+            vertexbuffer_[outputBufferSize_ * i * NUM_FLOATS_VERTEX + vertexIds_[i] * NUM_FLOATS_VERTEX + 4]
                 = cutter.getTriangle(j).c.x;
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 5]
+            vertexbuffer_[outputBufferSize_ * i * NUM_FLOATS_VERTEX + vertexIds_[i] * NUM_FLOATS_VERTEX + 5]
                 = cutter.getTriangle(j).c.y;
-            vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 7]
-                = 1.0 / tetra.volume;
+            
+            /*cout << vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 0] <<" ";
+            cout << vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 1] <<" ";
+            cout << vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 2] <<" ";
+            cout << vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 3] <<" ";
+            cout << vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 4] <<" ";
+            cout << vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 5] <<" \n";*/
+            
+            //vertexbuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VERTEX + 6]
+            //    = 1.0 / tetra.volume;
             
             /*velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 0]
                 = cutter.getTriangle(j).val1.x;
@@ -196,7 +205,7 @@ void TriConverter::process(Tetrahedron & tetra){
             velocitybuffer_[vertexIds_[i] + outputBufferSize_ * i * NUM_FLOATS_VELOCITY + 8]
                 = cutter.getTriangle(j).val3.z;*/
 
-            //densbuffer_[vertexIds_[i] + outputBufferSize_ * i] = tetra.volume;
+            densbuffer_[vertexIds_[i] + outputBufferSize_ * i] = 1.0 / tetra.volume;
             
             vertexIds_[i] ++;
             totalTriangles_[i] ++;
@@ -212,7 +221,7 @@ void TriConverter::process(Tetrahedron & tetra){
 void TriConverter::finish(){
     
     for(int i = 0; i < numplanes_; i++){
-        //printf("%d \n", vertexIds_[i]);
+        //printf("%d \n", totalTriangles_[i]);
         if(vertexIds_[i] > 0){
             outputPlane(i);
         }
@@ -221,20 +230,20 @@ void TriConverter::finish(){
         ss << i;
         
         string trifile = prefix_ + outputBaseName_ + "."TRIFILESUFFIX"." + ss.str();
-        //string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
+        string denfile = prefix_ + outputBaseName_ + "."DENFILESUFFIX"." + ss.str();
         //string velfile = prefix_ + outputBaseName_ + "."VELFILESUFFIX"." + ss.str();
         
-        fstream tristream(trifile.c_str(), ios::out | ios::binary | ios::app);
+        ofstream tristream(trifile.c_str(), ios::out | ios::binary | ios::in);
         if(!tristream.good()){
             printf("Bad file: %s!\n", trifile.c_str());
             exit(1);
         }
-        /*fstream denstream(denfile.c_str(), ios::out | ios::binary | ios::app);
+        ofstream denstream(denfile.c_str(), ios::out | ios::binary | ios::in);
         if(!denstream.good()){
             printf("Bad file: %s!\n", denfile.c_str());
             exit(1);
-        }*/
-        /*fstream velstream(velfile.c_str(), ios::out | ios::binary | ios::app);
+        }
+        /*ofstream velstream(velfile.c_str(), ios::out | ios::binary | ios::in);
         if(!velstream.good()){
             printf("Bad file: %s!\n", velfile.c_str());
             exit(1);
@@ -246,15 +255,17 @@ void TriConverter::finish(){
         header.boxSize = boxsize_;
         
         
-        tristream.seekg(0, tristream.beg);
+        
+        tristream.seekp(0, tristream.beg);
+        //printf("Current pos: %d\n", tristream.tellp());
         tristream.write((char *) &header, sizeof(header));
         tristream.close();
         
-        /*denstream.seekg(0, denstream.beg);
+        denstream.seekp(0, denstream.beg);
         denstream.write((char *) &header, sizeof(header));
-        denstream.close();*/
+        denstream.close();
         
-        /*velstream.seekg(0, velstream.beg);
+        /*velstream.seekp(0, velstream.beg);
         velstream.write((char *) &header, sizeof(header));
         velstream.close();*/
     }

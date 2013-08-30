@@ -38,7 +38,7 @@ private:
     int outputBufferSize_;
     
     float * vertexbuffer_;
-    //float * densbuffer_;
+    float * densbuffer_;
     //float * velocitybuffer_;
     int * vertexIds_;
     int * totalTriangles_;

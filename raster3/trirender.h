@@ -15,17 +15,23 @@
 class TriDenRender{
 public:
     
-    TriRender            (
+    TriDenRender        (
                           int imagesize,
                           string outputfile,
                           REAL boxSize
                         );
     
-    ~TriRender          ();
+    ~TriDenRender          ();
     
-    void    rend        (string planeFile);
+    bool good();
+    
+    void    rend        (string trifile, string denfile);
+    
+    void close();
     
 private:
+    
+    void init();
     
     int     imagesize_;
     REAL    boxsize_;
@@ -33,9 +39,6 @@ private:
     float*  result_;
     
     fstream outputStream_;
-
-    float   startz_;
-    float   dz_;
 };
 
 #endif
