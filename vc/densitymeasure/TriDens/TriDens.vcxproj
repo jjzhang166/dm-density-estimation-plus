@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D658DE3D-945F-42AD-9766-0A16767B2B0D}</ProjectGuid>
+    <RootNamespace>TriDens</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>..\..\..\library;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>..\..\..\library;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\library\gadgetheader.h" />
+    <ClInclude Include="..\..\..\library\gettimeofday_win.h" />
+    <ClInclude Include="..\..\..\library\indtetrastream.h" />
+    <ClInclude Include="..\..\..\library\processbar.h" />
+    <ClInclude Include="..\..\..\library\readgadget.h" />
+    <ClInclude Include="..\..\..\library\tetracut.h" />
+    <ClInclude Include="..\..\..\library\tetrahedron.h" />
+    <ClInclude Include="..\..\..\library\tetrastream.h" />
+    <ClInclude Include="..\..\..\library\tfileheader.h" />
+    <ClInclude Include="..\..\..\library\tfilestream.h" />
+    <ClInclude Include="..\..\..\library\triangle.h" />
+    <ClInclude Include="..\..\..\library\triheader.h" />
+    <ClInclude Include="..\..\..\library\types.h" />
+    <ClInclude Include="..\..\..\raster3\buffers.h" />
+    <ClInclude Include="..\..\..\raster3\denrender.h" />
+    <ClInclude Include="..\..\..\raster3\isoplane.h" />
+    <ClInclude Include="..\..\..\raster3\render.h" />
+    <ClInclude Include="..\..\..\raster3\viewfun.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\library\gettimeofday_win.cpp" />
+    <ClCompile Include="..\..\..\library\indtetrahedron.cpp" />
+    <ClCompile Include="..\..\..\library\indtetrastream.cpp" />
+    <ClCompile Include="..\..\..\library\processbar.cpp" />
+    <ClCompile Include="..\..\..\library\readgadget.cpp" />
+    <ClCompile Include="..\..\..\library\tetracut.cpp" />
+    <ClCompile Include="..\..\..\library\tetrahedron.cpp" />
+    <ClCompile Include="..\..\..\library\tetrastream.cpp" />
+    <ClCompile Include="..\..\..\library\tfilestream.cpp" />
+    <ClCompile Include="..\..\..\library\triangle.cpp" />
+    <ClCompile Include="..\..\..\raster3\buffers.cpp" />
+    <ClCompile Include="..\..\..\raster3\tridens.cpp" />
+    <ClCompile Include="..\..\..\raster3\trirender.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
