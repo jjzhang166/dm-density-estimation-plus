@@ -15,6 +15,7 @@ using namespace std;
 
 string prefix = "";
 string base_name = "";
+int numOfFiles = 0;
 string outputfilename = "";
 int imageSize = 128;
 
@@ -22,7 +23,7 @@ int imageSize = 128;
 void printUsage(string pname){
     printf("Usage: %s\n %s\n %s\n %s\n",
            pname.c_str(),
-           "-df <prefix> <basename>",
+           "-df <prefix> <basename> <numfiles>",
            "-dens <outputfilename>",
            "-imsize <imagesize>"
            );
@@ -43,6 +44,8 @@ int main(int argv, char * args[]){
                 prefix = args[k + 1];
                 k++;
                 base_name = args[k + 1];
+                k++;
+                numOfFiles = atoi(args[k + 1]);
             }else if(strcmp(args[k], "-dens") == 0){
                 outputfilename = args[k+1];
             }else if(strcmp(args[k], "-imsize") == 0){
@@ -54,6 +57,16 @@ int main(int argv, char * args[]){
             }
             k += 2;
         }
+    }
+    
+    if(numOfFiles < imageSize){
+        fprintf(stderr, "Num of triangle files less than imagesize.\n");
+        exit(1);
+    }
+    
+    if(numOfFiles % imageSize != 0){
+        fprintf(stderr, "Image size is not a divisor of numOfFilesß.\n");
+        exit(1);
     }
     
     TriHeader header;
@@ -69,15 +82,16 @@ int main(int argv, char * args[]){
     
     int tcount = imageSize / 20;
     for(int i = 0; i < imageSize; i++){
+        int fileno = i * numOfFiles / imageSize;
         
         stringstream ss;
-        ss << i;
+        ss << fileno;
         string trifile = prefix + base_name + "."TRIFILESUFFIX"." + ss.str();
         string denfile = prefix + base_name + "."DENFILESUFFIX"." + ss.str();
         
         render.rend(trifile, denfile);
         
-        if(i % tcount == 0){
+        if(fileno % tcount == 0){
             printf(">");
             cout.flush();
         }
