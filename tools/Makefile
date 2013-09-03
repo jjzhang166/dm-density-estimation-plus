@@ -1,4 +1,5 @@
 #MACOS
+MACROS=-DRH0=0.01 #RH0 =(1 Mpc) / (1 code length units) / H0
 CC=g++
 LIB=../library
 IFLAG= -I ${LIB}
@@ -20,7 +21,7 @@ all: obj
 	$(CC) $(TRISLICEOBJ) -o $(TRISLICEPROG) $(LFLAGS)
 
 obj:
-	$(CC) -c -Wall tconverter.cpp ${LIB}/processbar.cpp\
+	$(CC) -c -Wall $(MACROS) tconverter.cpp ${LIB}/processbar.cpp\
 		   ${LIB}/tetrastream.cpp ${LIB}/readgadget.cpp \
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp \
 		   ${LIB}/tetracut.cpp ${LIB}/tfilestream.cpp\

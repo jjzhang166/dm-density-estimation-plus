@@ -144,6 +144,10 @@ CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrah
     
     //periodical correction:
     int tetra_num = 1;
+    
+    //test
+    //return tetra_num;
+    
     int temp_num = 0;
     if(tetra_.maxx() - tetra_.minx() > box_ / 2.0){
         TetraStream::splitTetraX(tetra_, tetras_p[1], box_);

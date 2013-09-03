@@ -24,10 +24,11 @@ int datagridsize = -1;
 int inputmemgrid = 16;
 int imageSize = 1024;
 double boxSize = 32000;
-
+bool isRedShiftDist = false;
+Point redshiftAxis; //redshit distortion axis
 
 void printUsage(string pname){
-    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
+    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
            pname.c_str(),
            "-df <single_gadgetfile name>",
            "-mf <prefix> <basename> <numoffiles>",
@@ -35,11 +36,15 @@ void printUsage(string pname){
            "-imsize <imagesize>",
            "-parttype <particletype>, default: -1",
            "-dgridsize <data gridsize>, default: -1",
-           "-tgrid <grid in memory for tetra>, default: -1"
+           "-tgrid <grid in memory for tetra>, default: -1",
+           "-redshift <x> <y> <z>, the reshift shift distortion axis" 
            );
 }
 
 void savefile(TetraStreamer &streamer){
+    if(isRedShiftDist){
+        streamer.setRedshiftDistort(redshiftAxis);
+    }
     TriConverter triangleConverter(imageSize,
                  streamer.getIndTetraStream()->getHeader().BoxSize,
                  outputPrefix,
@@ -131,6 +136,26 @@ int main(int argv, char * args[]){
             }else if(strcmp(args[k], "-imsize") == 0){
                 ss << args[k + 1];
                 ss >> imageSize;
+            }else if(strcmp(args[k], "-redshift") == 0){
+                float r_x, r_y, r_z;
+                stringstream s0;
+                s0 << args[k + 1];
+                s0 >> r_x;
+                k++;
+                stringstream s1;
+                s1 << args[k+1];
+                s1 >> r_y;
+                k++;
+                ss << args[k + 1];
+                ss >> r_z;
+                isRedShiftDist = true;
+                float r = sqrt(r_x * r_x + r_y * r_y + r_z * r_z);
+                r_x /= r;
+                r_y /= r;
+                r_z /= r;
+                redshiftAxis.x = r_x;
+                redshiftAxis.y = r_y;
+                redshiftAxis.z = r_z;
             }else{
                 printUsage(args[0]);
                 exit(1);

@@ -15,7 +15,12 @@ using namespace std;
 #include "indtetrastream.h"
 #include "readgadget.h"
 
-#define H0 100
+
+//the reduced H0, for the redshift distortion
+//RH0 = (1 Mpc) / (1 code length units) / H0
+#ifndef RH0
+#define RH0 10
+#endif
 
 void IndTetraStream::init(){
     isRedshiftDistorted_ = false;
@@ -146,7 +151,7 @@ IndTetraStream::IndTetraStream(string filename,
 
 
 void IndTetraStream::getRedshiftDistoredPoint(Point & target,
-                                              Point &velocity,
+                                              Point & velocity,
                                               Point & distortAxis,
                                               float redshift,
                                               float boxSize
@@ -155,12 +160,32 @@ void IndTetraStream::getRedshiftDistoredPoint(Point & target,
     
     Point displacement = distortAxis
     * velocity.dot(distortAxis)
-    * sqrt(a) * (1.0 / H0) * 1000; //to kpc/h
+    * sqrt(a) * RH0; //to kpc/h
     
     target = target + displacement;
-    target.x = fmod(target.x, boxSize);
-    target.y = fmod(target.y, boxSize);
-    target.z = fmod(target.z, boxSize);
+    
+    /*if(fabs(displacement.x) > boxSize / 8)
+    {printf("%f %f\n", displacement.x, boxSize);
+        displacement.x = 0;
+    }
+    if(fabs(displacement.y) > boxSize / 8)
+    {printf("%f %f\n", displacement.y, boxSize);
+        displacement.y = 0;
+    }
+    if(fabs(displacement.z) > boxSize / 8){
+        printf("%f %f\n", displacement.z, boxSize);
+        displacement.z = 0;
+    }*/
+    
+    target.x = fmod(target.x + boxSize, boxSize);
+    target.y = fmod(target.y + boxSize, boxSize);
+    target.z = fmod(target.z + boxSize, boxSize);
+    /*if(target.x >= boxSize)
+        printf("%f %f %f\n", target.x, boxSize, fmod(target.x, boxSize));
+    if(target.y >= boxSize)
+        printf("%f %f %f\n", target.y, boxSize, fmod(target.y, boxSize));
+    if(target.z >= boxSize)
+        printf("%f %f %f\n", target.z, boxSize, fmod(target.z, boxSize));*/
 }
 
 

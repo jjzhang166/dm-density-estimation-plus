@@ -134,8 +134,16 @@ void GSnap::init_singlefile(
 			}
         
 			allpos_[allind_[i]].x = fmod((float)temppos[i].x, (float)header.BoxSize);
+            if(allpos_[allind_[i]].x < 0)
+                allpos_[allind_[i]].x += header.BoxSize;
+            
 			allpos_[allind_[i]].y = fmod((float)temppos[i].y, (float)header.BoxSize);
+            if(allpos_[allind_[i]].y < 0)
+                allpos_[allind_[i]].y += header.BoxSize;
+            
 			allpos_[allind_[i]].z = fmod((float)temppos[i].z, (float)header.BoxSize);
+            if(allpos_[allind_[i]].z < 0)
+                allpos_[allind_[i]].z += header.BoxSize;
 			//fprintf(stderr,"%d %d %d\n", i, allind_[i], totalparts);
 		}
     
