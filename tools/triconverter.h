@@ -15,6 +15,11 @@ using namespace std;
 //those triangles are 2D-triangle with velocity values
 class TriConverter{
 public:
+    static const int VELX;
+    static const int VELY;
+    static const int VELZ;
+    static const int DENS;
+    static const int POS;
     
             TriConverter        (
                                   int imagesize,
@@ -26,12 +31,23 @@ public:
     
             ~TriConverter        ();
     
+    void    setOutput           (int ouputCode); //connected by "|"
+    
     void    process             (Tetrahedron & tetra);
     void    finish              ();    
                                             //the limit of render
                                             //types of this render
 
 private:
+    
+    void writeToFile(int type,
+                     int planeId,
+                     ios_base::openmode mode,
+                     const char* s,
+                     streamsize n,
+                     bool isHeader = false
+                     );
+    
     string outputBaseName_;
     string prefix_;
     
@@ -39,6 +55,9 @@ private:
     
     float * vertexbuffer_;
     float * densbuffer_;
+    float * velXbuffer_;
+    float * velYbuffer_;
+    float * velZbuffer_;
     //float * velocitybuffer_;
     int * vertexIds_;
     int * totalTriangles_;
@@ -54,6 +73,12 @@ private:
     REAL    startz_;
     
     IsoZCutter cutter;
+    
+    bool isVelX_;
+    bool isVelY_;
+    bool isVelZ_;
+    bool isPosition_;
+    bool isDensity_;
 };
 
 #endif

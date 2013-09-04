@@ -2,7 +2,9 @@
 #define __TRIHEADER__
 #include <stdint.h>
 
-#define VELFILESUFFIX "vel"
+#define VELXFILESUFFIX "velx"
+#define VELYFILESUFFIX "vely"
+#define VELZFILESUFFIX "velz"
 #define DENFILESUFFIX "den"
 #define TRIFILESUFFIX "tri"
 

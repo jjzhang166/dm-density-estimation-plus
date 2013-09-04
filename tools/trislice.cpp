@@ -26,14 +26,21 @@ int imageSize = 1024;
 double boxSize = 32000;
 bool isRedShiftDist = false;
 Point redshiftAxis; //redshit distortion axis
+int typeCode = 0x00;
 
 void printUsage(string pname){
-    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
+    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n "
+           "%s\n %s\n %s\n %s\n %s\n %s\n %s\n",
            pname.c_str(),
            "-df <single_gadgetfile name>",
            "-mf <prefix> <basename> <numoffiles>",
            "-of <outputprefix> <outputbasename>",
            "-imsize <imagesize>",
+           "-pos    output position data",
+           "-dens   output density data",
+           "-velx   output density weighted velocity",
+           "-vely   output density weighted velocity",
+           "-velz   output density weighted velocity",
            "-parttype <particletype>, default: -1",
            "-dgridsize <data gridsize>, default: -1",
            "-tgrid <grid in memory for tetra>, default: -1",
@@ -50,6 +57,8 @@ void savefile(TetraStreamer &streamer){
                  outputPrefix,
                  outputBaseName);
     //printf("ok3\n");
+    
+    triangleConverter.setOutput(typeCode);
     
     if(datagridsize == -1){
         datagridsize = (int)ceil(pow(streamer.getIndTetraStream()->getHeader().npartTotal[parttype], 1.0 / 3.0));
@@ -136,6 +145,21 @@ int main(int argv, char * args[]){
             }else if(strcmp(args[k], "-imsize") == 0){
                 ss << args[k + 1];
                 ss >> imageSize;
+            }else if(strcmp(args[k], "-pos") == 0){
+                k --;
+                typeCode = typeCode | TriConverter::POS;
+            }else if(strcmp(args[k], "-dens") == 0){
+                typeCode = typeCode | TriConverter::DENS;
+                k --;
+            }else if(strcmp(args[k], "-velx") == 0){
+                typeCode = typeCode | TriConverter::VELX;
+                k --;
+            }else if(strcmp(args[k], "-vely") == 0){
+                typeCode = typeCode | TriConverter::VELY;
+                k --;
+            }else if(strcmp(args[k], "-velz") == 0){
+                typeCode = typeCode | TriConverter::VELZ;
+                k --;
             }else if(strcmp(args[k], "-redshift") == 0){
                 float r_x, r_y, r_z;
                 stringstream s0;
@@ -172,7 +196,7 @@ int main(int argv, char * args[]){
     
     
     
-
+    //printf("outputs: %d\n", typeCode);
     
     if(numoffiles != 0){
        //printf("ok1\n"); 

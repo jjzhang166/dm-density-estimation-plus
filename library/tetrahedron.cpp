@@ -59,7 +59,7 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 
 	vol =  v1x*v2y*v3z + v1y*v2z*v3x + v1z*v2x*v3y -
 	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y);
-	vol /= 6.0;
+	//vol /= 6.0;
 	volume = abs(vol);
 
 	if(volume != 0.0){
