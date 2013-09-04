@@ -49,6 +49,7 @@ void getcolorImge(float *value, float * colorimg, int numpixels){
 		min_ = max_ / 1.0e5;
 	}
     
+    
     float x = log(max_) - log(min_);
     for(int i = 0; i < numpixels; i++){
         float v = (log(value[i]) - log(min_)) / x;

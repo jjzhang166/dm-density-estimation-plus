@@ -1,5 +1,5 @@
 
-filename = 'i:\sandbox\trysnap64_1024.dens';
+filename = 'try.velx';
 %filename = '~/data/run_200'
 
 fid = fopen(filename, 'r');
@@ -10,5 +10,5 @@ startz = fread(fid, 1, 'float32');
 dz = fread(fid, 1, 'float32');
 head = fread(fid, 59, 'int32');
 
-numofcuts = 128
+numofcuts = 256
 data = fread(fid, gridsize * gridsize * numofcuts, 'float32');

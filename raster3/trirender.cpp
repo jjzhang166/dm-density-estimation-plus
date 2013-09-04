@@ -173,13 +173,7 @@ void TriDenRender::rend(string verfile,
                    );
     
     /*for(int i = 0; i < header0.numOfTriangles; i++){
-        printf("%f %f %f %f %f %f\n",
-               vertexdata[i * NUM_FLOATS_VERTEX + 0],
-               vertexdata[i * NUM_FLOATS_VERTEX + 1],
-               vertexdata[i * NUM_FLOATS_VERTEX + 2],
-               vertexdata[i * NUM_FLOATS_VERTEX + 3],
-               vertexdata[i * NUM_FLOATS_VERTEX + 4],
-               vertexdata[i * NUM_FLOATS_VERTEX + 5]);
+
     }*/
     
     
@@ -208,15 +202,24 @@ void TriDenRender::rend(string verfile,
     for(unsigned int i = 0; i < header0.numOfTriangles; i++){
         for(int j = 0; j < maxNumRenderComp; j ++){
             if(j < numOfOutputs_){
-                colorData[i * maxNumRenderComp + 0 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 0 : 0)];
-                colorData[i * maxNumRenderComp + 4 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 1 : 0)];
-                colorData[i * maxNumRenderComp + 8 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 2 : 0)];
+                colorData[i * maxNumRenderComp * 3 + 0 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 0 : 0)];
+                colorData[i * maxNumRenderComp * 3 + 4 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 1 : 0)];
+                colorData[i * maxNumRenderComp * 3 + 8 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 2 : 0)];
             }else{
-                colorData[i * maxNumRenderComp + 0 + j] = 0;
-                colorData[i * maxNumRenderComp + 4 + j] = 0;
-                colorData[i * maxNumRenderComp + 8 + j] = 0;
+                colorData[i * maxNumRenderComp * 3 + 0 + j] = 0;
+                colorData[i * maxNumRenderComp * 3 + 4 + j] = 0;
+                colorData[i * maxNumRenderComp * 3 + 8 + j] = 0;
             }
         }
+        
+        /*printf("%f %f %f %f %f %f %e\n",
+               vertexdata[i * NUM_FLOATS_VERTEX + 0],
+               vertexdata[i * NUM_FLOATS_VERTEX + 1],
+               vertexdata[i * NUM_FLOATS_VERTEX + 2],
+               vertexdata[i * NUM_FLOATS_VERTEX + 3],
+               vertexdata[i * NUM_FLOATS_VERTEX + 4],
+               vertexdata[i * NUM_FLOATS_VERTEX + 5],
+               colorData[i * maxNumRenderComp + 0]);*/
     }
 
     
@@ -287,6 +290,9 @@ void TriDenRender::rend(string verfile,
                   GL_FLOAT,
                   result_);
     fbuffer->unbindTex();
+    
+    glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
     
     //save to file
     float ** res_ = new float *[numOfOutputs_];
