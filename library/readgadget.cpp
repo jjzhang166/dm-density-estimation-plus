@@ -208,24 +208,31 @@ GSnap::GSnap(
     isHighMem_ = isHighMem;
     Npart = 0;
 	totalparts = 0;
+    
+    {
+        uint32_t record0, record1;
+        string filename = "";
+        filename = prefix_ + basename_ + ".0";
+        fstream file(filename.c_str(), ios_base::in | ios_base::binary);
+        if (!file.good()) {
+            fprintf(stderr,"File not exist, or corrupted!\n");
+            exit(1);
+        }
+        //read header
+        file.read((char *) &record0, sizeof(uint32_t));
+        file.read((char *) &header, sizeof(gadget_header));
+        file.read((char *) &record1, sizeof(uint32_t));
+        file.close();
+    }
    
-    //fprintf(stderr,"ok1.5\n"); 
-    for(int i = 0 ; i < numOfFiles_; i ++ ){
-        //fprintf(stderr,"ok1.5.0\n");
+    /*for(int i = 0 ; i < numOfFiles_; i ++ ){
         stringstream ss;
         uint32_t record0, record1;
-        string filename = "";// = prefix + basename + ".0";
-        //ss << prefix;
-        //ss << basename_;
-        //ss << ".";
+        string filename = "";
+
         ss << i;
-        //filename_ = filename;
-        //ss >> filename;
         
         filename = prefix_ + basename_ + "." + ss.str();
-        //fprintf(stderr,"ok1.5.0\n");
-
-        //fprintf(stderr,"ok1.5.1 filename: %s\n", filename.c_str());
         
         fstream file(filename.c_str(), ios_base::in | ios_base::binary);
         
@@ -294,7 +301,7 @@ GSnap::GSnap(
         
         file.close();
     
-    }
+    }*/
 
     //fprintf(stderr,"ok1.6\n");
     
@@ -358,17 +365,36 @@ GSnap::GSnap(
             single_endind = single_startind + single_header.npart[parttype];
             
             
-            fprintf(stderr,"File %s.%d, particles: %d\n", basename_.c_str(), i, single_file_parts);
+            fprintf(stderr,"File %s.%d, particles: %d\n",
+                    basename_.c_str(),
+                    i,
+                    single_file_parts);
             
             temppos = new Point[single_file_parts];
             tempvel = new Point[single_file_parts];
             tempind = new uint64_t[single_file_parts];
             
-            readPos(file, temppos, 0, single_file_parts);
-            readVel(file, tempvel, 0, single_file_parts);
+            //read positions
+            streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t);
+            file.seekg(spos, ios_base::beg);
+            file.read((char *) temppos, sizeof(REAL) * single_file_parts * 3);
+            
+            //read velocity
+            spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+            + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t);
+            file.seekg(spos, ios_base::beg);
+            file.read((char *) tempvel, sizeof(REAL) * single_file_parts * 3);
+            //readPos(file, temppos, 0, single_file_parts);
+            //readVel(file, tempvel, 0, single_file_parts);
+            //testing
+            for(int i = 0; i < single_file_parts; i ++){
+                printf("Pos: %f %f %f\n", temppos[i].x, temppos[i].y, temppos[i].z);
+                printf("Vel: %f %f %f\n", tempvel[i].x, tempvel[i].y, tempvel[i].z);
+            }
+            
             
             //read indexs:
-            streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+            spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
             + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t)
             + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t)
             + sizeof(uint32_t);
@@ -377,11 +403,6 @@ GSnap::GSnap(
             file.read((char *) tempind, sizeof(uint64_t) * single_file_parts);
             
             for(int j = single_startind; j < single_endind; j ++){
-                
-                //fprintf(stderr,"IDs -> j= %d, tempid = %ld, singlparts =%d, nparts = %d\n", 
-                //                j, tempind[j], single_file_parts, Npart);
-                //fprintf(stderr,"%d %d %ld %d\n", j, single_file_parts, tempind[j], totalparts);    
-                //fprintf(stderr,"Pos -> %f %f %f\n", temppos[j].x, temppos[j].y, temppos[j].z);
 
                 if(tempind[j] >= Npart){
                     continue;
