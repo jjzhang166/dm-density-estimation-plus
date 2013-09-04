@@ -387,10 +387,10 @@ GSnap::GSnap(
             //readPos(file, temppos, 0, single_file_parts);
             //readVel(file, tempvel, 0, single_file_parts);
             //testing
-            for(int i = 0; i < single_file_parts; i ++){
-                printf("Pos: %f %f %f\n", temppos[i].x, temppos[i].y, temppos[i].z);
-                printf("Vel: %f %f %f\n", tempvel[i].x, tempvel[i].y, tempvel[i].z);
-            }
+            //for(int i = 0; i < single_file_parts; i ++){
+            //    printf("Pos: %f %f %f\n", temppos[i].x, temppos[i].y, temppos[i].z);
+            //    printf("Vel: %f %f %f\n", tempvel[i].x, tempvel[i].y, tempvel[i].z);
+            //}
             
             
             //read indexs:
