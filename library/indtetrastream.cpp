@@ -177,7 +177,9 @@ void IndTetraStream::setRedshiftDistort(Point distortAxis){
         if(!isReshiftDistortionCalculated_){
             for(int i = 0; i < total_parts_; i++){
                 //test
-                //fprintf(stderr,"Position_Ori: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
+                //fprintf(stdout,"Position_Ori: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
+                
+                //fprintf(stdout,"Velocity: %f %f %f\n", velocity_[i].x, velocity_[i].y, velocity_[i].z);
                 
                 getRedshiftDistoredPoint(position_[i],
                                          velocity_[i],
@@ -185,7 +187,7 @@ void IndTetraStream::setRedshiftDistort(Point distortAxis){
                                          getHeader().redshift,
                                          getHeader().BoxSize);
                 //test
-                //fprintf(stderr,"Position_Final: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
+                //fprintf(stdout,"Position_final: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
             }
             isReshiftDistortionCalculated_ = true;
         }
