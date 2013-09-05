@@ -1,5 +1,5 @@
 #MACOS
-MACROS=-DRH0=0.01 #RH0 =(1 Mpc) / (1 code length units) / H0
+MACROS=-DRH0=10.0 #RH0 =(1 Mpc) / (1 code length units) / H0
 CC=g++
 LIB=../library
 IFLAG= -I ${LIB}

@@ -85,6 +85,8 @@ void GSnap::init_singlefile(
     
 		readPos(file, allpos_, 0, totalparts);
 		readVel(file, allvel_, 0, totalparts);
+        
+
 		//fprintf(stderr,"%d, %d, %f %f %f\n", totalparts, Npart, allpos_[Npart - 1].x, allpos_[Npart - 1].y, allpos_[Npart - 1].z);
     
 		//read indexs:
@@ -94,6 +96,14 @@ void GSnap::init_singlefile(
 		+ sizeof(uint32_t);
 		file.seekg(spos, ios_base::beg);
 		file.read((char *) allind_, sizeof(uint32_t) * totalparts);
+        
+        
+        
+        //for(int i = 0; i < Npart; i ++){
+        //    printf("Ind %d\n", allind_[i]);
+        //    printf("Pos: %f %f %f\n", allpos_[i].x, allpos_[i].y, allpos_[i].z);
+        //    printf("Vel: %f %f %f\n", allvel_[i].x, allvel_[i].y, allvel_[i].z);
+        //}
 		//fprintf(stderr,"%d\n", allind_[0]);
     
 		Point * temppos = allpos_;
@@ -155,9 +165,15 @@ void GSnap::init_singlefile(
 			if(allind_[i] >= Npart){
 				continue;
 			}
+            
 			allvel_[allind_[i]] = tempvel[i];
 		}
     
+        
+        //for(int i = 0; i < Npart; i ++){
+        //    printf("Pos: %f %f %f\n", allpos_[i].x, allpos_[i].y, allpos_[i].z);
+        //    printf("Vel: %f %f %f\n", allvel_[i].x, allvel_[i].y, allvel_[i].z);
+        //}
 		//fprintf(stderr,"ok1\n");
     
 		delete allind_;
@@ -375,22 +391,21 @@ GSnap::GSnap(
             tempind = new uint64_t[single_file_parts];
             
             //read positions
-            streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t);
+            streamoff spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
+            + sizeof(uint32_t);
             file.seekg(spos, ios_base::beg);
             file.read((char *) temppos, sizeof(REAL) * single_file_parts * 3);
             
             //read velocity
             spos = sizeof(uint32_t) + sizeof(gadget_header) + sizeof(uint32_t)
-            + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t);
+            + sizeof(uint32_t) + single_file_parts * sizeof(REAL) * 3 + sizeof(uint32_t)
+            + sizeof(uint32_t); 
             file.seekg(spos, ios_base::beg);
             file.read((char *) tempvel, sizeof(REAL) * single_file_parts * 3);
             //readPos(file, temppos, 0, single_file_parts);
             //readVel(file, tempvel, 0, single_file_parts);
             //testing
-            //for(int i = 0; i < single_file_parts; i ++){
-            //    printf("Pos: %f %f %f\n", temppos[i].x, temppos[i].y, temppos[i].z);
-            //    printf("Vel: %f %f %f\n", tempvel[i].x, tempvel[i].y, tempvel[i].z);
-            //}
+
             
             
             //read indexs:
@@ -401,6 +416,12 @@ GSnap::GSnap(
 
             file.seekg(spos, ios_base::beg);
             file.read((char *) tempind, sizeof(uint64_t) * single_file_parts);
+            
+            //for(int i = 0; i < single_file_parts; i ++){
+            //    printf("Ind %d\n", tempind[i]);
+            //    printf("Pos: %f %f %f\n", temppos[i].x, temppos[i].y, temppos[i].z);
+            //    printf("Vel: %f %f %f\n", tempvel[i].x, tempvel[i].y, tempvel[i].z);
+            //}
             
             for(int j = single_startind; j < single_endind; j ++){
 
@@ -420,9 +441,15 @@ GSnap::GSnap(
             delete temppos;
             delete tempind;
             delete tempvel;
+            
+            
         }
     }
     
+    //for(int i = 0; i < Npart; i ++){
+    //    printf("Pos: %f %f %f\n", allpos_[i].x, allpos_[i].y, allpos_[i].z);
+    //    printf("Vel: %f %f %f\n", allvel_[i].x, allvel_[i].y, allvel_[i].z);
+    //}
     fprintf(stderr,"Data loaded!\n");
 }
 
