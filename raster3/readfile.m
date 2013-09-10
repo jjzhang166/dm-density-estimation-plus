@@ -1,5 +1,5 @@
 
-filename = 'try.velx';
+filename = 'i:\results\snap064_red_1024.dens';
 %filename = '~/data/run_200'
 
 fid = fopen(filename, 'r');
