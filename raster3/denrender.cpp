@@ -275,21 +275,21 @@ void DenRender::rend(Tetrahedron & tetra){
             //density, stream number, velocity_x, velocity_y, velocity_z
             
             float values_a[] = {tetra.invVolume, 1,
-                cutter.getTriangle(j).val1.x,
-                cutter.getTriangle(j).val1.y,
-                cutter.getTriangle(j).val1.z
+                cutter.getTriangle(j).val1.x * tetra.invVolume,
+                cutter.getTriangle(j).val1.y * tetra.invVolume,
+                cutter.getTriangle(j).val1.z * tetra.invVolume
             };
             
             float values_b[] = {tetra.invVolume, 1,
-                cutter.getTriangle(j).val2.x,
-                cutter.getTriangle(j).val2.y,
-                cutter.getTriangle(j).val2.z
+                cutter.getTriangle(j).val2.x * tetra.invVolume,
+                cutter.getTriangle(j).val2.y * tetra.invVolume,
+                cutter.getTriangle(j).val2.z * tetra.invVolume
             };
             
             float values_c[] = {tetra.invVolume, 1,
-                cutter.getTriangle(j).val3.x,
-                cutter.getTriangle(j).val3.y,
-                cutter.getTriangle(j).val3.z
+                cutter.getTriangle(j).val3.x * tetra.invVolume,
+                cutter.getTriangle(j).val3.y * tetra.invVolume,
+                cutter.getTriangle(j).val3.z * tetra.invVolume
             };
             
             vertexbuffer_[NUM_FLOATS_TRIANGLE * i * VERTEXBUFFERDEPTH

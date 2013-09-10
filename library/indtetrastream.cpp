@@ -160,32 +160,13 @@ void IndTetraStream::getRedshiftDistoredPoint(Point & target,
     
     Point displacement = distortAxis
     * velocity.dot(distortAxis)
-    * sqrt(a) * RH0; //to kpc/h
+    * sqrt(a) * RH0;// ; //to kpc/h
     
     target = target + displacement;
-    
-    /*if(fabs(displacement.x) > boxSize / 8)
-    {printf("%f %f\n", displacement.x, boxSize);
-        displacement.x = 0;
-    }
-    if(fabs(displacement.y) > boxSize / 8)
-    {printf("%f %f\n", displacement.y, boxSize);
-        displacement.y = 0;
-    }
-    if(fabs(displacement.z) > boxSize / 8){
-        printf("%f %f\n", displacement.z, boxSize);
-        displacement.z = 0;
-    }*/
     
     target.x = fmod(target.x + boxSize, boxSize);
     target.y = fmod(target.y + boxSize, boxSize);
     target.z = fmod(target.z + boxSize, boxSize);
-    /*if(target.x >= boxSize)
-        printf("%f %f %f\n", target.x, boxSize, fmod(target.x, boxSize));
-    if(target.y >= boxSize)
-        printf("%f %f %f\n", target.y, boxSize, fmod(target.y, boxSize));
-    if(target.z >= boxSize)
-        printf("%f %f %f\n", target.z, boxSize, fmod(target.z, boxSize));*/
 }
 
 
@@ -195,11 +176,18 @@ void IndTetraStream::setRedshiftDistort(Point distortAxis){
     if(isAllData_){
         if(!isReshiftDistortionCalculated_){
             for(int i = 0; i < total_parts_; i++){
+                //test
+                //fprintf(stdout,"Position_Ori: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
+                
+                //fprintf(stdout,"Velocity: %f %f %f\n", velocity_[i].x, velocity_[i].y, velocity_[i].z);
+                
                 getRedshiftDistoredPoint(position_[i],
                                          velocity_[i],
                                          redshiftDistortAxis_,
                                          getHeader().redshift,
                                          getHeader().BoxSize);
+                //test
+                //fprintf(stdout,"Position_final: %f %f %f\n", position_[i].x, position_[i].y, position_[i].z);
             }
             isReshiftDistortionCalculated_ = true;
         }
