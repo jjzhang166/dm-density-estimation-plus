@@ -23,7 +23,7 @@ int numoffiles = 0;
 int datagridsize = -1;
 int inputmemgrid = 16;
 int imageSize = 1024;
-double boxSize = 32000;
+float boxSize = 32000;
 bool isRedShiftDist = false;
 Point redshiftAxis; //redshit distortion axis
 int typeCode = 0x00;

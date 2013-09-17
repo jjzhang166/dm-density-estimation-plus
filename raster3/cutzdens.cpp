@@ -62,9 +62,9 @@ namespace main_space{
     bool isSetBox = false;          //set up a box for the grids
     
     Point setStartPoint;            //start point of a box
-    double gridboxsize;             //the boxsize for grids
+    float gridboxsize;             //the boxsize for grids
     
-    double boxsize = 32000.0;       //the boxsize of the simulation data
+    float boxsize = 32000.0;       //the boxsize of the simulation data
     
     
     int mem_cut_limit = -1;         //for limit CPU memory, limit the number of cuts in memory

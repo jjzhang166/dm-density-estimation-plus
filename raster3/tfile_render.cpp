@@ -155,7 +155,7 @@ int main(int argv, char * args[]){
 
     TFileStream tfilestream(filename, blocksize);
 
-    double boxsize = tfilestream.getHeader().boxSize;
+    float boxsize = tfilestream.getHeader().boxSize;
     if(numOfCuts == 0){
         numOfCuts = imagesize;
         dz = boxsize / numOfCuts;
