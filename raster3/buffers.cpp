@@ -105,7 +105,7 @@ void buffer::genBuffer(){
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                               GL_RENDERBUFFER, rboId);
     //unbindBuf();
-    printf("Buffer generated!\n");
+    //printf("Buffer generated!\n");
     //printf("frame: %d, render: %d \n", fboId, rboId);
 }
 

@@ -112,8 +112,9 @@ namespace main_space{
                                     //read parameters
     void readParameters(int argv, char * args[]){
         int k = 1;
-        if(argv == 1){
-            return;
+        if(argv <= 1){
+            printUsage(args[0]);
+            exit(1);
         }else{
             while(k < argv){
                 stringstream ss;
@@ -353,6 +354,11 @@ int main(int argv, char * args[]){
     int tetra_count = 0;
     int repeatTimes = (int)ceil((float) numOfCuts / (float) mem_cut_limit);
     int repeatNumOfCuts = numOfCuts > mem_cut_limit ? mem_cut_limit : numOfCuts;
+    
+    //int render_counts = 0;
+    //int output_residual = numOfCuts / 50;
+    //printf("%d\n", output_residual);
+    int tcount = datagridsize * datagridsize * datagridsize * 6 / 10 * repeatTimes;
     for(int _idcut = 0; _idcut < repeatTimes; _idcut ++){
         
         int newNumOfCuts = repeatNumOfCuts;
@@ -373,12 +379,12 @@ int main(int argv, char * args[]){
 
         //render
         
-        int tcount = datagridsize * datagridsize * datagridsize * 6 / 10;
+
         
         if(mem_cut_limit == numOfCuts){
             printf("Start rendering ...\n");
         }else{
-            printf("Rendering %d/%d...\n", _idcut + 1, repeatTimes);
+            //printf("Rendering %d/%d...\n", _idcut + 1, repeatTimes);
         }
         
         streamer.reset();
@@ -389,18 +395,20 @@ int main(int argv, char * args[]){
             for(int i= 0; i < nums; i++){
                 render.rend(tetras[i]);
                 if((tetra_count %  tcount )== 0){
+                //if( render_counts % output_residual == 0){
                     printf(">");
                     cout.flush();
                 }
                 tetra_count ++;
+                //render_counts ++;
             }
         }
         render.finish();
         float * result = render.getResult();
         
-        printf("\n");
+        //printf("\n");
         if(mem_cut_limit == numOfCuts){
-            printf("Finished. In total %d tetrahedron rendered.\n", tetra_count);
+            printf("\nFinished. In total %d tetrahedron rendered.\n", tetra_count);
         }
         
         //head used 256 bytes
@@ -426,7 +434,8 @@ int main(int argv, char * args[]){
         
         //fstream * outstreams = new fstream[numofrendertyps];
         
-        printf("Saving ...\n");
+        //printf("Saving ...\n");
+        printf("#");
         for(int i = 0; i < numofrendertyps; i ++ ){
             fstream outstream;
             if(outputFilenames[renderTypes[i]] != ""){
@@ -435,8 +444,8 @@ int main(int argv, char * args[]){
                     outstream.open(outputFilenames[renderTypes[i]].c_str(),
                                        ios::out | ios::binary);
                     while(!outstream.good()){
-                        printf("File error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
-                        printf("Input new filename:\n");
+                        printf("\nFile error, calculation not saved for rendering type %d...!\n", renderTypes[i]);
+                        printf("\nInput new filename:\n");
                         cin >> outputFilenames[renderTypes[i]];
                         outstream.clear();
                         outstream.open(outputFilenames[renderTypes[i]].c_str(), ios::out | ios::binary);
@@ -468,6 +477,7 @@ int main(int argv, char * args[]){
         //delete outstreams;
        
     }
+    printf("\n");
     //outstream.open(gridfilename.c_str(), ios::out | ios::binary);
     if(mem_cut_limit != numOfCuts){
         printf("Finished. In total %d tetrahedron rendered.\n", tetra_count);
