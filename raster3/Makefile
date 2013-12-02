@@ -7,6 +7,7 @@ LIB=../library
 LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
 #IFLAG= -I /usr/include/GL/ -I${LIB}
 IFLAG= -I /usr/include/GL/ -I${LIB} -I ~/Tools/glew/include/
+PROFILEFLAGS= -g
 
 
 RENDPROG=renddens_1slide
@@ -82,20 +83,20 @@ obj:
 
 
 profile:
-	$(CC) -c -g -pg -Wall main.cpp buffers.cpp isoplane.cpp ${LIB}/processbar.cpp render.cpp\
+	$(CC) $(PROFILEFLAGS) -c -Wall main.cpp buffers.cpp isoplane.cpp ${LIB}/processbar.cpp render.cpp\
 		   ${LIB}/indtetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp \
 		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
 		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
 		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
  		   tfile_render.cpp ${LIB}/tfilestream.cpp \
 		   tridens.cpp trirender.cpp $(IFLAG)  
-	$(CC) -g -pg $(RENDOBJ) -o $(RENDPROG) $(LFLAGS)
-	$(CC) -g -pg $(TOBJ) -o $(TPROG) $(LFLAGS)
-	$(CC) -g -pg $(TDROBJ) -o $(TDRPROG) $(LFLAGS)
-	$(CC) -g -pg $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
-	$(CC) -g -pg $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
-	$(CC) -g -pg $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
-	$(CC) -g -pg $(TRIDENSOBJ) -o $(TRIDENSPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(RENDOBJ) -o $(RENDPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(TOBJ) -o $(TPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(TDROBJ) -o $(TDRPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
+	$(CC) $(PROFILEFLAGS) $(TRIDENSOBJ) -o $(TRIDENSPROG) $(LFLAGS)
 	@echo success
 
 cuda:
