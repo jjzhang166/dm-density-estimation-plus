@@ -27,7 +27,7 @@ int main(){
     printf("%f %f %f\n", tetra.v4.x, tetra.v4.y, tetra.v4.z);
     
     int tris;
-    
+    return 0;   
     tris = cutter.cut(0);
     printf("Tris: %d\n", tris);
     for(int i = 0; i < tris; i++){

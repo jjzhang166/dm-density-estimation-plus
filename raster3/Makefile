@@ -82,19 +82,20 @@ obj:
 
 
 profile:
-	$(CC) -pg -c -Wall main.cpp buffers.cpp isoplane.cpp \
-			${LIB}/processbar.cpp render.cpp\
-		   	${LIB}/indtetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp \
-		   	${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
-		   	${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
-		   	testdensrender.cpp denrender.cpp \
-			cutzdens.cpp viewfun.cpp densviewer.cpp\
- 			$(IFLAG)  
-	$(CC) $(RENDOBJ) -pg -o renddens_1slide $(LFLAGS)
-	$(CC) $(TOBJ) -pg -o testisoz $(LFLAGS)
-	$(CC) $(TDROBJ) -pg -o testdender $(LFLAGS)
-	$(CC) $(ZDENSOBJ) -pg -o zdensrender $(LFLAGS)
-	$(CC) $(DENSVIEWOBJ) -pg -o DensViewer $(LFLAGS)
+	$(CC) -c -g -pg -Wall main.cpp buffers.cpp isoplane.cpp ${LIB}/processbar.cpp render.cpp\
+		   ${LIB}/indtetrastream.cpp isoplancut.cpp ${LIB}/readgadget.cpp \
+		   ${LIB}/tetrahedron.cpp ${LIB}/triangle.cpp ${LIB}/tetracut.cpp \
+		   ${LIB}/tetrastream.cpp ${LIB}/indtetrahedron.cpp testisozcutter.cpp\
+		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
+ 		   tfile_render.cpp ${LIB}/tfilestream.cpp \
+		   tridens.cpp trirender.cpp $(IFLAG)  
+	$(CC) -pg $(RENDOBJ) -o $(RENDPROG) $(LFLAGS)
+	$(CC) -pg $(TOBJ) -o $(TPROG) $(LFLAGS)
+	$(CC) -pg $(TDROBJ) -o $(TDRPROG) $(LFLAGS)
+	$(CC) -pg $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
+	$(CC) -pg $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
+	$(CC) -pg $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
+	$(CC) -pg $(TRIDENSOBJ) -o $(TRIDENSPROG) $(LFLAGS)
 	@echo success
 
 cuda:
