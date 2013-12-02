@@ -79,11 +79,14 @@ void GSnap::init_singlefile(
     if(isHighMem_){
 		fprintf(stderr,"Loading data into memory...\n");
     
+        Point * temppos;// = allpos_;
+        
 		allind_ = new uint32_t[totalparts];
-		allpos_ = new Point[totalparts];
-		allvel_ = new Point[totalparts];
+		//allpos_ = new Point[totalparts];
+		temppos = new Point[totalparts];
+        allvel_ = new Point[totalparts];
     
-		readPos(file, allpos_, 0, totalparts);
+		readPos(file, temppos, 0, totalparts);
 		readVel(file, allvel_, 0, totalparts);
         
 
@@ -106,7 +109,7 @@ void GSnap::init_singlefile(
         //}
 		//fprintf(stderr,"%d\n", allind_[0]);
     
-		Point * temppos = allpos_;
+
 		Point * tempvel = allvel_;
 		allpos_ = new Point[Npart];
 		//allvel_ = new Point[Npart];
