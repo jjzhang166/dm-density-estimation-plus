@@ -89,7 +89,7 @@ void DenRender::init(){
         
         
         glut_is_initialized = true;
-
+        //delete args[0];
     }
     fbuffer = new buffer(imagesize_, imagesize_);
     fbuffer->setBuffer();
@@ -174,10 +174,10 @@ DenRender::DenRender(int imagesize,
 }
 
 DenRender::~DenRender(){
-    delete vertexIds_;
-    delete vertexbuffer_;
+    delete[] vertexIds_;
+    delete[] vertexbuffer_;
     delete fbuffer;
-    delete result_;
+    delete[] result_;
 }
 
 //render the i-th buffer

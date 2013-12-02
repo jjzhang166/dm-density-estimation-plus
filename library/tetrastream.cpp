@@ -69,11 +69,11 @@ bool TetraStream::reset() {
 }
 
 TetraStream::~TetraStream() {
-	delete position_;
+	delete[] position_;
 	delete gsnap_;
-	delete tetras_;
+	delete[] tetras_;
 	if(isVelocity_){
-		delete velocity_;
+		delete[] velocity_;
 	}
 }
 

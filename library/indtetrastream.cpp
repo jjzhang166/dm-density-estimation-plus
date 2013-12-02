@@ -206,12 +206,12 @@ bool IndTetraStream::reset() {
 IndTetraStream::~IndTetraStream() {
 
 	delete gsnap_;
-	delete tetras_;
+	delete[] tetras_;
     
     if(!isAllData_){
-        delete position_;
+        delete[] position_;
         if(isVelocity_){
-            delete velocity_;
+            delete[] velocity_;
         }
     }
 }
@@ -406,7 +406,7 @@ Point * IndTetraStream::getVelocityBlock(){
 
 TetraStreamer::~TetraStreamer(){
     delete indstream_;
-    delete tetras_;
+    delete[] tetras_;
 }
 
 

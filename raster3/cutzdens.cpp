@@ -26,7 +26,7 @@
 #include "render.h"
 #include "denrender.h"
 
-#include <mcheck.h>
+//#include <mcheck.h>
 
 namespace main_space{
     
@@ -237,7 +237,7 @@ using namespace main_space;
 
 int main(int argv, char * args[]){
     
-    mtrace();
+    //mtrace();
 	
     readParameters(argv, args);
     

@@ -162,7 +162,7 @@ void GSnap::init_singlefile(
     
 		//fprintf(stderr,"ok\n");
     
-		delete temppos;
+		delete[] temppos;
 		allvel_ = new Point[Npart];
 		for(int i = startind; i < endind; i ++){
 			if(allind_[i] >= Npart){
@@ -179,8 +179,8 @@ void GSnap::init_singlefile(
         //}
 		//fprintf(stderr,"ok1\n");
     
-		delete allind_;
-		delete tempvel;
+		delete[] allind_;
+		delete[] tempvel;
     }
     
 	file.close();
@@ -783,15 +783,15 @@ void GSnap::readVel(std::string &file,
 
 GSnap::~GSnap() {
     if (isHighMem_){
-        delete allpos_;
-        delete allvel_;
+        delete[] allpos_;
+        delete[] allvel_;
     }
     if (isMultifile_){
-        delete numOfParts_;
-        delete multStartInd_;
-        delete multEndInd_;
-        delete maxInd_;
-        delete minInd_;
+        delete[] numOfParts_;
+        delete[] multStartInd_;
+        delete[] multEndInd_;
+        delete[] maxInd_;
+        delete[] minInd_;
     }
 }
 
