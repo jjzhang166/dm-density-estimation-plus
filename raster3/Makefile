@@ -2,9 +2,9 @@
 CC=g++
 CUDACC=nvcc
 LIB=../library
-LFLAGS= -framework Carbon -framework OpenGL -framework GLUT 
+#LFLAGS= -framework Carbon -framework OpenGL -framework GLUT 
 #LFLAGS= -lGL -lglut -lGLEW
-#LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
+LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
 #IFLAG= -I /usr/include/GL/ -I${LIB}
 IFLAG= -I /usr/include/GL/ -I${LIB} -I ~/Tools/glew/include/
 
@@ -89,13 +89,13 @@ profile:
 		   testdensrender.cpp denrender.cpp cutzdens.cpp viewfun.cpp densviewer.cpp\
  		   tfile_render.cpp ${LIB}/tfilestream.cpp \
 		   tridens.cpp trirender.cpp $(IFLAG)  
-	$(CC) -pg $(RENDOBJ) -o $(RENDPROG) $(LFLAGS)
-	$(CC) -pg $(TOBJ) -o $(TPROG) $(LFLAGS)
-	$(CC) -pg $(TDROBJ) -o $(TDRPROG) $(LFLAGS)
-	$(CC) -pg $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
-	$(CC) -pg $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
-	$(CC) -pg $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
-	$(CC) -pg $(TRIDENSOBJ) -o $(TRIDENSPROG) $(LFLAGS)
+	$(CC) -g -pg $(RENDOBJ) -o $(RENDPROG) $(LFLAGS)
+	$(CC) -g -pg $(TOBJ) -o $(TPROG) $(LFLAGS)
+	$(CC) -g -pg $(TDROBJ) -o $(TDRPROG) $(LFLAGS)
+	$(CC) -g -pg $(ZDENSOBJ) -o $(ZDENSPROG) $(LFLAGS)
+	$(CC) -g -pg $(DENSVIEWOBJ) -o $(DENSVIEWPROG) $(LFLAGS)
+	$(CC) -g -pg $(TFILEOBJ) -o $(TFILEPROG) $(LFLAGS)
+	$(CC) -g -pg $(TRIDENSOBJ) -o $(TRIDENSPROG) $(LFLAGS)
 	@echo success
 
 cuda:

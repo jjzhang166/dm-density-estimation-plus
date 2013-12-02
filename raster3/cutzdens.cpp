@@ -26,6 +26,7 @@
 #include "render.h"
 #include "denrender.h"
 
+#include <mcheck.h>
 
 namespace main_space{
     
@@ -236,7 +237,9 @@ using namespace main_space;
 
 int main(int argv, char * args[]){
     
-	readParameters(argv, args);
+    mtrace();
+	
+    readParameters(argv, args);
     
     TetraStreamer * pStreamer;
     if(numoffiles != 0){
