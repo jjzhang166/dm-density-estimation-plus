@@ -1,0 +1,12 @@
+The new code is made up of three parts:
+1 FileDivider,
+	divide the huge data set into small blocks, each block could be converted to tetrahedron individually.
+	output: filename.ind.n, filename.pos.n, filename.vel.n
+
+2 TetraSlicer,
+	slice the the dataset into triangle slices
+	output: filename.tri.pos.n filename.tri.vel.n
+
+3 Render
+	render the tetra slicer files into density blocks
+	output: filename.dens filename.velx filename.vely filename.velz
