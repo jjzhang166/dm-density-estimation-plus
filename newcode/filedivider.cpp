@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <stdint.h>
+#include <cstdio>
 
 using namespace std;
 using namespace GadgetReader;
