@@ -32,7 +32,7 @@ string componentFiles[4];
 void printUsage(string pname){
     printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
            pname.c_str(),
-           "-df <prefix> <basename> <numfiles>",
+           "-df <basename>",
            "-dens <outputdensfile>",
            "-velx <outputvelxfile>",
            "-vely <outputvelyfile>",
@@ -52,11 +52,7 @@ int main(int argv, char * args[]){
             stringstream ss;
             //printf("%s\n", args[k]);
             if(strcmp(args[k], "-df") == 0){
-                prefix = args[k + 1];
-                k++;
                 base_name = args[k + 1];
-                k++;
-                numOfFiles = atoi(args[k + 1]);
             }else if(strcmp(args[k], "-dens") == 0){
                 outputdensfile = args[k+1];
                 outputfilename[numOfOutputs] = outputdensfile;
@@ -91,6 +87,17 @@ int main(int argv, char * args[]){
             k += 2;
         }
     }
+    
+    string ffn = base_name+".tri.0";
+    fstream finfile(ffn.c_str(), ios::in | ios::binary);
+    TriHeader t_header;
+    if(!finfile.good()){
+        printf("File Error: %s\n!", base_name.c_str());
+        exit(1);
+    }
+    finfile.read((char *) & t_header, sizeof(t_header));
+    finfile.close();
+    numOfFiles = t_header.NumFiles;
     
     if(numOfFiles < imageSize){
         fprintf(stderr, "Num of triangle files less than imagesize.\n");

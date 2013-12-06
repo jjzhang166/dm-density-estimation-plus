@@ -317,7 +317,7 @@ void TriConverter::setOutput(int outCode){
         if(isPosition_)
         writeToFile(POS,
                     i,
-                    ios::out | ios::binary | ios::app,
+                    ios::out | ios::binary,
                     (char * )((char *) &header),
                     sizeof(header)
                     );
@@ -326,7 +326,7 @@ void TriConverter::setOutput(int outCode){
         if(isDensity_)
         writeToFile(DENS,
                     i,
-                    ios::out | ios::binary | ios::app,
+                    ios::out | ios::binary,
                     (char * )((char *) &header),
                     sizeof(header)
                     );
@@ -335,7 +335,7 @@ void TriConverter::setOutput(int outCode){
         if(isVelX_)
         writeToFile(VELX,
                     i,
-                    ios::out | ios::binary | ios::app,
+                    ios::out | ios::binary,
                     (char * )((char *) &header),
                     sizeof(header)
                     );
@@ -344,7 +344,7 @@ void TriConverter::setOutput(int outCode){
         if(isVelY_)
         writeToFile(VELY,
                     i,
-                    ios::out | ios::binary | ios::app,
+                    ios::out | ios::binary,
                     (char * )((char *) &header),
                     sizeof(header)
                     );
@@ -353,7 +353,7 @@ void TriConverter::setOutput(int outCode){
         if(isVelZ_)
         writeToFile(VELZ,
                     i,
-                    ios::out | ios::binary | ios::app,
+                    ios::out | ios::binary,
                     (char * )((char *) &header),
                     sizeof(header)
                     );
