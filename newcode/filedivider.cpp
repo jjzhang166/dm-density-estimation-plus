@@ -1,6 +1,7 @@
 #include "GadgetReader/gadgetreader.hpp"
 #include "GadgetReader/gadgetheader.h"
 #include <string>
+#include <algorithm>
 #include <cstdlib>
 #include <cmath>
 #include <stdint.h>
@@ -146,7 +147,7 @@ int main(int argv, char * args[]){
     startID = gridsize * gridsize * gridsize * 1024;
     for(int i = 0; i < nparts; i+= numpartsToRead){
         vector<long long> tempind = snap.GetBlockInt("ID  ", numpartsToRead, i, ignorecode);
-        long long tempmin = *(std::min_element(std::begin(tempind), std::end(tempind)));
+        long long tempmin = *(std::min_element(tempind.begin(), tempind.end()));
         if(tempmin < startID){
             startID = tempmin;
         }

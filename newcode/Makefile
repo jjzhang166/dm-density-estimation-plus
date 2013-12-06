@@ -1,9 +1,9 @@
 CC=g++
-LFLAG= -framework Carbon -framework OpenGL -framework GLUT
-#LFLAGS= -lGL -lglut -lGLEW
+#LFLAG= -framework Carbon -framework OpenGL -framework GLUT
+LFLAG=-lGL -lglut -lGLEW
 #LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
-#IFLAG= -I /usr/include/GL/ -I${LIB}
-IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/
+IFLAG=-I /usr/include/GL/ -I./
+#IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/
 
 SOURCESFILES=filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 GadgetReader/read_utils.c io_utils.cpp\
@@ -16,11 +16,8 @@ SOURCESFILES=filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 viewfun.cpp
 
 FILEDIVIER=FileDivider
-
 TRISLICER=TriSlicer
-
 TRIRENS=TriDensRender
-
 DENSVIEWER=DensViewer
 
 
@@ -31,19 +28,19 @@ all: objs
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
 			triconverter.o tetracut.o triangle.o
-	$(CC) $(LFLAG) -o $(TRIRENS) tridens.o io_utils.o \
+	$(CC) -o $(TRIRENS) tridens.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
 			triconverter.o tetracut.o triangle.o \
-			buffers.o trirender.o
-	$(CC) $(LFLAG) -o $(DENSVIEWER) densviewer.o viewfun.o
+			buffers.o trirender.o $(LFLAG)
+	$(CC) -o $(DENSVIEWER) densviewer.o viewfun.o $(LFLAG)
 
 
 objs:
-	$(CC) -c -Wall $(IFLAG) $(SOURCESFILES)
+	$(CC) -Wall -c $(SOURCESFILES) $(IFLAG)
 
 debugobjs:
-	$(CC) -c -g -pg -Wall $(SOURCESFILES)
+	$(CC) -g -pg -Wall -c $(SOURCESFILES) $(IFLAG)
 
 debug: debugobjs
 	$(CC) -pg -g -o $(FILEDIVIER) filedivider.o io_utils.o \
@@ -52,12 +49,12 @@ debug: debugobjs
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
 			triconverter.o tetracut.o triangle.o
-	$(CC) $(LFLAG) -g -pg -o $(TRIRENS) tridens.o io_utils.o \
+	$(CC) -g -pg -o $(TRIRENS) tridens.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
 			triconverter.o tetracut.o triangle.o \
-			buffers.o trirender.o
-	$(CC) $(LFLAG) -g -pg -o $(DENSVIEWER) densviewer.o viewfun.o
+			buffers.o trirender.o $(LFLAG)
+	$(CC) -g -pg -o $(DENSVIEWER) densviewer.o viewfun.o $(LFLAG)
 
 test: objs
 	$(CC) -o readtest test.o io_utils.o \
