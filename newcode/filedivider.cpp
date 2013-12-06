@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include "io_utils.h"
-#include "../library/processbar.h"
+#include "processbar.h"
 
 
 using namespace std;
@@ -101,8 +101,9 @@ int main(int argv, char * args[]){
         header[i].filenumber = i;
         header[i].startind = gridsize * gridsize * i * numzPerTrunk;
         header[i].numparts = 0;
-        if(numzPerTrunk > gridsize - i){
-            header[i].numofZgrids = gridsize - i + 1;
+        header[i].redshift = snap.GetHeader().redshift;
+        if(numzPerTrunk >= gridsize - i * numzPerTrunk){
+            header[i].numofZgrids = gridsize - i * numzPerTrunk + 1;
         }
         
         writeToDividerFile(outputbase,

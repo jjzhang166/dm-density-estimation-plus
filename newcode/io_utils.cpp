@@ -110,6 +110,7 @@ int64_t readDividerFilePos(std::string basename, int i, void * pos){
     infileStream.read((char *) &header, sizeof(divide_header));
     infileStream.read((char *) pos, sizeof(float) * 3 * header.numparts);
     infileStream.close();
+    return header.numparts;
 }
 
 
@@ -128,4 +129,5 @@ int64_t readDividerFileVel(std::string basename, int i, void * vel){
     infileStream.read((char *) &header, sizeof(divide_header));
     infileStream.read((char *) vel, sizeof(float) * 3 * header.numparts);
     infileStream.close();
+    return header.numparts;
 }

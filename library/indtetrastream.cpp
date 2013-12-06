@@ -341,23 +341,17 @@ void IndTetraStream::addTetra(int i1, int j1, int k1, int i2, int j2, int k2,
 
 void IndTetraStream::addTetraAllVox(int i, int j, int k, int ii, int jj, int kk){
     //1
-    addTetra(i, j, k, i, j + 1, k, i, j, k + 1, i + 1, j, k + 1,
-    		ii, jj, kk);
+    addTetra(i,    j,     k,     i,     j + 1, k,     i,     j,     k + 1, i + 1, j,     k + 1, ii, jj, kk);
 				//2
-	addTetra(i, j, k, i, j + 1, k, i + 1, j, k + 1, i + 1, j, k,
-						ii, jj, kk);
+	addTetra(i,    j,     k,     i,     j + 1, k,     i + 1, j,     k + 1, i + 1, j,     k,     ii, jj, kk);
 				//3
-    addTetra(i, j, k + 1, i, j + 1, k + 1, i + 1, j, k + 1, i,
-						j + 1, k, ii, jj, kk);
+    addTetra(i,    j,     k + 1, i,     j + 1, k + 1, i + 1, j,     k + 1, i,     j + 1, k,     ii, jj, kk);
 				//4
-	addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1, i,
-						j + 1, k + 1, ii, jj, kk);
+	addTetra(i,    j + 1, k,     i + 1, j,     k + 1, i + 1, j + 1, k + 1, i,     j + 1, k + 1, ii, jj, kk);
 				//5
-	addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k + 1,
-						i + 1, j + 1, k, ii, jj, kk);
+	addTetra(i,    j + 1, k,     i + 1, j,     k + 1, i + 1, j + 1, k + 1, i + 1, j + 1, k,     ii, jj, kk);
 				//6
-	addTetra(i, j + 1, k, i + 1, j, k + 1, i + 1, j + 1, k, i + 1,
-						j, k, ii, jj, kk);
+	addTetra(i,    j + 1, k,     i + 1, j,     k + 1, i + 1, j + 1, k,     i + 1, j,     k,     ii, jj, kk);
 
 }
 

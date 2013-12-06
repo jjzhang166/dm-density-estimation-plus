@@ -21,7 +21,8 @@ struct divide_header{
     int64_t startind;
     int64_t numparts;
     float64_t boxSize;
-    char unused[256 - 4 * 4 - 8 * 3];
+    float64_t redshift;        //scaling factor
+    char unused[256 - 4 * 4 - 8 * 4];
 };
 
 //write the data to devider file
