@@ -17,6 +17,58 @@ using namespace std;
 using namespace GadgetReader;
 
 
+#define BUFFERSIZE 1024*1024
+
+long long ** inds;
+float ** pos;
+float ** vel;
+int * currentParticlesInBuffer;
+int partPerBuffer;
+
+string outputbase;
+string inputfilename;
+divide_header * header;
+
+
+void pushBackParticle(vector<long long> & tempind, vector<float> & temppos,
+                      vector<float> & tempvel, int ind, int j, int blockj){
+    inds[blockj][currentParticlesInBuffer[blockj]] = ind;//tempind[j];//.push_back(tempind[j]);
+    pos[blockj][currentParticlesInBuffer[blockj]]=temppos[j * 3 + 0];//.push_back(temppos[j * 3 + 0]);
+    pos[blockj][currentParticlesInBuffer[blockj]]=temppos[j * 3 + 1];//.push_back(temppos[j * 3 + 1]);
+    pos[blockj][currentParticlesInBuffer[blockj]]=temppos[j * 3 + 2];//.push_back(temppos[j * 3 + 2]);
+    vel[blockj][currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 0];//.push_back(tempvel[j * 3 + 0]);
+    vel[blockj][currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 1];//.push_back(tempvel[j * 3 + 1]);
+    vel[blockj][currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 2];//.push_back(tempvel[j * 3 + 2]);
+    currentParticlesInBuffer[blockj] ++;
+    if(currentParticlesInBuffer[blockj] >= partPerBuffer){
+        writeToDividerFile(outputbase,
+                           INDEXTYPE,
+                           j,
+                           ios::out | ios::binary | ios::app,
+                           ((char *) inds[j]),//.data()),
+                           sizeof(long long) * currentParticlesInBuffer[blockj]//inds[j].size()
+                           );
+        
+        writeToDividerFile(outputbase,
+                           VELTYPE,
+                           j,
+                           ios::out | ios::binary | ios::app,
+                           ((char *) vel[j]),//.data()),
+                           sizeof(float) * currentParticlesInBuffer[blockj]//vel[j].size()
+                           );
+        
+        writeToDividerFile(outputbase,
+                           POSTYPE,
+                           j,
+                           ios::out | ios::binary | ios::app,
+                           ((char *) pos[j]),//.data()),
+                           sizeof(float) * currentParticlesInBuffer[blockj]//pos[j].size()
+                           );
+        
+        header[blockj].numparts += currentParticlesInBuffer[blockj];
+        currentParticlesInBuffer[blockj] = 0;
+    }
+}
 
 
 
@@ -25,16 +77,16 @@ int main(int argv, char * args[]){
         printf("%s Filename NumSlicePerBlock PartType OutputBase [GridSize]\n", args[0]);
         exit(1);
     }
-    string inputfilename = args[1];
+    inputfilename = args[1];
     
     //printf("%d\n", sizeof(divide_header));
     
     int numslice = 0;
     int numzPerTrunk = atoi(args[2]);
     int parttype = atoi(args[3]);
-    int64_t startID = 0;
+    long long startID = 0;
     
-    string outputbase = args[4];
+    outputbase = args[4];
     printf("Input File: %s\n", inputfilename.c_str());
     printf("Numbers of slices per trunk %d\n", numzPerTrunk);
     printf("OutputBase: %s\n", outputbase.c_str());
@@ -91,7 +143,7 @@ int main(int argv, char * args[]){
     }
     int totalfiles = numslice;
     
-    divide_header * header = new divide_header[totalfiles];
+    header = new divide_header[totalfiles];
     
     //create file
     for(int i = 0; i < totalfiles; i++){
@@ -134,9 +186,21 @@ int main(int argv, char * args[]){
         //printf();
     }
     
-    vector<long long> * inds = new vector<long long>[totalfiles];
-    vector<float> * pos = new vector<float>[totalfiles];
-    vector<float> * vel = new vector<float>[totalfiles];
+    //vector<long long> * inds = new vector<long long>[totalfiles];
+    //vector<float> * pos = new vector<float>[totalfiles];
+    //vector<float> * vel = new vector<float>[totalfiles];
+    inds = new long long* [totalfiles];
+    pos = new float* [totalfiles];
+    vel = new float* [totalfiles];
+    currentParticlesInBuffer = new int[totalfiles];
+    partPerBuffer = BUFFERSIZE / totalfiles + 1;
+    
+    for(int  i = 0; i < totalfiles; i++){
+        currentParticlesInBuffer[i] = 0;
+        inds[i] = new long long[partPerBuffer];
+        pos[i] = new float[partPerBuffer];
+        vel[i] = new float[partPerBuffer];
+    }
 
     int64_t numpartsToRead = numzPerTrunk * gridsize * gridsize;
     
@@ -144,10 +208,11 @@ int main(int argv, char * args[]){
     //read particles from file, divide them
     unsigned int ignorecode = ~(1 << parttype);
     
-    startID = gridsize * gridsize * gridsize * 1024;
+    startID = (long long)gridsize * (long long)gridsize * (long long)gridsize * (long long)1024;
     for(int i = 0; i < nparts; i+= numpartsToRead){
         vector<long long> tempind = snap.GetBlockInt("ID  ", numpartsToRead, i, ignorecode);
         long long tempmin = *(std::min_element(tempind.begin(), tempind.end()));
+        //printf("%ld, startID, %ld\n", startID, tempmin);
         if(tempmin < startID){
             startID = tempmin;
         }
@@ -159,13 +224,16 @@ int main(int argv, char * args[]){
     ProcessBar bar(totalfiles, 0);
     bar.start();
     for(int i = 0; i < totalfiles; i++){
-        for(int j = 0; j < totalfiles; j++){
-            inds[j].clear();
-            pos[j].clear();
-            vel[j].clear();
-        }
+        //for(int j = 0; j < totalfiles; j++){
+            //inds[j].clear();
+            //pos[j].clear();
+            //vel[j].clear();
+        //    currentParticlesInBuffer[j] = 0;
+        //}
+        memset (currentParticlesInBuffer, 0, sizeof(int) * totalfiles);
         
         bar.setvalue(i);
+        
         
         int startind = header[i].startind;
         vector<float> temppos = snap.GetBlock("POS ", numpartsToRead, startind, ignorecode);
@@ -188,16 +256,48 @@ int main(int argv, char * args[]){
             tempind[j] -= startID;
             long long z = tempind[j] / (gridsize * gridsize);
             long long blockj = z / numzPerTrunk;
-            //printf("ok %d %d %d, %d\n", indsize, j, tempind[j], z, numzPerTrunk);
-            //printf("ok %d %d %d %d %d %d\n", indsize, z, blockj, tempind[j],
-            //       totalfiles, numzPerTrunk);
-            inds[blockj].push_back(tempind[j]);
-            pos[blockj].push_back(temppos[j * 3 + 0]);
-            pos[blockj].push_back(temppos[j * 3 + 1]);
-            pos[blockj].push_back(temppos[j * 3 + 2]);
-            vel[blockj].push_back(tempvel[j * 3 + 0]);
-            vel[blockj].push_back(tempvel[j * 3 + 1]);
-            vel[blockj].push_back(tempvel[j * 3 + 2]);
+            //printf("ok %d %d %ld, %d, %d\n", indsize, j, tempind[j], z, numzPerTrunk);
+            //printf("ok %ld %d %d %d\n", tempind[j], j, blockj, startID);
+            
+            
+            /*inds[currentParticlesInBuffer[blockj]] = tempind[j];//.push_back(tempind[j]);
+            pos[currentParticlesInBuffer[blockj]]=temppos[j * 3 + 0];//.push_back(temppos[j * 3 + 0]);
+            pos[currentParticlesInBuffer[blockj]]=temppos[j * 3 + 1];//.push_back(temppos[j * 3 + 1]);
+            pos[currentParticlesInBuffer[blockj]]=temppos[j * 3 + 2];//.push_back(temppos[j * 3 + 2]);
+            vel[currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 0];//.push_back(tempvel[j * 3 + 0]);
+            vel[currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 1];//.push_back(tempvel[j * 3 + 1]);
+            vel[currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 2];//.push_back(tempvel[j * 3 + 2]);
+            currentParticlesInBuffer[blockj] ++;
+            if(currentParticlesInBuffer[blockj] >= partPerBuffer){
+                writeToDividerFile(outputbase,
+                                   INDEXTYPE,
+                                   j,
+                                   ios::out | ios::binary | ios::app,
+                                   ((char *) inds[j]),//.data()),
+                                   sizeof(long long) * currentParticlesInBuffer[blockj]//inds[j].size()
+                                   );
+                
+                writeToDividerFile(outputbase,
+                                   VELTYPE,
+                                   j,
+                                   ios::out | ios::binary | ios::app,
+                                   ((char *) vel[j]),//.data()),
+                                   sizeof(float) * currentParticlesInBuffer[blockj]//vel[j].size()
+                                   );
+                
+                writeToDividerFile(outputbase,
+                                   POSTYPE,
+                                   j,
+                                   ios::out | ios::binary | ios::app,
+                                   ((char *) pos[j]),//.data()),
+                                   sizeof(float) * currentParticlesInBuffer[blockj]//pos[j].size()
+                                   );
+                                   
+                currentParticlesInBuffer[blockj] = 0;
+            }*/
+            pushBackParticle(tempind, temppos, tempvel, tempind[j], j, blockj);
+            
+            
             
             if(z % numzPerTrunk == 0){
                 blockj = blockj - 1;
@@ -207,44 +307,46 @@ int main(int argv, char * args[]){
                     blockj = totalfiles - 1;
                     ind1 = tempind[j] + gridsize * gridsize * gridsize;
                 }
-                inds[blockj].push_back(ind1);
+                /*inds[blockj].push_back(ind1);
                 pos[blockj].push_back(temppos[j * 3 + 0]);
                 pos[blockj].push_back(temppos[j * 3 + 1]);
                 pos[blockj].push_back(temppos[j * 3 + 2]);
                 vel[blockj].push_back(tempvel[j * 3 + 0]);
                 vel[blockj].push_back(tempvel[j * 3 + 1]);
-                vel[blockj].push_back(tempvel[j * 3 + 2]);
+                vel[blockj].push_back(tempvel[j * 3 + 2]);*/
+                pushBackParticle(tempind, temppos, tempvel, ind1, j, blockj);
             }
         }
 
         //write the data to file
         for(int j = 0; j < totalfiles; j++){
             //printf("ok %d %d\n", i, j);
-            header[j].numparts += inds[j].size();
+            header[j].numparts += currentParticlesInBuffer[j];//inds[j].size();
             
             writeToDividerFile(outputbase,
                         INDEXTYPE,
                         j,
                         ios::out | ios::binary | ios::app,
-                        ((char *) inds[j].data()),
-                        sizeof(long long) * inds[j].size()
+                        ((char *) inds[j]),//.data()),
+                        sizeof(long long) * currentParticlesInBuffer[j]//* inds[j].size()
                         );
             
             writeToDividerFile(outputbase,
                         VELTYPE,
                         j,
                         ios::out | ios::binary | ios::app,
-                        ((char *) vel[j].data()),
-                        sizeof(float) * vel[j].size()
+                        ((char *) vel[j]),//.data()),
+                        sizeof(float) * currentParticlesInBuffer[j]//* vel[j].size()
                         );
             
             writeToDividerFile(outputbase,
                         POSTYPE,
                         j,
                         ios::out | ios::binary | ios::app,
-                        ((char *) pos[j].data()),
-                        sizeof(float) * pos[j].size()
+                        ((char *) pos[j]),//.data()),
+                        sizeof(float) * currentParticlesInBuffer[j]//* pos[j].size()
                         );
+            currentParticlesInBuffer[j] = 0;
         }
     }
     
@@ -277,7 +379,13 @@ int main(int argv, char * args[]){
                     true
                     );
     }
-    
+    for(int  i = 0; i < totalfiles; i++){
+        //currentParticlesInBuffer[i] = 0;
+        delete[] inds[i];
+        delete[] pos[i];
+        delete[] vel[i];
+    }
+    delete[] currentParticlesInBuffer;
     delete[] header;
     delete[] inds;
     delete[] pos;
