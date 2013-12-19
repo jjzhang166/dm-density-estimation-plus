@@ -5,7 +5,7 @@
 
 using namespace std;
 
-ProcessBar::ProcessBar(int maxvalue, int type){
+ProcessBar::ProcessBar(double maxvalue, int type){
 	maxvalue_ = maxvalue;
 	currentvalue_ = 0;
 	currentpercent_ = 0;
@@ -23,7 +23,7 @@ void ProcessBar::start(){
 
 }
 
-void ProcessBar::setvalue(int value){
+void ProcessBar::setvalue(double value){
 	double rate = (double ) value / (double) maxvalue_;
 	if(rate > currentvalue_){
 		currentvalue_ =  rate;
@@ -45,6 +45,7 @@ void ProcessBar::setvalue(int value){
 }
 
 void ProcessBar::end(){
+    setvalue(maxvalue_);
 	if(type_ == 0){
 		fprintf(stderr,"]========\n");
 	}else if(type_ == 1){

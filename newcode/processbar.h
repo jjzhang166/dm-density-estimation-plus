@@ -11,12 +11,12 @@
 
 class ProcessBar {
 public:
-	ProcessBar(int maxvalue, int type);
+	ProcessBar(double maxvalue, int type);
 	void start();
-	void setvalue(int value);
+	void setvalue(double value);
 	void end();
 private:
-	int maxvalue_;
+	double maxvalue_;
 	double currentvalue_;
 	int currentpercent_;
 	int type_;
