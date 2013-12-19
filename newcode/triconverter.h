@@ -15,6 +15,7 @@ using namespace std;
 //those triangles are 2D-triangle with velocity values
 class TriConverter{
 public:
+    
     static const int VELX;
     static const int VELY;
     static const int VELZ;
@@ -24,7 +25,7 @@ public:
             TriConverter        ( int imagesize,
                                   float boxsize,
                                   string outputbase,
-                                  int outputBufferSize = 65536
+                                  int outputBufferSize = 1024*1024
                                 );
     
             ~TriConverter        ();
