@@ -9,7 +9,7 @@
 #include "tetrahedron.h"
 #include "dtetrastream.h"
 #include "triconverter.h"
-
+#include "triheader.h"
 
 
 using namespace std;
@@ -21,6 +21,18 @@ int imageSize = 1024;
 bool isRedShiftDist = false;
 Point redshiftAxis;
 int typeCode = 0x00;
+
+const int VELX =  0x01;
+const int VELY =  0x02;
+const int VELZ =  0x04;
+const int POS  =  0x08;
+const int DENS =  0x10;
+
+bool isPosition_ = true;
+bool isDensity_ = true;
+bool isVelX_ = false;
+bool isVelY_ = false;
+bool isVelZ_ = false;
 
 void printUsage(string pname){
     printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n"
@@ -39,16 +51,89 @@ void printUsage(string pname){
            );
 }
 
+void writeToFile(int type,
+            int i,
+            ios_base::openmode mode,
+            const char* s,
+            streamsize n,
+            bool isHeader
+            ){
+    stringstream ss;
+    ss << i;
+    string filename = "";
+    
+    if(isPosition_ && type == POS){
+        filename = outputbase + "."TRIFILESUFFIX"." + ss.str();
+    }else if(isDensity_ && type == DENS){
+        filename = outputbase + "."DENFILESUFFIX"." + ss.str();
+    }else if(isVelX_ && type == VELX){
+        filename = outputbase + "."VELXFILESUFFIX"." + ss.str();
+    }else if(isVelY_ && type == VELY){
+        filename = outputbase + "."VELYFILESUFFIX"." + ss.str();
+    }else if(isVelZ_ && type == VELZ){
+        filename = outputbase + "."VELZFILESUFFIX"." + ss.str();
+    }else{
+        return;
+    }
+    
+    fstream outDataStream;
+    outDataStream.open(filename.c_str(), mode);
+    
+    if(isHeader){
+        outDataStream.seekp(0, ios::beg);
+    }
+    
+    if(!outDataStream.good()){
+        printf("Bad file: %s!\n", filename.c_str());
+        exit(1);
+    }
+    outDataStream.write(s, n);
+    outDataStream.close();
+    
+}
+
+
 void savefile(DtetraStream &streamer){
     if(isRedShiftDist){
         streamer.setRedShitDistortion(redshiftAxis);
     }
+    //TriConverter triangleConverter(imageSize,
+    //             streamer.getHeader().boxSize,
+    //             outputbase);
+    
+    for(int i = 0; i < imageSize; i++){
+        TriHeader header;
+        header.NumTriangles = 0;
+        header.boxSize = streamer.getHeader().boxSize;
+        header.z_id = i;
+        header.z_coor = (double) i / (double) imageSize * streamer.getHeader().boxSize;
+        header.fileID = i;
+        header.NumFiles = imagesize_;
+        
+        writeToFile(POS,
+                        i,
+                        ios::out | ios::binary,
+                        (char * )((char *) &header),
+                        sizeof(header)
+                        );
+        
+        
+        writeToFile(DENS,
+                        i,
+                        ios::out | ios::binary,
+                        (char * )((char *) &header),
+                        sizeof(header)
+                        );
+    }
+
+    
+    
+    
     TriConverter triangleConverter(imageSize,
-                 streamer.getHeader().boxSize,
-                 outputbase);
+                                   streamer.getHeader().boxSize);
     //printf("ok3\n");
     
-    triangleConverter.setOutput(typeCode);
+    //triangleConverter.setOutput(typeCode);
     
     
     int datagridsize = streamer.getHeader().gridsize;
@@ -77,7 +162,17 @@ void savefile(DtetraStream &streamer){
             count_ind ++;
             for(int k = 0; k < nt; k++){
                 
-                triangleConverter.process(ts[k]);
+                if(!triangleConverter.isReachMax()){
+                    triangleConverter.process(ts[k]);
+                }else{
+                    //output
+                    
+                    for(int m = 0; m < imagesize; m++){
+                        
+                    }
+                    
+                    triangleConverter.reset();
+                }
                 
                 
                 if((tetra_count %  tcount )== 0){
@@ -90,7 +185,7 @@ void savefile(DtetraStream &streamer){
         }
     }
     //printf("Ind Tetra %d\n", count_ind);
-    triangleConverter.finish();
+    //triangleConverter.finish();
     
     numTetras = 0;
     printf("\nFinished.\nIn total %ld tetrahedrons output.\n", (long) tetra_count);
