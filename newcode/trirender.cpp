@@ -142,42 +142,47 @@ TriDenRender::~TriDenRender(){
     delete result_;
 }
 
-void TriDenRender::rend(string verfile,
-                        string * componentFiles,
-                        int * floatPerTriangle){
+//void TriDenRender::rend(string verfile,
+//                        string * componentFiles,
+//                        int * floatPerTriangle){
+void    rend        (float * vertexdata,
+                     float * densitydata,
+                     int NumTriangles,
+                     int plane
+                     ){
     if(numOfOutputs_ == 0){
         return;
     }
     memset(result_, 0, imagesize_ * imagesize_ * maxNumRenderComp * sizeof(float));
     
-    fstream verstream(verfile.c_str(), ios::in | ios::binary);
+    //fstream verstream(verfile.c_str(), ios::in | ios::binary);
     
     //fstream * compStreams = new fstream[numOfOutputs_];
-    TriHeader header0;
-    verstream.read((char *) &header0, sizeof(header0));
+    //TriHeader header0;
+    //verstream.read((char *) &header0, sizeof(header0));
     
-    TriHeader * header1 = new TriHeader[numOfOutputs_];
+    //TriHeader * header1 = new TriHeader[numOfOutputs_];
 
-    float * vertexdata = new float[header0.NumTriangles * NUM_FLOATS_VERTEX];
-
-    
+    //float * vertexdata = new float[header0.NumTriangles * NUM_FLOATS_VERTEX];
 
     
-    float * colorData = new float[header0.NumTriangles * 3 * maxNumRenderComp];
+
+    
+    float * colorData = new float[NumTriangles * 3 * maxNumRenderComp];
     
 
-    verstream.read((char *) vertexdata,
+    /*verstream.read((char *) vertexdata,
                    sizeof(float) *
                    header0.NumTriangles *
                    NUM_FLOATS_VERTEX
-                   );
+                   );*/
     
     /*for(int i = 0; i < header0.numOfTriangles; i++){
 
     }*/
     
     
-    float ** color0 = new float * [numOfOutputs_];
+    /*float ** color0 = new float * [numOfOutputs_];
     for(int i = 0; i < numOfOutputs_; i++){
         fstream compStreams;
         compStreams.open(componentFiles[i].c_str(), ios::in | ios::binary);
@@ -196,15 +201,15 @@ void TriDenRender::rend(string verfile,
                          header0.NumTriangles *
                          floatPerTriangle[i]);
         compStreams.close();
-    }
+    }*/
 
     
-    for(unsigned int i = 0; i < header0.NumTriangles; i++){
+    for(unsigned int i = 0; i < NumTriangles; i++){
         for(int j = 0; j < maxNumRenderComp; j ++){
             if(j < numOfOutputs_){
-                colorData[i * maxNumRenderComp * 3 + 0 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 0 : 0)];
-                colorData[i * maxNumRenderComp * 3 + 4 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 1 : 0)];
-                colorData[i * maxNumRenderComp * 3 + 8 + j] = color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 2 : 0)];
+                colorData[i * maxNumRenderComp * 3 + 0 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 0 : 0)];
+                colorData[i * maxNumRenderComp * 3 + 4 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 1 : 0)];
+                colorData[i * maxNumRenderComp * 3 + 8 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 2 : 0)];
             }else{
                 colorData[i * maxNumRenderComp * 3 + 0 + j] = 0;
                 colorData[i * maxNumRenderComp * 3 + 4 + j] = 0;

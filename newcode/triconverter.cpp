@@ -46,6 +46,7 @@ TriConverter::TriConverter(int imagesize,
     trianglePlaneIds_.reserve(maxNumTriangles_ + 100);
     vertexData_.reserve((maxNumTriangles_ + 100) * 6);  //every triangle has 3 vertexs, each vertex has 2 data point
     densityData_.reserve(maxNumTriangles_ + 100);       //each triangle has a single density
+    totalTriangles_ = 0;
     
     for(int i = 0; i < imagesize_; i ++){
         //vertexIds_[i] = 0;
@@ -63,25 +64,29 @@ TriConverter::~TriConverter(){
 vector<int> & TriConverter::getTrianglePlaneIds(){
     return trianglePlaneIds_;
 }//return a vector of the triangle ids
-vector<float> & getVertex(){
+vector<float> & TriConverter::getVertex(){
     return vertexData_;
 }//get a float array of the vertexes
-vector<float> & getDensity(){
+vector<float> & TriConverter::getDensity(){
     return densityData_;
 }//get a float vector of densities
-int * getNumTrisInPlanes(){
+int * TriConverter::getNumTrisInPlanes(){
     return numTrianglePlanes;
 }//get a array of number of triangles in each plane
-bool isReachMax(){
+bool TriConverter::isReachMax(){
     return !(currentTriNum_ >= maxNumTriangles_);
 }//whether the numoftris reach maximum
-void reset(){
+void TriConverter::reset(){
     currentTriNum_ = 0;
     trianglePlaneIds_.clear();
     vertexData_.clear();
     densityData_.clear();
     memset(numTrianglePlanes, 0, sizeof(int) * imagesize_);
+    totalTriangles_ = 0;
 }                          //clear memories
+int TriConverter::getTotalTriangles(){
+    return totalTriangles_;
+}
 
 void TriConverter::process(Tetrahedron * tetras, int numTetras){
     for(int i = 0; i < numTetras; i++){
@@ -121,7 +126,7 @@ void TriConverter::process(Tetrahedron & tetra){
             densityData_.push_back(dens);
             numTrianglePlanes[i] ++;
             currentTriNum_ ++;
-            
+            totalTriangles_ ++;
         }
     }
 }

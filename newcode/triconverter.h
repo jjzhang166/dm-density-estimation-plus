@@ -41,6 +41,7 @@ public:
     int * getNumTrisInPlanes();               //get a array of number of triangles in each plane
     bool isReachMax();                        //whether the numoftris reach maximum
     void    reset();                          //clear memories
+    int getTotalTriangles();
     //void    finish              ();
                                             //the limit of render
                                             //types of this render
@@ -80,6 +81,7 @@ private:
     int * numTrianglePlanes;
     int maxNumTriangles_;
     int currentTriNum_;
+    int totalTriangles_ ;
     
     int     imagesize_;
     int     numplanes_;
@@ -88,6 +90,7 @@ private:
     REAL    startz_;
     
     IsoZCutter cutter;
+    
     
     //bool isVelX_;
     //bool isVelY_;

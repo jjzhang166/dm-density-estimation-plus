@@ -10,6 +10,7 @@
 #include "dtetrastream.h"
 #include "triconverter.h"
 #include "triheader.h"
+#include "trifile_util.h"
 
 
 using namespace std;
@@ -51,7 +52,7 @@ void printUsage(string pname){
            );
 }
 
-void writeToFile(int type,
+/*void writeToFile(int type,
             int i,
             ios_base::openmode mode,
             const char* s,
@@ -90,7 +91,7 @@ void writeToFile(int type,
     outDataStream.write(s, n);
     outDataStream.close();
     
-}
+}*/
 
 
 void savefile(DtetraStream &streamer){
@@ -101,7 +102,7 @@ void savefile(DtetraStream &streamer){
     //             streamer.getHeader().boxSize,
     //             outputbase);
     
-    for(int i = 0; i < imageSize; i++){
+    /*for(int i = 0; i < imageSize; i++){
         TriHeader header;
         header.NumTriangles = 0;
         header.boxSize = streamer.getHeader().boxSize;
@@ -124,13 +125,27 @@ void savefile(DtetraStream &streamer){
                         (char * )((char *) &header),
                         sizeof(header)
                         );
-    }
+    }*/
 
     
     
     
     TriConverter triangleConverter(imageSize,
                                    streamer.getHeader().boxSize);
+    
+    TriHeader theader;
+    theader.ImageSize = imageSize;
+    theader.boxSize = streamer.getHeader().boxSize;
+    theader.startZ = 0;
+    theader.dz = streamer.getHeader().boxSize / (double) imageSize;
+    theader.numOfZPlanes = imageSize;
+    
+    TrifileWriter twriter(theader);
+    twriter.open(outputbase);
+    if(!twriter.good()){
+        printf("Output error!\n");
+        exit(1);
+    }
     //printf("ok3\n");
     
     //triangleConverter.setOutput(typeCode);
@@ -150,6 +165,11 @@ void savefile(DtetraStream &streamer){
     int count_ind = 0;
     int numfiles = streamer.getHeader().totalfiles;
     IndTetrahedron indtetra;
+    
+    
+    //int *currentTriIdPlane = new int[imagesize];
+    //memset(currentTriIdPlane, 0, sizeof(int) * imagesize);
+    
     for(int l = 0; l < numfiles; l++){
         streamer.loadBlock(l);
         int numindtetra = streamer.getNumTetras();
@@ -161,17 +181,34 @@ void savefile(DtetraStream &streamer){
             Tetrahedron * ts = im.getPeroidTetras(indtetra);
             count_ind ++;
             for(int k = 0; k < nt; k++){
+                triangleConverter.process(ts[k]);
                 
-                if(!triangleConverter.isReachMax()){
-                    triangleConverter.process(ts[k]);
-                }else{
+                if(triangleConverter.isReachMax()){
                     //output
+                    int *f_inds = new int[triangleConverter.getTotalTriangles()];
+                    int *planetris = triangleConverter.getNumTrisInPlanes();
+                    vector<int> trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
+                    vector<float> vertexData_ = triangleConverter.getVertex();
+                    vector<float> densityData_ = triangleConverter.getDensity();
                     
-                    for(int m = 0; m < imagesize; m++){
+                    twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
+                    //currentTriIdPlane[0] = 0;
+                    /*for(int m = 1; m < imagesize; m++){
+                        //planetris[m] = planetris[m] + planetris[m-1];
+                        currentTriIdPlane[m] = currentTriIdPlane[m-1] + planetris[m-1];
                         
                     }
-                    
+                    for(int m = 0; m < triangleConverter.getTotalTriangles(); m++){
+                        f_inds[currentTriIdPlane[trianglePlaneIds_[m]]] = m;
+                        currentTriIdPlane[trianglePlaneIds_[m]] ++;
+                    }
+                    for(int m = 0; m < imagesize; m++){
+                        for (int n = 0; n < planetris[m]; n++) {
+                            //write to tfile
+                        }
+                    }*/
                     triangleConverter.reset();
+                    delete f_inds[];
                 }
                 
                 

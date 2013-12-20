@@ -32,9 +32,15 @@ public:
     
     //must contains numOfOutputs's outputs
     //floatPerVerts contains 1 or 3
-    void    rend        (string vertexfile,
+    /*void    rend        (string vertexfile,
                          string * componentFiles,
                          int * floatPerTriangle
+                         );*/
+    
+    void    rend        (float * vertexdata,
+                         float * densitydata,
+                         int numtriangles,
+                         int plane
                          );
     
     void close();
