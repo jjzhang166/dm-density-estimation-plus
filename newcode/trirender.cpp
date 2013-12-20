@@ -153,6 +153,7 @@ void    rend        (float * vertexdata,
     if(numOfOutputs_ == 0){
         return;
     }
+    
     memset(result_, 0, imagesize_ * imagesize_ * maxNumRenderComp * sizeof(float));
     
     //fstream verstream(verfile.c_str(), ios::in | ios::binary);
