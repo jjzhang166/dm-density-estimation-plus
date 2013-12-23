@@ -45,90 +45,20 @@ void printUsage(string pname){
            "-imsize <imagesize>",
            "-pos    output position data",
            "-dens   output density data",
-           "-velx   output density weighted velocity",
-           "-vely   output density weighted velocity",
-           "-velz   output density weighted velocity",
+           "-velx   (TODO) output density weighted velocity",
+           "-vely   (TODO) output density weighted velocity",
+           "-velz   (TODO) output density weighted velocity",
            "-parttype  <particle type>, default: 1",
            "-redshift <x> <y> <z>, the reshift shift distortion axis" 
            );
 }
 
-/*void writeToFile(int type,
-            int i,
-            ios_base::openmode mode,
-            const char* s,
-            streamsize n,
-            bool isHeader
-            ){
-    stringstream ss;
-    ss << i;
-    string filename = "";
-    
-    if(isPosition_ && type == POS){
-        filename = outputbase + "."TRIFILESUFFIX"." + ss.str();
-    }else if(isDensity_ && type == DENS){
-        filename = outputbase + "."DENFILESUFFIX"." + ss.str();
-    }else if(isVelX_ && type == VELX){
-        filename = outputbase + "."VELXFILESUFFIX"." + ss.str();
-    }else if(isVelY_ && type == VELY){
-        filename = outputbase + "."VELYFILESUFFIX"." + ss.str();
-    }else if(isVelZ_ && type == VELZ){
-        filename = outputbase + "."VELZFILESUFFIX"." + ss.str();
-    }else{
-        return;
-    }
-    
-    fstream outDataStream;
-    outDataStream.open(filename.c_str(), mode);
-    
-    if(isHeader){
-        outDataStream.seekp(0, ios::beg);
-    }
-    
-    if(!outDataStream.good()){
-        printf("Bad file: %s!\n", filename.c_str());
-        exit(1);
-    }
-    outDataStream.write(s, n);
-    outDataStream.close();
-    
-}*/
 
 
 void savefile(DtetraStream &streamer){
     if(isRedShiftDist){
         streamer.setRedShitDistortion(redshiftAxis);
     }
-    //TriConverter triangleConverter(imageSize,
-    //             streamer.getHeader().boxSize,
-    //             outputbase);
-    
-    /*for(int i = 0; i < imageSize; i++){
-        TriHeader header;
-        header.NumTriangles = 0;
-        header.boxSize = streamer.getHeader().boxSize;
-        header.z_id = i;
-        header.z_coor = (double) i / (double) imageSize * streamer.getHeader().boxSize;
-        header.fileID = i;
-        header.NumFiles = imagesize_;
-        
-        writeToFile(POS,
-                        i,
-                        ios::out | ios::binary,
-                        (char * )((char *) &header),
-                        sizeof(header)
-                        );
-        
-        
-        writeToFile(DENS,
-                        i,
-                        ios::out | ios::binary,
-                        (char * )((char *) &header),
-                        sizeof(header)
-                        );
-    }*/
-
-    
     
     
     TriConverter triangleConverter(imageSize,
@@ -157,12 +87,9 @@ void savefile(DtetraStream &streamer){
     int numTetras = 0;
 
     uint64_t tetra_count = 0;
-    //uint64_t tcount = datagridsize * datagridsize * datagridsize / 10 * 6;
-    //if(tcount == 0){
-    //    tcount = 1;
-    //}
+    
 
-    //printf("%d %d \n", tcount, datagridsize);
+    
     int count_ind = 0;
     int numfiles = streamer.getHeader().totalfiles;
     IndTetrahedron indtetra;
@@ -198,20 +125,7 @@ void savefile(DtetraStream &streamer){
                     
                     twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
                     //currentTriIdPlane[0] = 0;
-                    /*for(int m = 1; m < imagesize; m++){
-                        //planetris[m] = planetris[m] + planetris[m-1];
-                        currentTriIdPlane[m] = currentTriIdPlane[m-1] + planetris[m-1];
-                        
-                    }
-                    for(int m = 0; m < triangleConverter.getTotalTriangles(); m++){
-                        f_inds[currentTriIdPlane[trianglePlaneIds_[m]]] = m;
-                        currentTriIdPlane[trianglePlaneIds_[m]] ++;
-                    }
-                    for(int m = 0; m < imagesize; m++){
-                        for (int n = 0; n < planetris[m]; n++) {
-                            //write to tfile
-                        }
-                    }*/
+                    
                     triangleConverter.reset();
                     delete[] f_inds;
                 }
@@ -253,7 +167,6 @@ int main(int argv, char * args[]){
     }else{
         while(k < argv){
             stringstream ss;
-            //printf("%s\n", args[k]);
             if(strcmp(args[k], "-df") == 0){
                 ss << args[k + 1];
                 ss >> inputbase;
@@ -313,9 +226,6 @@ int main(int argv, char * args[]){
         }
     }
     
-    
-    
-    //printf("outputs: %d\n", typeCode);
     DtetraStream streamer(inputbase);
 
     savefile(streamer);

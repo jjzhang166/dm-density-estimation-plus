@@ -41,7 +41,7 @@ CUDA_CALLABLE_MEMBER void Tetrahedron::computeMaxMin(){
 
 CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 	REAL vol;
-	REAL v1x, v1y, v1z;
+	/*REAL v1x, v1y, v1z;
 	REAL v2x, v2y, v2z;
 	REAL v3x, v3y, v3z;
 
@@ -58,8 +58,10 @@ CUDA_CALLABLE_MEMBER REAL Tetrahedron::computeVolume(){
 	v3z = v4.z - v1.z;
 
 	vol =  v1x*v2y*v3z + v1y*v2z*v3x + v1z*v2x*v3y -
-	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y);
+	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y);*/
 	//vol /= 6.0;
+    
+    vol = abs(getVolume(v1, v2, v3, v4));
 	volume = abs(vol);
 
 	if(volume != 0.0){
@@ -96,7 +98,7 @@ CUDA_CALLABLE_MEMBER double Tetrahedron::getVolume(const Point &v1, const Point 
 	v3z = v4.z - v1.z;
 
 	vol = -(v1x*v2y*v3z + v1y*v2z*v3x + v1z*v2x*v3y -
-	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y));
+	      (v1z*v2y*v3x + v1y*v2x*v3z + v1x*v2z*v3y)) / 6.0;
 	return vol;
 }
 

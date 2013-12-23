@@ -28,7 +28,7 @@ namespace RenderSpace {
     
     
     //test
-    int totalTris = 0;
+    //int totalTris = 0;
     
     
 }
@@ -214,7 +214,7 @@ void TriDenRender::rend(float * vertexdata,
         //printf("ok2.5.2 -- %d\n", i);
         
         //test
-        totalTris ++;
+        //totalTris ++;
         
         for(int j = 0; j < maxNumRenderComp; j ++){
             if(j < numOfOutputs_){
@@ -363,7 +363,7 @@ bool TriDenRender::good(){
 
 void TriDenRender::close(){
     
-    printf("Total Tris: %d\n", totalTris);
+    //printf("Total Tris: %d\n", totalTris);
     for(int i = 0; i < numOfOutputs_; i++){
         outputStream_[i].close();
     }
