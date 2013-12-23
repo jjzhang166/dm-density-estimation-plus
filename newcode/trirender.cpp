@@ -26,6 +26,11 @@ namespace RenderSpace {
     static bool glut_is_initialized = false;
     
     
+    
+    //test
+    int totalTris = 0;
+    
+    
 }
 using namespace RenderSpace;
 
@@ -207,6 +212,10 @@ void TriDenRender::rend(float * vertexdata,
     //printf("ok2.5.2 -- %d\n", NumTriangles);
     for(unsigned int i = 0; i < NumTriangles; i++){
         //printf("ok2.5.2 -- %d\n", i);
+        
+        //test
+        totalTris ++;
+        
         for(int j = 0; j < maxNumRenderComp; j ++){
             if(j < numOfOutputs_){
                 colorData[i * maxNumRenderComp * 3 + 0 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 0 : 0)];
@@ -353,6 +362,8 @@ bool TriDenRender::good(){
 }
 
 void TriDenRender::close(){
+    
+    printf("Total Tris: %d\n", totalTris);
     for(int i = 0; i < numOfOutputs_; i++){
         outputStream_[i].close();
     }

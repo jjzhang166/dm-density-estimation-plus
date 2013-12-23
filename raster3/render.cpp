@@ -25,6 +25,10 @@ GLuint textureIni;  //initial empty texture
 int * argc;
 char **argv;
 
+//test
+//int totalTris = 0;
+
+
 void getWarmColor(float v, float &r, float &g, float &b){
     r = -1.8966 * v*v*v + 1.2049 * v*v + 1.1463 * v + 0.2253;
     g = -2.713 * v*v + 2.5221 * v + 0.2499;
@@ -193,6 +197,8 @@ float * Render::getPlane(REAL isoval){
         int num_triangles;
         while(isoplane_-> hasNext()){
             Triangle * triangles = isoplane_->getNextIsoPlaneBlock(num_triangles);
+            
+            //totalTris += num_triangles;
             //printf("%d\n",num_triangles);
             GLfloat * vetexarray = (GLfloat *) triangles;
             glVertexPointer (2, GL_FLOAT, 5 * sizeof(GLfloat), &(vetexarray[0]));
@@ -345,6 +351,9 @@ float * Render::showPlane(REAL isoval){
 }
 
 Render::~Render(){
+    
+
+    
     delete fbuffer;
     delete image_;
     delete colorImg_;

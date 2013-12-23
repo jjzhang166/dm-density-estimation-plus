@@ -34,7 +34,8 @@
 using namespace std;
 
 
-
+//test
+int totalTris = 0;
 
 
 namespace RenderSpace {
@@ -271,7 +272,13 @@ void DenRender::rend(Tetrahedron & tetra){
         float z = startz_ + dz_ * i;
 
         int tris = cutter.cut(z);
+        
+        
         for(int j = 0; j < tris; j++){
+            //test
+            totalTris ++ ;
+            
+            
             //density, stream number, velocity_x, velocity_y, velocity_z
             
             float values_a[] = {tetra.invVolume, 1,
@@ -371,6 +378,8 @@ void DenRender::rend(Tetrahedron & tetra){
 
 
 float * DenRender::getResult(){
+    
+    printf("Total Tris: %d\n", totalTris);
     return result_;
 }
 

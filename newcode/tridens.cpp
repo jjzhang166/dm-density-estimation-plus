@@ -90,37 +90,6 @@ int main(int argv, char * args[]){
         }
     }
     
-    //printf("OK\n");
-    
-    /*string ffn = base_name+".tri.0";
-    fstream finfile(ffn.c_str(), ios::in | ios::binary);
-    TriHeader t_header;
-    if(!finfile.good()){
-        printf("File Error: %s\n!", base_name.c_str());
-        exit(1);
-    }
-    finfile.read((char *) & t_header, sizeof(t_header));
-    finfile.close();
-    numOfFiles = t_header.NumFiles;
-    
-    if(numOfFiles < imageSize){
-        fprintf(stderr, "Num of triangle files less than imagesize.\n");
-        exit(1);
-    }
-    
-    if(numOfFiles % imageSize != 0){
-        fprintf(stderr, "Image size is not a divisor of numOfFilesß.\n");
-        exit(1);
-    }
-    
-    TriHeader header;
-    string firstfile = prefix + base_name + "."TRIFILESUFFIX".0";
-    fstream headgetter(firstfile.c_str(), ios::in | ios::binary);
-    if(!headgetter.good()){
-        printf("File: %s corrupted!\n", firstfile.c_str());
-    }
-    headgetter.read((char*)&header, sizeof(TriHeader));
-    headgetter.close();*/
 
 
     
@@ -158,32 +127,17 @@ int main(int argv, char * args[]){
     //int tcount = imageSize / 20;
     for(int i = 0; i < imageSize; i++){
         bar.setvalue(i);
-        int fileno = i * numOfFiles / imageSize;
+        //int fileno = i * numOfFiles / imageSize;
         
-        stringstream ss;
-        ss << fileno;
-        //string trifile = prefix + base_name + "."TRIFILESUFFIX"." + ss.str();
+        int plane = reader.getHeader().numOfZPlanes / imageSize * i;
         
-        /*for(int j = 0; j < numOfOutputs; j++){
-            //string denfile = prefix + base_name + "."DENFILESUFFIX"." + ss.str();
-            componentFiles[j] = prefix + base_name + "."
-                                + compSuffix[j] + "."
-                                + ss.str();
-        }*/
-        
-            //printf("ok2\n");
-        reader.loadPlane(i);
+        reader.loadPlane(plane);
         //printf("ok2.5\n");
-        render.rend(reader.getTriangles(i), reader.getDensity(i), reader.getNumTriangles(i));
-        //printf("ok3\n");
-        
-        //if(fileno % tcount == 0){
-        //    printf(">");
-        //    cout.flush();
-        //}
+        render.rend(reader.getTriangles(plane), reader.getDensity(plane), reader.getNumTriangles(plane));
     }
-    //printf("\n");
+
     bar.end();
     render.close();
+    printf("Done.\n");
     
 }
