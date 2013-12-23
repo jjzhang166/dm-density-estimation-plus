@@ -151,7 +151,7 @@ void savefile(DtetraStream &streamer){
         delete[] f_inds;
     }
     
-    numTetras = 0;
+    //numTetras = 0;
     bar.end();
     printf("Finished.\nIn total %ld tetrahedrons output.\n", (long) tetra_count);
 }

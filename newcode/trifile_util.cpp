@@ -1,3 +1,4 @@
+#include <cstring>
 #include <vector>
 #include <algorithm>
 #include "trifile_util.h"
@@ -82,7 +83,7 @@ void TrifileWriter::write(int * trianglesPerPlane,
     
     header_.TotalTriangles += numOfTrisCurrentPlane;
     
-    for(int m = 0; m < trianglePlaneIds_.size(); m++){
+    for(unsigned int m = 0; m < trianglePlaneIds_.size(); m++){
         outputinds[numTrianglesPerPlaneCurrentBlock_[trianglePlaneIds_[m]]] = m;
         numTrianglesPerPlaneCurrentBlock_[trianglePlaneIds_[m]] ++;
     }
@@ -96,7 +97,7 @@ void TrifileWriter::write(int * trianglesPerPlane,
     vertexFileStream_.write((char *) trianglesPerPlane, sizeof(int) * header_.numOfZPlanes);
     densityFileStream_.write((char *) trianglesPerPlane, sizeof(int) * header_.numOfZPlanes);
     
-    for(int m = 0; m < trianglePlaneIds_.size(); m++){
+    for(unsigned int m = 0; m < trianglePlaneIds_.size(); m++){
         vertexFileStream_.write((char *) (vertexData_.data() + outputinds[m] * 6), sizeof(float) * 6);
         densityFileStream_.write((char *) (densityData_.data() + outputinds[m]), sizeof(float));
         /*if(trianglePlaneIds_[outputinds[m]] == 0){
