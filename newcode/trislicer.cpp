@@ -84,7 +84,7 @@ void savefile(DtetraStream &streamer){
     
     //int datagridsize = streamer.getHeader().gridsize;
      
-    int numTetras = 0;
+    //int numTetras = 0;
 
     uint64_t tetra_count = 0;
     

@@ -1,6 +1,6 @@
 CC=g++
-LFLAG= -framework Carbon -framework OpenGL -framework GLUT
-#LFLAG=-lGL -lglut -lGLEW
+#LFLAG= -framework Carbon -framework OpenGL -framework GLUT
+LFLAG=-lGL -lglut -lGLEW
 #LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
 IFLAG=-I /usr/include/GL/ -I./
 #IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/

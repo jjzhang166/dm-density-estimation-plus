@@ -121,7 +121,7 @@ int main(int argv, char * args[]){
 
     
     
-    printf("Number of Particles: %lld\n", nparts);
+    printf("Number of Particles: %ld\n", nparts);
     printf("Grid Size: %d\n", gridsize);
     printf("Dividing ...\n");
     

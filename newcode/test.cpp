@@ -21,7 +21,7 @@ int main(){
     
     GSnap snap("/Users/lyang/data/multires_150", false);
     int64_t nparts = snap.GetNpart(1);
-    printf("Nparts %lld\n", nparts);
+    printf("Nparts %ld\n", nparts);
     
     vector<float> temppos = snap.GetBlock("POS ", nparts, 0, 0);
     float * pos = new float[temppos.size()];
@@ -32,7 +32,7 @@ int main(){
     vector<long long> tempind = snap.GetBlockInt("ID  ", nparts, 0, 0);
     int64_t * inds = new int64_t[tempvel.size()];
     
-    for(int i = 0; i < tempind.size(); i++){
+    for(int i = 0; i < (int)tempind.size(); i++){
         pos[3*tempind[i] + 0] = temppos[3*i + 0];
         pos[3*tempind[i] + 1] = temppos[3*i + 1];
         pos[3*tempind[i] + 2] = temppos[3*i + 2];
@@ -114,7 +114,7 @@ int main(){
         int numindtetra = dstream.getNumTetras();
         printf("%d\n", numindtetra);
         IndTetrahedronManager & im = dstream.getCurrentIndtetraManeger();
-        divide_header header = dstream.getHeader();
+        //divide_header header = dstream.getHeader();
         
         for(int i = 0; i < numindtetra; i ++){
             dstream.getIndTetra(indtetra, i);
@@ -162,7 +162,7 @@ int main(){
                           );
             
             int nt = im.getNumPeriodical(indtetra);
-            Tetrahedron * ts = im.getPeroidTetras(indtetra);
+            //Tetrahedron * ts = im.getPeroidTetras(indtetra);
             for(int k = 0; k < nt; k++){
                 tetraall_count ++;
                 //printf("%f %f %f \n%f %f %f \n%f %f %f \n%f %f %f\n\n\n",
