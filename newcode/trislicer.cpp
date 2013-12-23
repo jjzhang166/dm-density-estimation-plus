@@ -82,7 +82,7 @@ void savefile(DtetraStream &streamer){
     //triangleConverter.setOutput(typeCode);
     
     
-    int datagridsize = streamer.getHeader().gridsize;
+    //int datagridsize = streamer.getHeader().gridsize;
      
     int numTetras = 0;
 

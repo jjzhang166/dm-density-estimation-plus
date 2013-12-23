@@ -146,7 +146,7 @@ int main(int argv, char * args[]){
     lheader.dz = reader.getHeader().boxSize / imageSize;
     
     //test
-    printf("Header %d\n", sizeof(lheader));
+    //printf("Header %d\n", sizeof(lheader));
     
     outputStream_.write((char *) &lheader, sizeof(LTFEHeader));
     
@@ -155,6 +155,7 @@ int main(int argv, char * args[]){
     bar.start();
     
     //int tcount = imageSize / 20;
+    int numtris = 0;
     for(int i = 0; i < imageSize; i++){
         bar.setvalue(i);
         //int fileno = i * numOfFiles / imageSize;
@@ -165,6 +166,8 @@ int main(int argv, char * args[]){
         //printf("ok2.5\n");
         render.rendDensity(reader.getTriangles(plane), reader.getDensity(plane), reader.getNumTriangles(plane));
         
+        numtris += reader.getNumTriangles(plane);
+        
         outputStream_.write((char *) render.getDensity(), sizeof(float) * imageSize * imageSize);
     }
     
@@ -172,6 +175,6 @@ int main(int argv, char * args[]){
 
     bar.end();
     //render.close();
-    printf("Done.\n");
+    printf("Done. %d triangles rendered.\n", numtris);
     
 }
