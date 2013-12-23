@@ -49,10 +49,10 @@ private:
     
     void init();
     
-    /*void setOutputFile(
+    void setOutputFile(
                        string * outputfiles,
                        int numOfOutputs
-                       );*/
+                       );
     
     int     imagesize_;
     REAL    boxsize_;

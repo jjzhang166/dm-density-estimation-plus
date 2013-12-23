@@ -11,6 +11,7 @@
 #include "triconverter.h"
 #include "triheader.h"
 #include "trifile_util.h"
+#include "processbar.h"
 
 
 using namespace std;
@@ -156,10 +157,10 @@ void savefile(DtetraStream &streamer){
     int numTetras = 0;
 
     uint64_t tetra_count = 0;
-    uint64_t tcount = datagridsize * datagridsize * datagridsize / 10 * 6;
-    if(tcount == 0){
-        tcount = 1;
-    }
+    //uint64_t tcount = datagridsize * datagridsize * datagridsize / 10 * 6;
+    //if(tcount == 0){
+    //    tcount = 1;
+    //}
 
     //printf("%d %d \n", tcount, datagridsize);
     int count_ind = 0;
@@ -170,7 +171,10 @@ void savefile(DtetraStream &streamer){
     //int *currentTriIdPlane = new int[imagesize];
     //memset(currentTriIdPlane, 0, sizeof(int) * imagesize);
     
+    ProcessBar bar(numfiles, 0);
+    bar.start();
     for(int l = 0; l < numfiles; l++){
+        bar.setvalue(l);
         streamer.loadBlock(l);
         int numindtetra = streamer.getNumTetras();
         IndTetrahedronManager & im = streamer.getCurrentIndtetraManeger();
@@ -213,10 +217,6 @@ void savefile(DtetraStream &streamer){
                 }
                 
                 
-                if((tetra_count %  tcount )== 0){
-                    printf(">");
-                    cout.flush();
-                }
                 tetra_count ++;
             }
             
@@ -238,7 +238,8 @@ void savefile(DtetraStream &streamer){
     }
     
     numTetras = 0;
-    printf("\nFinished.\nIn total %ld tetrahedrons output.\n", (long) tetra_count);
+    bar.end();
+    printf("Finished.\nIn total %ld tetrahedrons output.\n", (long) tetra_count);
 }
 
 

@@ -10,6 +10,7 @@
 #include "triheader.h"
 #include "trirender.h"
 #include "trifile_util.h"
+#include "processbar.h"
 
 using namespace std;
 
@@ -124,7 +125,17 @@ int main(int argv, char * args[]){
 
     
     TrifileReader reader(base_name);
-    printf("OK\n");
+    //printf("OK\n");
+    
+    if(reader.getHeader().numOfZPlanes < imageSize){
+        fprintf(stderr, "Num of zplanes in files less than imagesize.\n");
+        exit(1);
+    }
+    if(reader.getHeader().numOfZPlanes % imageSize != 0){
+        fprintf(stderr, "Image size is not a divisor of numOfFilesß.\n");
+        exit(1);
+    }
+    
     
     TriDenRender render(imageSize,
                         reader.getHeader().boxSize,
@@ -139,9 +150,14 @@ int main(int argv, char * args[]){
         exit(1);
     }
 
+    //printf("ImageSize: %d", imageSize);
     
-    int tcount = imageSize / 20;
+    ProcessBar bar(imageSize, 0);
+    bar.start();
+    
+    //int tcount = imageSize / 20;
     for(int i = 0; i < imageSize; i++){
+        bar.setvalue(i);
         int fileno = i * numOfFiles / imageSize;
         
         stringstream ss;
@@ -157,16 +173,17 @@ int main(int argv, char * args[]){
         
             //printf("ok2\n");
         reader.loadPlane(i);
-        printf("ok2.5\n");
+        //printf("ok2.5\n");
         render.rend(reader.getTriangles(i), reader.getDensity(i), reader.getNumTriangles(i));
-        printf("ok3\n");
+        //printf("ok3\n");
         
-        if(fileno % tcount == 0){
-            printf(">");
-            cout.flush();
-        }
+        //if(fileno % tcount == 0){
+        //    printf(">");
+        //    cout.flush();
+        //}
     }
-    printf("\n");
+    //printf("\n");
+    bar.end();
     render.close();
     
 }
