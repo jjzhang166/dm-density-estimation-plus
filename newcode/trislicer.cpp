@@ -183,6 +183,7 @@ void savefile(DtetraStream &streamer){
             for(int k = 0; k < nt; k++){
                 triangleConverter.process(ts[k]);
                 
+                //printf("Is Max: %d\n", triangleConverter.isReachMax());
                 if(triangleConverter.isReachMax()){
                     //output
                     int *f_inds = new int[triangleConverter.getTotalTriangles()];
@@ -208,7 +209,7 @@ void savefile(DtetraStream &streamer){
                         }
                     }*/
                     triangleConverter.reset();
-                    delete f_inds[];
+                    delete[] f_inds;
                 }
                 
                 
@@ -221,8 +222,20 @@ void savefile(DtetraStream &streamer){
             
         }
     }
-    //printf("Ind Tetra %d\n", count_ind);
-    //triangleConverter.finish();
+    
+    
+    //output the final triangles
+    if(triangleConverter.getTotalTriangles() > 0){
+        int *f_inds = new int[triangleConverter.getTotalTriangles()];
+        int *planetris = triangleConverter.getNumTrisInPlanes();
+        vector<int> trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
+        vector<float> vertexData_ = triangleConverter.getVertex();
+        vector<float> densityData_ = triangleConverter.getDensity();
+        
+        twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
+        triangleConverter.reset();
+        delete[] f_inds;
+    }
     
     numTetras = 0;
     printf("\nFinished.\nIn total %ld tetrahedrons output.\n", (long) tetra_count);

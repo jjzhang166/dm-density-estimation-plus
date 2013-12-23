@@ -9,6 +9,7 @@
 #include "tetrahedron.h"
 #include "triheader.h"
 #include "trirender.h"
+#include "trifile_util.h"
 
 using namespace std;
 
@@ -88,7 +89,9 @@ int main(int argv, char * args[]){
         }
     }
     
-    string ffn = base_name+".tri.0";
+    //printf("OK\n");
+    
+    /*string ffn = base_name+".tri.0";
     fstream finfile(ffn.c_str(), ios::in | ios::binary);
     TriHeader t_header;
     if(!finfile.good()){
@@ -116,15 +119,25 @@ int main(int argv, char * args[]){
         printf("File: %s corrupted!\n", firstfile.c_str());
     }
     headgetter.read((char*)&header, sizeof(TriHeader));
-    headgetter.close();
+    headgetter.close();*/
 
 
+    
+    TrifileReader reader(base_name);
+    printf("OK\n");
+    
     TriDenRender render(imageSize,
-                        header.boxSize,
+                        reader.getHeader().boxSize,
                         outputfilename,
                         numOfOutputs
                         );
     
+    
+
+    if(!reader.isOpen()){
+        printf("Input File Incorrect!\n");
+        exit(1);
+    }
 
     
     int tcount = imageSize / 20;
@@ -133,18 +146,20 @@ int main(int argv, char * args[]){
         
         stringstream ss;
         ss << fileno;
-        string trifile = prefix + base_name + "."TRIFILESUFFIX"." + ss.str();
+        //string trifile = prefix + base_name + "."TRIFILESUFFIX"." + ss.str();
         
-        for(int j = 0; j < numOfOutputs; j++){
+        /*for(int j = 0; j < numOfOutputs; j++){
             //string denfile = prefix + base_name + "."DENFILESUFFIX"." + ss.str();
             componentFiles[j] = prefix + base_name + "."
                                 + compSuffix[j] + "."
                                 + ss.str();
-        }
+        }*/
         
             //printf("ok2\n");
-        render.rend(trifile, componentFiles, floatOfVerts);
-            //printf("ok3\n");
+        reader.loadPlane(i);
+        printf("ok2.5\n");
+        render.rend(reader.getTriangles(i), reader.getDensity(i), reader.getNumTriangles(i));
+        printf("ok3\n");
         
         if(fileno % tcount == 0){
             printf(">");

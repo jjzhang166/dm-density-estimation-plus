@@ -39,8 +39,7 @@ public:
     
     void    rend        (float * vertexdata,
                          float * densitydata,
-                         int numtriangles,
-                         int plane
+                         int numtriangles
                          );
     
     void close();
@@ -50,10 +49,10 @@ private:
     
     void init();
     
-    void setOutputFile(
+    /*void setOutputFile(
                        string * outputfiles,
                        int numOfOutputs
-                       );
+                       );*/
     
     int     imagesize_;
     REAL    boxsize_;

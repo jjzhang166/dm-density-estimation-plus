@@ -74,7 +74,7 @@ int * TriConverter::getNumTrisInPlanes(){
     return numTrianglePlanes;
 }//get a array of number of triangles in each plane
 bool TriConverter::isReachMax(){
-    return !(currentTriNum_ >= maxNumTriangles_);
+    return (currentTriNum_ >= maxNumTriangles_);
 }//whether the numoftris reach maximum
 void TriConverter::reset(){
     currentTriNum_ = 0;

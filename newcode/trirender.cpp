@@ -88,7 +88,7 @@ void TriDenRender::init(){
 
 const int TriDenRender::maxNumRenderComp = 4;
 
-void TriDenRender::setOutputFile(string * outputfiles,
+/*void TriDenRender::setOutputFile(string * outputfiles,
                                  int numOfOutputs
                                 ){
     float startz = 0;
@@ -116,7 +116,7 @@ void TriDenRender::setOutputFile(string * outputfiles,
         outputStream_[i].write((char *) &dz, sizeof(float));
         outputStream_[i].write((char *) head, sizeof(int) * 59);
     }
-}
+}*/
 
 TriDenRender::TriDenRender(int imagesize,
                            REAL boxSize,
@@ -145,10 +145,9 @@ TriDenRender::~TriDenRender(){
 //void TriDenRender::rend(string verfile,
 //                        string * componentFiles,
 //                        int * floatPerTriangle){
-void    rend        (float * vertexdata,
+void TriDenRender::rend(float * vertexdata,
                      float * densitydata,
-                     int NumTriangles,
-                     int plane
+                     int NumTriangles
                      ){
     if(numOfOutputs_ == 0){
         return;
@@ -167,7 +166,7 @@ void    rend        (float * vertexdata,
     //float * vertexdata = new float[header0.NumTriangles * NUM_FLOATS_VERTEX];
 
     
-
+    printf("ok2.5.1\n");
     
     float * colorData = new float[NumTriangles * 3 * maxNumRenderComp];
     
@@ -205,6 +204,7 @@ void    rend        (float * vertexdata,
     }*/
 
     
+    printf("ok2.5.2\n");
     for(unsigned int i = 0; i < NumTriangles; i++){
         for(int j = 0; j < maxNumRenderComp; j ++){
             if(j < numOfOutputs_){
@@ -227,12 +227,12 @@ void    rend        (float * vertexdata,
                vertexdata[i * NUM_FLOATS_VERTEX + 5],
                colorData[i * maxNumRenderComp + 0]);*/
     }
-
+    printf("ok2.5.2.1\n");
     
-    for(int j = 0; j < numOfOutputs_; j++){
+    /*for(int j = 0; j < numOfOutputs_; j++){
         delete (color0[j]);
-    }
-    delete color0;
+    }*/
+    //delete color0;
     
     //copy the data
     fbuffer->bindTex();
@@ -252,9 +252,10 @@ void    rend        (float * vertexdata,
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     
     
+    printf("ok2.5.2.1.1\n");
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
                     GL_RGBA, GL_FLOAT, result_);
-    
+    printf("ok2.5.2.1.2\n");
     
     fbuffer->unbindTex();
     
@@ -275,13 +276,15 @@ void    rend        (float * vertexdata,
     glEnableClientState (GL_VERTEX_ARRAY);
     glEnableClientState (GL_COLOR_ARRAY);
     
+    printf("ok2.5.2.2\n");
+    
     glVertexPointer(2, GL_FLOAT, 0,
                     vertexdata);
     glColorPointer(4, GL_FLOAT, 0,
                     colorData);
     
     glDrawArrays(GL_TRIANGLES, 0,
-                 header0.NumTriangles * 3);
+                 NumTriangles * 3);
     
     
     glFinish();
@@ -297,9 +300,13 @@ void    rend        (float * vertexdata,
                   result_);
     fbuffer->unbindTex();
     
+    printf("ok2.5.2.3\n");
+    
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
     
+    
+    printf("ok2.5.3\n");
     //save to file
     float ** res_ = new float *[numOfOutputs_];
     for(int i = 0; i < numOfOutputs_; i++){
@@ -320,9 +327,10 @@ void    rend        (float * vertexdata,
         delete (res_[j]);
     }
     
+    printf("ok2.5.4\n");
     delete res_;
     delete colorData;
-    delete vertexdata;
+    //delete vertexdata;
 }
 
 bool TriDenRender::good(){

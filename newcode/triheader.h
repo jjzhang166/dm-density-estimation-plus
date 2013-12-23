@@ -32,13 +32,14 @@ public:
 class TriHeader{
 public:
     int32_t NumBlocks;      //how many blocks in this file
-    int64_t TotalTriangles; //total trianles in this file
     int32_t ImageSize;      //what's the image size of this cut
+    int32_t numOfZPlanes;   //how many z planes are there
+    
+    int64_t TotalTriangles; //total trianles in this file
 	double boxSize;         //what's the box size
     double startZ;          //what's the star Z coordinates
     double dz;              //what's the end Z coordinates
-    int numOfZPlanes;    //how many z planes are there
-    char other[256 - 4 - 8 - 4 - 8 * 3 - 4];
+    char other[256 - (4 * 3 + 8 * 5) ];
 };
 
 class TriBlockHeader{

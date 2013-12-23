@@ -13,7 +13,7 @@ SOURCESFILES=filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 triangle.cpp trirender.cpp\
 			 tetracut.cpp triconverter.cpp \
 			 tridens.cpp buffers.cpp densviewer.cpp\
-			 viewfun.cpp
+			 viewfun.cpp trifile_util.cpp
 
 FILEDIVIER=FileDivider
 TRISLICER=TriSlicer
@@ -27,11 +27,11 @@ all: objs
 	$(CC) -o $(TRISLICER) trislicer.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
-			triconverter.o tetracut.o triangle.o
+			triconverter.o tetracut.o triangle.o trifile_util.o
 	$(CC) -o $(TRIRENS) tridens.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
-			triconverter.o tetracut.o triangle.o \
+			triconverter.o tetracut.o triangle.o trifile_util.o\
 			buffers.o trirender.o $(LFLAG)
 	$(CC) -o $(DENSVIEWER) densviewer.o viewfun.o $(LFLAG)
 
@@ -48,11 +48,11 @@ debug: debugobjs
 	$(CC) -pg -g -o $(TRISLICER) trislicer.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
-			triconverter.o tetracut.o triangle.o
+			triconverter.o tetracut.o triangle.o trifile_util.o
 	$(CC) -g -pg -o $(TRIRENS) tridens.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
-			triconverter.o tetracut.o triangle.o \
+			triconverter.o tetracut.o triangle.o trifile_util.o\
 			buffers.o trirender.o $(LFLAG)
 	$(CC) -g -pg -o $(DENSVIEWER) densviewer.o viewfun.o $(LFLAG)
 
