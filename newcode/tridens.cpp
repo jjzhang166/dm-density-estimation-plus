@@ -11,6 +11,7 @@
 #include "trirender.h"
 #include "trifile_util.h"
 #include "processbar.h"
+#include "ltfeheader.h"
 
 using namespace std;
 
@@ -36,9 +37,9 @@ void printUsage(string pname){
            pname.c_str(),
            "-df <basename>",
            "-dens <outputdensfile>",
-           "-velx <outputvelxfile>",
-           "-vely <outputvelyfile>",
-           "-velz <outputvelzfile>",
+           "-velx (TODO) <outputvelxfile>",
+           "-vely (TODO) <outputvelyfile>",
+           "-velz (TODO) <outputvelzfile>",
            "-imsize <imagesize>"
            );
 }
@@ -106,12 +107,14 @@ int main(int argv, char * args[]){
     }
     
     
-    TriDenRender render(imageSize,
+    /*TriDenRender render(imageSize,
                         reader.getHeader().boxSize,
                         outputfilename,
                         numOfOutputs
+                        );*/
+    TriDenRender render(imageSize,
+                        reader.getHeader().boxSize
                         );
-    
     
 
     if(!reader.isOpen()){
@@ -120,6 +123,33 @@ int main(int argv, char * args[]){
     }
 
     //printf("ImageSize: %d", imageSize);
+    
+    
+    
+    if(numOfOutputs != 1 || (compSuffix[0] != DENFILESUFFIX)){
+        printf("Only support density output!\n");
+        exit(1);
+    }
+    
+    fstream outputStream_;
+    outputStream_.open(outputfilename[0].c_str(), ios::out | ios::binary);
+    if(!outputStream_.good()){
+        fprintf(stderr, "OutputFile Error: %s !\n", outputfilename[0].c_str());
+        exit(1);
+    }
+    
+    LTFEHeader lheader;
+    lheader.xyGridSize = imageSize;
+    lheader.zGridSize = imageSize;
+    lheader.boxSize = reader.getHeader().boxSize;
+    lheader.startZ = 0;
+    lheader.dz = reader.getHeader().boxSize / imageSize;
+    
+    //test
+    printf("Header %d\n", sizeof(lheader));
+    
+    outputStream_.write((char *) &lheader, sizeof(LTFEHeader));
+    
     
     ProcessBar bar(imageSize, 0);
     bar.start();
@@ -133,11 +163,15 @@ int main(int argv, char * args[]){
         
         reader.loadPlane(plane);
         //printf("ok2.5\n");
-        render.rend(reader.getTriangles(plane), reader.getDensity(plane), reader.getNumTriangles(plane));
+        render.rendDensity(reader.getTriangles(plane), reader.getDensity(plane), reader.getNumTriangles(plane));
+        
+        outputStream_.write((char *) render.getDensity(), sizeof(float) * imageSize * imageSize);
     }
+    
+    outputStream_.close();
 
     bar.end();
-    render.close();
+    //render.close();
     printf("Done.\n");
     
 }

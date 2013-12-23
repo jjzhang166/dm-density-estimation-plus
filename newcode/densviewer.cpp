@@ -83,12 +83,12 @@ void KeyboardFunc(unsigned char key, int x, int y)
     }else if(']' == key){
         pti ++;
         if(pti >=numofcuts){
-            pti = numofcuts -1;
+            pti = 0;
         }
     }else if('[' == key){
         pti --;
         if(pti < 0){
-            pti = 0;
+            pti = numofcuts - 1;
         }
     }
     

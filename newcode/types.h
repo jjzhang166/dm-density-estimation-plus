@@ -22,7 +22,7 @@
 #endif
 
 
-class Halo{
+/*class Halo{
 public:
      float x;
      float y;
@@ -53,5 +53,5 @@ public:
      float r_max;//           
      int parent_id;//       
      float parent_common;
-};
+};*/
 #endif

@@ -1,5 +1,6 @@
 #include <fstream>
 #include <stdio.h>
+#include <cstdlib>
 #include <string.h>
 #ifdef __APPLE__
 #include <GLUT/glut.h> // darwin uses glut.h rather than GL/glut.h
@@ -26,7 +27,7 @@ namespace RenderSpace {
     static bool glut_is_initialized = false;
     
     
-    
+    int currentAllocedColorSize = 0;
     //test
     //int totalTris = 0;
     
@@ -93,131 +94,65 @@ void TriDenRender::init(){
 
 const int TriDenRender::maxNumRenderComp = 4;
 
-void TriDenRender::setOutputFile(string * outputfiles,
-                                 int numOfOutputs
-                                ){
-    float startz = 0;
-    float dz = boxsize_ / imagesize_;
-    
-    numOfOutputs_ = numOfOutputs;
-    if(numOfOutputs_ > maxNumRenderComp){
-        numOfOutputs_ = maxNumRenderComp;
-    }
-    
-    outputStream_ = new fstream[numOfOutputs_];
-    
-    int head[59];
-    for(int i = 0; i < numOfOutputs_; i++){
-        outputStream_[i].open(outputfiles[i].c_str(), ios::out | ios::binary);
-        if(!outputStream_[i].good()){
-            //printf("%s\n", outputfiles[i].c_str());
-            fprintf(stderr, "OutputFile Error: %s !\n", outputfiles[i].c_str());
-            exit(1);
-        }
-        outputStream_[i].write((char *) &imagesize_, sizeof(int));
-        outputStream_[i].write((char *) &imagesize_, sizeof(int));
-        outputStream_[i].write((char *) &boxsize_, sizeof(float));
-        outputStream_[i].write((char *) &startz, sizeof(float));
-        outputStream_[i].write((char *) &dz, sizeof(float));
-        outputStream_[i].write((char *) head, sizeof(int) * 59);
-    }
-}
 
 TriDenRender::TriDenRender(int imagesize,
-                           REAL boxSize,
-                           string * outputfiles,
-                           int numOfOutputs
-                     ){
-
-    imagesize_ = imagesize;
-
+                           REAL boxSize
+                           ){
     
-
+    imagesize_ = imagesize;
+    
+    
+    
     boxsize_ = boxSize;
-    result_ = new float[imagesize * imagesize * maxNumRenderComp];
+    density_ = new float[imagesize * imagesize];
+    
+    currentAllocedColorSize = imagesize * imagesize * 6;
+    colorData = (float *) malloc(currentAllocedColorSize * sizeof(float));
+    
     viewSize = boxSize;
     
-    setOutputFile(outputfiles, numOfOutputs);
+    //setOutputFile(outputfiles, numOfOutputs);
     init();
 }
 
 TriDenRender::~TriDenRender(){
-    close();
-    delete[] outputStream_;
-    delete result_;
+    //close();
+    //delete[] outputStream_;
+    //delete[] result_;
+    delete[] density_;
+    free(colorData);
+    
+    //test
+    //printf("Total Tris: %d\n", totalTris);
 }
 
-//void TriDenRender::rend(string verfile,
-//                        string * componentFiles,
-//                        int * floatPerTriangle){
-void TriDenRender::rend(float * vertexdata,
+void TriDenRender::rendDensity(float * vertexdata,
                      float * densitydata,
-                     int NumTriangles
+                     int NumTriangles,
+                     bool isClear
                      ){
-    if(numOfOutputs_ == 0){
-        return;
+    
+    if(isClear){
+        memset(density_, 0, imagesize_ * imagesize_ * sizeof(float));
     }
     
-    memset(result_, 0, imagesize_ * imagesize_ * maxNumRenderComp * sizeof(float));
-    
-    //fstream verstream(verfile.c_str(), ios::in | ios::binary);
-    
-    //fstream * compStreams = new fstream[numOfOutputs_];
-    //TriHeader header0;
-    //verstream.read((char *) &header0, sizeof(header0));
-    
-    //TriHeader * header1 = new TriHeader[numOfOutputs_];
-
-    //float * vertexdata = new float[header0.NumTriangles * NUM_FLOATS_VERTEX];
-
-    
-    //printf("ok2.5.1\n");
-    
-    float * colorData = new float[NumTriangles * 3 * maxNumRenderComp];
-    
-
-    /*verstream.read((char *) vertexdata,
-                   sizeof(float) *
-                   header0.NumTriangles *
-                   NUM_FLOATS_VERTEX
-                   );*/
-    
-    /*for(int i = 0; i < header0.numOfTriangles; i++){
-
-    }*/
-    
-    
-    /*float ** color0 = new float * [numOfOutputs_];
-    for(int i = 0; i < numOfOutputs_; i++){
-        fstream compStreams;
-        compStreams.open(componentFiles[i].c_str(), ios::in | ios::binary);
-        compStreams.read((char *) &(header1[i]), sizeof(TriHeader));
-        if(header0.NumTriangles != header1[i].NumTriangles){
-            fprintf(stderr, "Error, vertex and dens files does not match!\n");
-            exit(1);
-        }
-        
-
-        color0[i] = new float[header0.NumTriangles * floatPerTriangle[i]];
-
-        
-        compStreams.read((char *) (color0[i]),
-                         sizeof(float) *
-                         header0.NumTriangles *
-                         floatPerTriangle[i]);
-        compStreams.close();
-    }*/
+    int newColorSize = NumTriangles * 3 * maxNumRenderComp;
+    if(currentAllocedColorSize < newColorSize){
+        currentAllocedColorSize = newColorSize * 2;
+        colorData = (float *) realloc(colorData, currentAllocedColorSize * sizeof(float));//new float[NumTriangles * 3 * maxNumRenderComp];
+        //printf("ok\n");
+    }
 
     
     //printf("ok2.5.2 -- %d\n", NumTriangles);
-    for(unsigned int i = 0; i < NumTriangles; i++){
+    for(int i = 0; i < NumTriangles; i++){
         //printf("ok2.5.2 -- %d\n", i);
         
         //test
         //totalTris ++;
         
         for(int j = 0; j < maxNumRenderComp; j ++){
-            if(j < numOfOutputs_){
+            if(j < 1){
                 colorData[i * maxNumRenderComp * 3 + 0 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 0 : 0)];
                 colorData[i * maxNumRenderComp * 3 + 4 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 1 : 0)];
                 colorData[i * maxNumRenderComp * 3 + 8 + j] = densitydata[i];//color0[j][i * floatPerTriangle[j] + (floatPerTriangle[j] > 1 ? 2 : 0)];
@@ -228,21 +163,7 @@ void TriDenRender::rend(float * vertexdata,
             }
         }
         
-        /*printf("%f %f %f %f %f %f %e\n",
-               vertexdata[i * NUM_FLOATS_VERTEX + 0],
-               vertexdata[i * NUM_FLOATS_VERTEX + 1],
-               vertexdata[i * NUM_FLOATS_VERTEX + 2],
-               vertexdata[i * NUM_FLOATS_VERTEX + 3],
-               vertexdata[i * NUM_FLOATS_VERTEX + 4],
-               vertexdata[i * NUM_FLOATS_VERTEX + 5],
-               colorData[i * maxNumRenderComp + 0]);*/
     }
-    //printf("ok2.5.2.1\n");
-    
-    /*for(int j = 0; j < numOfOutputs_; j++){
-        delete (color0[j]);
-    }*/
-    //delete color0;
     
     //copy the data
     fbuffer->bindTex();
@@ -264,17 +185,9 @@ void TriDenRender::rend(float * vertexdata,
     
     //printf("ok2.5.2.1.1\n");
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
-                    GL_RGBA, GL_FLOAT, result_);
-    /*glTexImage2D(GL_TEXTURE_2D,
-                      0,
-                      0,
-                      imagesize_,
-                      imagesize_,
-                      0,
-                      GL_RGBA,
-                      GL_FLOAT,
-                      NULL);*/
-    //printf("ok2.5.2.1.2\n");
+                    //GL_RGBA,
+                    GL_RED,
+                    GL_FLOAT, density_);
     
     fbuffer->unbindTex();
     
@@ -314,9 +227,10 @@ void TriDenRender::rend(float * vertexdata,
     fbuffer->bindTex();
     glGetTexImage(GL_TEXTURE_2D,
                   0,
-                  GL_RGBA,
+                  //GL_RGBA,
+                  GL_RED,
                   GL_FLOAT,
-                  result_);
+                  density_);
     fbuffer->unbindTex();
     
     //printf("ok2.5.2.3\n");
@@ -324,47 +238,8 @@ void TriDenRender::rend(float * vertexdata,
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
     
-    
-    //printf("ok2.5.3\n");
-    //save to file
-    float ** res_ = new float *[numOfOutputs_];
-    for(int i = 0; i < numOfOutputs_; i++){
-        res_[i] = new float[imagesize_ * imagesize_];
-    }
-    
-    for(int i = 0; i < imagesize_ * imagesize_; i++){
-        for(int j = 0; j < numOfOutputs_; j++){
-            res_[j][i] = result_[i * maxNumRenderComp + j];
-        }
-    }
-    
-    for(int j = 0; j < numOfOutputs_; j++){
-        outputStream_[j].write((char *) res_[j],
-                            sizeof(float) *
-                            imagesize_ *
-                            imagesize_);
-        delete (res_[j]);
-    }
-    
-    //printf("ok2.5.4\n");
-    delete res_;
-    delete colorData;
-    //delete vertexdata;
 }
 
-bool TriDenRender::good(){
-    bool isGood_ = false;
-    for(int i = 0; i < numOfOutputs_; i++){
-        isGood_ = isGood_ &&
-                  outputStream_[i].good();
-    }
-    return isGood_;
-}
-
-void TriDenRender::close(){
-    
-    //printf("Total Tris: %d\n", totalTris);
-    for(int i = 0; i < numOfOutputs_; i++){
-        outputStream_[i].close();
-    }
+float * TriDenRender::getDensity(){
+    return density_;
 }

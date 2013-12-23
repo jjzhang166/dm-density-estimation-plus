@@ -15,12 +15,18 @@
 class TriDenRender{
 public:
     
-    TriDenRender           (
+    /*TriDenRender         (
                             int imagesize,
                             REAL boxSize,
                             string * outputfiles,
                             int numOfOutputs
-                           );
+                           );*/
+    
+    
+    TriDenRender            (
+                            int imagesize,
+                            REAL boxSize
+                            );
     
     static const int maxNumRenderComp;
     
@@ -28,7 +34,7 @@ public:
     
     ~TriDenRender          ();
     
-    bool good();
+    //bool good();
     
     //must contains numOfOutputs's outputs
     //floatPerVerts contains 1 or 3
@@ -37,30 +43,36 @@ public:
                          int * floatPerTriangle
                          );*/
     
-    void    rend        (float * vertexdata,
+    void rendDensity    (float * vertexdata,
                          float * densitydata,
-                         int numtriangles
+                         int numtriangles,
+                         bool isClear = true
                          );
     
-    void close();
+    float * getDensity();
+    
+    //void close();
     
 private:
-    int numOfOutputs_;
+    //int numOfOutputs_;
     
     void init();
     
-    void setOutputFile(
+    /*void setOutputFile(
                        string * outputfiles,
                        int numOfOutputs
-                       );
+                       );*/
     
     int     imagesize_;
     REAL    boxsize_;
 
-    float*  result_;
+    //float*  result_;
     
+    
+    float * density_;
+    float * colorData;
     //the four component of the output color
-    fstream * outputStream_;
+    //fstream * outputStream_;
 
 };
 
