@@ -23,6 +23,10 @@ void writeToDividerFile(string outputBaseName_,
     ss << i;
     string filename = "";
     
+    
+    //printf("File id: %d\n", i);
+    //printf("%d\n", i);
+    
     if(type == INDEXTYPE){
         filename = outputBaseName_ + "."INDEXSUFFIX"." + ss.str();
     }else if(type == POSTYPE){

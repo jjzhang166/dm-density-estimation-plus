@@ -42,10 +42,12 @@ void pushBackParticle(vector<long long> & tempind, vector<float> & temppos,
     vel[blockj][currentParticlesInBuffer[blockj]*3+2]=tempvel[j * 3 + 2];//.push_back(tempvel[j * 3 + 2]);
     currentParticlesInBuffer[blockj] ++;
     //printf("Good2\n");
+    //printf("File id: %d\n", blockj);
+    
     if(currentParticlesInBuffer[blockj] >= partPerBuffer){
         writeToDividerFile(outputbase,
                            INDEXTYPE,
-                           j,
+                           blockj,
                            ios::out | ios::binary | ios::app,
                            ((char *) inds[blockj]),//.data()),
                            sizeof(long long) * currentParticlesInBuffer[blockj]//inds[j].size()
@@ -53,7 +55,7 @@ void pushBackParticle(vector<long long> & tempind, vector<float> & temppos,
         
         writeToDividerFile(outputbase,
                            VELTYPE,
-                           j,
+                           blockj,
                            ios::out | ios::binary | ios::app,
                            ((char *) vel[blockj]),//.data()),
                            sizeof(float) * currentParticlesInBuffer[blockj] * 3//vel[j].size()
@@ -61,7 +63,7 @@ void pushBackParticle(vector<long long> & tempind, vector<float> & temppos,
         
         writeToDividerFile(outputbase,
                            POSTYPE,
-                           j,
+                           blockj,
                            ios::out | ios::binary | ios::app,
                            ((char *) pos[blockj]),//.data()),
                            sizeof(float) * currentParticlesInBuffer[blockj] * 3//pos[j].size()
@@ -148,6 +150,8 @@ int main(int argv, char * args[]){
     
     header = new divide_header[totalfiles];
     
+    
+    //printf("Total files: %d\n", totalfiles);
     //create file
     for(int i = 0; i < totalfiles; i++){
         header[i].totalfiles = totalfiles;
@@ -161,6 +165,8 @@ int main(int argv, char * args[]){
         if(numzPerTrunk >= gridsize - i * numzPerTrunk){
             header[i].numofZgrids = gridsize - i * numzPerTrunk + 1;
         }
+        
+        //printf("File id: %d\n", i);
         
         writeToDividerFile(outputbase,
                     INDEXTYPE,
@@ -227,14 +233,6 @@ int main(int argv, char * args[]){
     ProcessBar bar(nparts, 0);
     bar.start();
     for(int i = 0; i < totalfiles; i++){
-        //for(int j = 0; j < totalfiles; j++){
-            //inds[j].clear();
-            //pos[j].clear();
-            //vel[j].clear();
-        //    currentParticlesInBuffer[j] = 0;
-        //}
-        //memset (currentParticlesInBuffer, 0, sizeof(int) * totalfiles);
-        
         
         
         
@@ -261,41 +259,6 @@ int main(int argv, char * args[]){
             long long blockj = z / numzPerTrunk;
             
             
-            /*inds[currentParticlesInBuffer[blockj]] = tempind[j];//.push_back(tempind[j]);
-            pos[currentParticlesInBuffer[blockj]]=temppos[j * 3 + 0];//.push_back(temppos[j * 3 + 0]);
-            pos[currentParticlesInBuffer[blockj]]=temppos[j * 3 + 1];//.push_back(temppos[j * 3 + 1]);
-            pos[currentParticlesInBuffer[blockj]]=temppos[j * 3 + 2];//.push_back(temppos[j * 3 + 2]);
-            vel[currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 0];//.push_back(tempvel[j * 3 + 0]);
-            vel[currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 1];//.push_back(tempvel[j * 3 + 1]);
-            vel[currentParticlesInBuffer[blockj]]=tempvel[j * 3 + 2];//.push_back(tempvel[j * 3 + 2]);
-            currentParticlesInBuffer[blockj] ++;
-            if(currentParticlesInBuffer[blockj] >= partPerBuffer){
-                writeToDividerFile(outputbase,
-                                   INDEXTYPE,
-                                   j,
-                                   ios::out | ios::binary | ios::app,
-                                   ((char *) inds[j]),//.data()),
-                                   sizeof(long long) * currentParticlesInBuffer[blockj]//inds[j].size()
-                                   );
-                
-                writeToDividerFile(outputbase,
-                                   VELTYPE,
-                                   j,
-                                   ios::out | ios::binary | ios::app,
-                                   ((char *) vel[j]),//.data()),
-                                   sizeof(float) * currentParticlesInBuffer[blockj]//vel[j].size()
-                                   );
-                
-                writeToDividerFile(outputbase,
-                                   POSTYPE,
-                                   j,
-                                   ios::out | ios::binary | ios::app,
-                                   ((char *) pos[j]),//.data()),
-                                   sizeof(float) * currentParticlesInBuffer[blockj]//pos[j].size()
-                                   );
-                                   
-                currentParticlesInBuffer[blockj] = 0;
-            }*/
             pushBackParticle(tempind, temppos, tempvel, tempind[j], j, blockj);
             
             
@@ -308,14 +271,7 @@ int main(int argv, char * args[]){
                     blockj = totalfiles - 1;
                     ind1 = tempind[j] + gridsize * gridsize * gridsize;
                 }
-                /*inds[blockj].push_back(ind1);
-                pos[blockj].push_back(temppos[j * 3 + 0]);
-                pos[blockj].push_back(temppos[j * 3 + 1]);
-                pos[blockj].push_back(temppos[j * 3 + 2]);
-                vel[blockj].push_back(tempvel[j * 3 + 0]);
-                vel[blockj].push_back(tempvel[j * 3 + 1]);
-                vel[blockj].push_back(tempvel[j * 3 + 2]);*/
-                //printf("ok %d %d %ld, %d, %d\n", indsize, j, tempind[j], z, numzPerTrunk);
+                
                 pushBackParticle(tempind, temppos, tempvel, ind1, j, blockj);
             }
         }
@@ -323,6 +279,9 @@ int main(int argv, char * args[]){
         //write the data to file
         for(int j = 0; j < totalfiles; j++){
             //printf("ok %d %d\n", i, j);
+            
+
+            
             header[j].numparts += currentParticlesInBuffer[j];//inds[j].size();
             
             writeToDividerFile(outputbase,
@@ -356,6 +315,7 @@ int main(int argv, char * args[]){
     //int testcont = 0;
     for(int i = 0; i < totalfiles; i++){
         //testcont += header[i].numparts;
+        
         writeToDividerFile(outputbase,
                     INDEXTYPE,
                     i,
