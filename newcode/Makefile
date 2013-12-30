@@ -2,18 +2,32 @@ CC=g++
 LFLAG= -framework Carbon -framework OpenGL -framework GLUT
 #LFLAG=-lGL -lglut -lGLEW
 #LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
-IFLAG=-I /usr/include/GL/ -I./
+IFLAG= -I./
 #IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/
+
+
+
 
 SOURCESFILES=filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 GadgetReader/read_utils.c io_utils.cpp\
-			 processbar.cpp test.cpp \
+			 processbar.cpp \
 			 tetrahedron.cpp indtetrahedron.cpp \
 			 dtetrastream.cpp trislicer.cpp\
-			 triangle.cpp trirender.cpp\
-			 tetracut.cpp triconverter.cpp \
-			 tridens.cpp buffers.cpp densviewer.cpp\
+			 triangle.cpp tetracut.cpp triconverter.cpp \
 			 viewfun.cpp trifile_util.cpp
+
+CPPOBJS= filedivider.o gadgetreader.o read_utils.o io_utils.o\
+		processbar.o tetrahedron.o tetrahedron.o\
+		dtetrastream.o trislicer.o triangle.o tetracut.o\
+		triconverter.o viewfun.o trifile_util.o
+
+GLSOURCESFILES=  trirender.cpp buffers.cpp tridens.cpp\
+				 densviewer.cpp test.cpp 
+
+GLOBJS= trirender.o buffers.o tridens.o densviewer.o test.o 
+
+
+
 
 FILEDIVIER=FileDivider
 TRISLICER=TriSlicer
@@ -21,23 +35,43 @@ TRIRENS=TriDensRender
 DENSVIEWER=DensViewer
 
 
-all: objs
-	$(CC) -o $(FILEDIVIER) filedivider.o io_utils.o \
+FILEDIVIEROBJS= filedivider.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o
-	$(CC) -o $(TRISLICER) trislicer.o io_utils.o \
+
+TRISLICEROBJS= trislicer.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
 			triconverter.o tetracut.o triangle.o trifile_util.o
-	$(CC) -o $(TRIRENS) tridens.o io_utils.o \
+
+RENDEROBJS=  tridens.o io_utils.o \
 			processbar.o gadgetreader.o read_utils.o\
 			tetrahedron.o indtetrahedron.o dtetrastream.o \
 			triconverter.o tetracut.o triangle.o trifile_util.o\
-			buffers.o trirender.o $(LFLAG)
-	$(CC) -o $(DENSVIEWER) densviewer.o viewfun.o $(LFLAG)
+			buffers.o trirender.o 
+
+VIEWEROBJS= densviewer.o viewfun.o 
+
+all: divider slicer render viewer
+
+divider: $(FILEDIVIEROBJS)
+	$(CC) -o $(FILEDIVIER) $(FILEDIVIEROBJS)
+
+slicer:  $(TRISLICEROBJS)
+	$(CC) -o $(TRISLICER) $(TRISLICEROBJS) 
+
+render: $(RENDEROBJS)
+	$(CC) -o $(TRIRENS)  $(RENDEROBJS) $(LFLAG)
+
+viewer: $(VIEWEROBJS)
+	$(CC) -o $(DENSVIEWER) $(VIEWEROBJS) $(LFLAG)
 
 
-objs:
+$(CPPOBJS): $(SOURCESFILES)
 	$(CC) -Wall -c $(SOURCESFILES) $(IFLAG)
+
+$(GLOBJS): $(GLSOURCESFILES)
+	$(CC) -Wall -c $(GLSOURCESFILES) $(IFLAG)
+	
 
 debugobjs:
 	$(CC) -g -pg -Wall -c $(SOURCESFILES) $(IFLAG)
