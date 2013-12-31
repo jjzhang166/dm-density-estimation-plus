@@ -1,14 +1,11 @@
 CC=g++
-LFLAG= -framework Carbon -framework OpenGL -framework GLUT
+#LFLAG= -framework Carbon -framework OpenGL -framework GLUT
 #LFLAG=-lGL -lglut -lGLEW
-#LFLAGS= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
-IFLAG= -I./
-#IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/
+LFLAG= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
+#IFLAG= -I./
+IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/
 
-
-
-
-SOURCESFILES=filedivider.cpp GadgetReader/gadgetreader.cpp \
+SOURCESFILES= filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 GadgetReader/read_utils.c io_utils.cpp\
 			 processbar.cpp \
 			 tetrahedron.cpp indtetrahedron.cpp \
@@ -25,8 +22,6 @@ GLSOURCESFILES=  trirender.cpp buffers.cpp tridens.cpp\
 				 densviewer.cpp test.cpp 
 
 GLOBJS= trirender.o buffers.o tridens.o densviewer.o test.o 
-
-
 
 
 FILEDIVIER=FileDivider
@@ -51,18 +46,18 @@ RENDEROBJS=  tridens.o io_utils.o \
 
 VIEWEROBJS= densviewer.o viewfun.o 
 
-all: divider slicer render viewer
+all: $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER) 
 
-divider: $(FILEDIVIEROBJS)
+$(FILEDIVIER) divider: $(FILEDIVIEROBJS)
 	$(CC) -o $(FILEDIVIER) $(FILEDIVIEROBJS)
 
-slicer:  $(TRISLICEROBJS)
+$(TRISLICER) slicer:  $(TRISLICEROBJS)
 	$(CC) -o $(TRISLICER) $(TRISLICEROBJS) 
 
-render: $(RENDEROBJS)
+$(TRIRENS) render: $(RENDEROBJS)
 	$(CC) -o $(TRIRENS)  $(RENDEROBJS) $(LFLAG)
 
-viewer: $(VIEWEROBJS)
+$(DENSVIEWER) viewer: $(VIEWEROBJS)
 	$(CC) -o $(DENSVIEWER) $(VIEWEROBJS) $(LFLAG)
 
 
