@@ -1,0 +1,9 @@
+Raster3:
+    The new algorithm, including CUDA and OpenGL, they both have the same function for different platform to use. The OpenGL version could be used very easily on MACOS, if you don't have CUDA installed. The CUDA version could be used on the GPU server.
+
+
+Titile: LTFERenGL: a GPU based Lagrangian tessellation density estimator
+
+Abstract:
+    In cosmological simulation, estimate density field is always a crucial task. With only gravitional interaction, pure dark matter N-body simulation preserves phase-space volume and the connectivity of nearby particles. Lagrangian tessellation (LT) tessellates the whole volume into tetrahedra with partile and the neighborghhood in the initial condition as vertices and thus is of great importance to obtain well defined density field and velocity filed. LTFERenGL is a OpenGL based program that calculates density/velocity field from GADGET2 file in a very fast mannor. It impelements a 3D renderer that renders tetrahedra from LT to a sampling grid with speed up to millions per second. It also provides simple interfaces for other program to use.
+ 

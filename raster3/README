@@ -1,9 +1,0 @@
-A single slide render: -o renddens (obsolete)
-    main.cpp buffers.cpp isoplane.cpp render.cpp
-
-(use this one!!!!)
-3D-rasterizer: -o zdensrender
-    denrender.cpp cutzdens.cpp
-
-Density Viewer:
-    viewfun.cpp densviewer.cpp
