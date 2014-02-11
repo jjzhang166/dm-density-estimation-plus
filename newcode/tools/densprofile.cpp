@@ -50,7 +50,7 @@ int main(int argc, const char **argv){
     //bool isMultFiles = false;
     int parttype = 1;
     
-    int64_t bufferSize = 64*64*64;
+    int64_t bufferSize = 256*256*256;
     
     int m=1;
     while (m<argc)
@@ -145,10 +145,10 @@ int main(int argc, const char **argv){
     while(cts < numTotalParts){
         vector<float> temppos = snap.GetBlock("POS ", bufferSize, cts, ignorecode);
         vector<float> tempvel = snap.GetBlock("VEL ", bufferSize, cts, ignorecode);
-        cts += temppos.size();
+        cts += temppos.size() / 3;
         
-        //printf("%d\n", cts);
-        for(int i = 0; i < temppos.size(); i++){
+        //printf("%lld\n", cts);
+        for(int i = 0; i < temppos.size() / 3; i++){
             //printf("Ok %d\n", i);
             double rx = temppos[3 * i + 0] - x;
             double ry = temppos[3 * i + 1] - y;
