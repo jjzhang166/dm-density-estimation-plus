@@ -4,6 +4,7 @@
 // v = \sum(m_i*(v_i \cdot \hat{r})) / \sum{m_i}
 
 #include <sstream>
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -148,6 +149,7 @@ int main(int argc, const char **argv){
         cts += temppos.size() / 3;
         
         fprintf(stderr, ".");
+        cerr.flush();
         for(unsigned int i = 0; i < temppos.size() / 3; i++){
             //printf("Ok %d\n", i);
             double rx = temppos[3 * i + 0] - x;
