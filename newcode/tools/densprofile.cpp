@@ -115,7 +115,17 @@ int main(int argc, const char **argv){
     
     GSnap snap(filename, false);
     
-    int64_t numTotalParts = snap.GetNpart(1);
+    
+    if(!snap.IsBlock("POS ")){
+        printf("No Position Block!\n");
+        exit(1);
+    }
+    if(!snap.IsBlock("VEL ")){
+        printf("No Velocity Block!\n");
+        exit(1);
+    }
+    
+    int64_t numTotalParts = snap.GetNpart(parttype);
     //int gridsize = pow(numTotalParts, 1/3);
     double mass = snap.GetHeader().mass[1];
     
@@ -137,9 +147,9 @@ int main(int argc, const char **argv){
         vector<float> tempvel = snap.GetBlock("VEL ", bufferSize, cts, ignorecode);
         cts += temppos.size();
         
-        printf("%d\n", cts);
+        //printf("%d\n", cts);
         for(int i = 0; i < temppos.size(); i++){
-            printf("Ok %d\n", i);
+            //printf("Ok %d\n", i);
             double rx = temppos[3 * i + 0] - x;
             double ry = temppos[3 * i + 1] - y;
             double rz = temppos[3 * i + 2] - z;
@@ -152,7 +162,7 @@ int main(int argc, const char **argv){
             //printf("%f %f %f %f\n", rx, ry, rz, r);
             if((r < radius)){
                 int ind = r / dr;
-                printf("ind %d\n", ind);
+                //printf("ind %d\n", ind);
                 velbins[ind] += mass *
                         (tempvel[3 * i + 0] * rx +
                          tempvel[3 * i + 1] * ry +
