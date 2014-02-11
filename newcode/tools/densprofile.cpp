@@ -4,6 +4,8 @@
 // v = \sum(m_i*(v_i \cdot \hat{r})) / \sum{m_i}
 
 #include <sstream>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <cmath>
 #include <cstring>
