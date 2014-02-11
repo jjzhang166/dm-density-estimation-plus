@@ -148,7 +148,7 @@ int main(int argc, const char **argv){
         cts += temppos.size() / 3;
         
         fprintf(stderr, ".");
-        for(int i = 0; i < temppos.size() / 3; i++){
+        for(unsigned int i = 0; i < temppos.size() / 3; i++){
             //printf("Ok %d\n", i);
             double rx = temppos[3 * i + 0] - x;
             double ry = temppos[3 * i + 1] - y;
