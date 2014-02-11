@@ -147,7 +147,7 @@ int main(int argc, const char **argv){
         vector<float> tempvel = snap.GetBlock("VEL ", bufferSize, cts, ignorecode);
         cts += temppos.size() / 3;
         
-        //printf("%lld\n", cts);
+        fprintf(stderr, ".");
         for(int i = 0; i < temppos.size() / 3; i++){
             //printf("Ok %d\n", i);
             double rx = temppos[3 * i + 0] - x;
@@ -178,7 +178,7 @@ int main(int argc, const char **argv){
             }
         }
     }
-    
+    fprintf(stderr, "\n");
     
     printf("Radius, Velocity, Density, Mass, Counts\n");
     for(int i = 0; i < numbins; i++){
