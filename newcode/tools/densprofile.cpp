@@ -125,7 +125,7 @@ int main(int argc, const char **argv){
     fprintf(stderr, "x y z: %f %f %f \n", x, y, z);
     fprintf(stderr, "Num of Particles: %lld\n", numTotalParts);
     fprintf(stderr, "BoxSize: %f\n", snap.GetHeader().BoxSize);
-    
+    fprintf(stderr, "Num Files: %d\n", snap.GetNumFiles()); 
     
     dr = radius / numbins;
     
@@ -137,8 +137,9 @@ int main(int argc, const char **argv){
         vector<float> tempvel = snap.GetBlock("VEL ", bufferSize, cts, ignorecode);
         cts += temppos.size();
         
+        printf("%d\n", cts);
         for(int i = 0; i < temppos.size(); i++){
-            
+            printf("Ok %d\n", i);
             double rx = temppos[3 * i + 0] - x;
             double ry = temppos[3 * i + 1] - y;
             double rz = temppos[3 * i + 2] - z;
@@ -151,6 +152,7 @@ int main(int argc, const char **argv){
             //printf("%f %f %f %f\n", rx, ry, rz, r);
             if((r < radius)){
                 int ind = r / dr;
+                printf("ind %d\n", ind);
                 velbins[ind] += mass *
                         (tempvel[3 * i + 0] * rx +
                          tempvel[3 * i + 1] * ry +
