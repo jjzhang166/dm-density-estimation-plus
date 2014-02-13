@@ -106,12 +106,6 @@ int main(int argv, char * args[]){
         exit(1);
     }
     
-    
-    /*TriDenRender render(imageSize,
-                        reader.getHeader().boxSize,
-                        outputfilename,
-                        numOfOutputs
-                        );*/
     TriDenRender render(imageSize,
                         reader.getHeader().boxSize
                         );
@@ -122,8 +116,6 @@ int main(int argv, char * args[]){
         exit(1);
     }
 
-    //printf("ImageSize: %d", imageSize);
-    
     
     
     if(numOfOutputs != 1 || (compSuffix[0] != DENFILESUFFIX)){

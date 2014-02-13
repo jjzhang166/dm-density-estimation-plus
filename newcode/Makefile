@@ -44,9 +44,19 @@ RENDEROBJS=  tridens.o io_utils.o \
 			triconverter.o tetracut.o triangle.o trifile_util.o\
 			buffers.o trirender.o 
 
+CICOBJS= cic.o
+CICSRC= cic.cpp
+
 VIEWEROBJS= densviewer.o viewfun.o 
 
 all: $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER) 
+
+cic:
+	 swig -python -c++ -o _cicswigwrapper_module.cc cicswig.i
+	      python setup.py build_ext --inplace
+
+$(CICOBJS): $(CICSRC)
+	$(CC) -c $(CICSRC)
 
 $(FILEDIVIER) divider: $(FILEDIVIEROBJS)
 	$(CC) -o $(FILEDIVIER) $(FILEDIVIEROBJS)
@@ -97,5 +107,7 @@ clean:
 	rm -fr $(TRIRENS)
 	rm -fr $(DENSVIEWER)
 	rm -fr readtest
-
+	rm -fr _cicswigwrapper_module.cc
+	rm -fr _cicswigwrapper.so
+	rm -fr cic.py
 
