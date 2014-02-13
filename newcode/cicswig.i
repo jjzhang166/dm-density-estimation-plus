@@ -1,4 +1,4 @@
-%module cic
+%module cicpy
 
 %{
 #include <stdlib.h>
@@ -7,4 +7,8 @@
 #include "cic.h"
 %}
 
+%include "carrays.i"
 %include "cic.h"
+
+#double array, use this one to wap the array
+%array_class(double, dArray);

@@ -36,30 +36,5 @@ private:
 };
 
 
-/*// python wrapper
-extern "C" {
-    CIC* CIC_new(double boxSize, int gridsize, bool isVelocityField){
-        return new CIC(boxSize, gridsize, isVelocityField);
-    };
-    
-    void CIC_render_particle(CIC* cic, double * pos,
-                         double * vel, int numParts,
-                         double mass){
-        cic->render_particle(pos, vel, numParts, mass);
-    };
-    
-    double * CIC_getDensityField(CIC * cic){
-        return cic->getDensityField();
-    };
-    double * CIC_getVelocityXField(CIC * cic){
-        return cic->getVelocityXField();
-    };
-    double * CIC_getVelocityYField(CIC * cic){
-        return cic->getVelocityYField();
-    };
-    double * CIC_getVelocityZField(CIC * cic){
-        return cic->getVelocityZField();
-    };
-}*/
 
 #endif

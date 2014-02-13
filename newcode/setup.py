@@ -1,5 +1,8 @@
 from distutils.core import setup, Extension
 
-extension_mod = Extension("_cicswigwrapper", ["_cicswigwrapper_module.cc", "cic.cpp"])
+extension_mod = Extension("_cicpy", ["_cicswigwrapper_module.cc", "cic.cpp"])
 
-setup(name = "CIC", ext_modules=[extension_mod])
+setup(name = "cicpy", ext_modules=[extension_mod])
+
+extension_mod = Extension("_GADGETPy", ["_gadgetswigwrapper_module.cc", "GadgetReader/gadgetreader.cpp"])
+setup(name = "GADGETPy", ext_modules=[extension_mod])

@@ -53,7 +53,8 @@ all: cic $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER)
 
 cic:
 	 swig -python -c++ -o _cicswigwrapper_module.cc cicswig.i
-	      python setup.py build_ext --inplace
+	 swig -python -c++ -o _gadgetswigwrapper_module.cc GADGETSwig.i
+	 python setup.py build_ext --inplace
 
 $(CICOBJS): $(CICSRC)
 	$(CC) -c $(CICSRC)
@@ -101,7 +102,7 @@ test: objs
 			tetrahedron.o indtetrahedron.o dtetrastream.o
 
 clean:
-	rm -fr *.o
+	rm -fr *.o *.so
 	rm -fr $(FILEDIVIER)
 	rm -fr $(TRISLICER)
 	rm -fr $(TRIRENS)
@@ -109,5 +110,7 @@ clean:
 	rm -fr readtest
 	rm -fr _cicswigwrapper_module.cc
 	rm -fr _cicswigwrapper.so
-	rm -fr cic.py
-
+	rm -fr cicpy.py
+	rm -fr cicpy.pyc
+	rm -fr _gadgetswigwrapper_module.cc
+	rm -fr GADGETPy.py 
