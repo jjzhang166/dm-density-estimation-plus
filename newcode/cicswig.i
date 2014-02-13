@@ -12,3 +12,5 @@
 
 #double array, use this one to wap the array
 %array_class(double, dArray);
+
+%include "array_util.i"

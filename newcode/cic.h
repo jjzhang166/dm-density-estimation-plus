@@ -4,6 +4,7 @@
 class CIC{
 public:
     CIC(double boxSize, int gridsize, bool isVelocityField = false);
+    ~CIC();
     
     // render a single particle into the mesh
     void render_particle(double * pos, double * vel, double mass = 1.0);
@@ -19,7 +20,7 @@ public:
     
 private:
     double boxSize_;
-    double mass_;
+    //double mass_;
     double dx_;
     int gridsize_;
     bool isVelocityField_;

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 #include <cmath>
 #include "cic.h"
 
@@ -19,8 +20,19 @@ CIC::CIC(double boxSize, int gridsize, bool isVelocityField){
         velocityYField = new double[gridsize * gridsize * gridsize];
         velocityZField = new double[gridsize * gridsize * gridsize];
     }
+    
+    clearGrid();
 }
 
+CIC::~CIC(){
+    delete[] densityField;
+    
+    if(isVelocityField_){
+        delete velocityXField;
+        delete velocityYField;
+        delete velocityZField;
+    }
+}
 void CIC::clearGrid(){
     memset((char *) densityField, 0,
            sizeof(double) * gridsize_ * gridsize_ * gridsize_);
@@ -71,6 +83,7 @@ void CIC::render_particle(double * pos, double * vel, double mass){
 void CIC::render_particle(double * pos, double * vel, int numParts,
                           double mass){
     for(int i = 0; i < numParts; i++){
+        //printf("%d\n", i);
         render_particle(pos + i * 3, vel + i * 3, mass);
     }
 }
@@ -90,3 +103,28 @@ double * CIC::getVelocityYField(){
 double * CIC::getVelocityZField(){
     return velocityZField;
 }
+
+
+//test
+/*int main(){
+    double pos[3000];
+    for(int i = 0; i < 1000; i++){
+        int x = i % 10;
+        int y = i / 10 % 10;
+        int z = i / 100 % 10;
+        
+        pos[i * 3 + 0] = x;
+        pos[i * 3 + 1] = y;
+        pos[i * 3 + 2] = z;
+    }
+    
+    CIC cic(10, 10);
+    
+    cic.render_particle(pos, NULL, 1000);
+    
+    double * dens = cic.getDensityField();
+    for(int i = 0; i < 1000; i++){
+        printf("%f\n", dens[i]);
+    }
+    
+}*/
