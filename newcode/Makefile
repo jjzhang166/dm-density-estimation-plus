@@ -49,7 +49,7 @@ CICSRC= cic.cpp
 
 VIEWEROBJS= densviewer.o viewfun.o 
 
-all: $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER) 
+all: cic $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER) 
 
 cic:
 	 swig -python -c++ -o _cicswigwrapper_module.cc cicswig.i
