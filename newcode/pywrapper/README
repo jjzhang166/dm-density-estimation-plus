@@ -1,0 +1,6 @@
+This folder contains the python wrapper for the GADGET reader and CIC estimator.
+To build:
+    make
+
+Example is shown in:
+    example.py
