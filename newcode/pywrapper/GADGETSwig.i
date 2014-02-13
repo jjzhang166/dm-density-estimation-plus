@@ -9,8 +9,8 @@
 #include <cmath>
 #include <cstring>
 #include <vector>
-#include "GadgetReader/gadgetreader.hpp"
-#include "GadgetReader/gadgetheader.h"
+#include "../GadgetReader/gadgetreader.hpp"
+#include "../GadgetReader/gadgetheader.h"
 %}
 
 %include <typemaps.i>
@@ -34,8 +34,8 @@
     $result = PyInt_FromLong($1);
 }
 
-%include "GadgetReader/gadgetheader.h"
-%include "GadgetReader/gadgetreader.hpp"
+%include "../GadgetReader/gadgetheader.h"
+%include "../GadgetReader/gadgetreader.hpp"
 
 #double array, use this one to wap the array
 %array_class(double, dArray);

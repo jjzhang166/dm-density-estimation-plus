@@ -51,12 +51,12 @@ VIEWEROBJS= densviewer.o viewfun.o
 
 all: cic $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER) 
 
-cic:
+cicpy: $(CICOBJS)
 	 swig -python -c++ -o _cicswigwrapper_module.cc cicswig.i
 	 swig -python -c++ -o _gadgetswigwrapper_module.cc GADGETSwig.i
 	 python setup.py build_ext --inplace
 
-$(CICOBJS): $(CICSRC)
+$(CICOBJS), cic: $(CICSRC)
 	$(CC) -c $(CICSRC)
 
 $(FILEDIVIER) divider: $(FILEDIVIEROBJS)

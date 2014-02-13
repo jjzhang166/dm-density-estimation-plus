@@ -6,6 +6,8 @@
 
 using namespace std;
 
+#define clamp(a, amin, amax) ((a)>(amax)?(amax):((a) < (amin)? (amin):(a)))
+
 CIC::CIC(double boxSize, int gridsize, bool isVelocityField){
     boxSize_ = boxSize;
     gridsize_ = gridsize;
@@ -51,18 +53,19 @@ void CIC::clearGrid(){
 
 void CIC::addToGridCells(double * grids, double * pos, double value){
     double dx = dx_;
-    int indxmin = (int) floor((pos[0] - dx / 2.0) / dx);
-    int indymin = (int) floor((pos[1] - dx / 2.0) / dx);
-    int indzmin = (int) floor((pos[2] - dx / 2.0) / dx);
+    int indxmin = clamp((int) floor((pos[0] - dx / 2.0) / dx), 0, gridsize_);
+    int indymin = clamp((int) floor((pos[1] - dx / 2.0) / dx), 0, gridsize_);
+    int indzmin = clamp((int) floor((pos[2] - dx / 2.0) / dx), 0, gridsize_);
     
-    int indxmax = (int) ceil((pos[0] + dx / 2.0) / dx);
-    int indymax = (int) ceil((pos[1] + dx / 2.0) / dx);
-    int indzmax = (int) ceil((pos[2] + dx / 2.0) / dx);
+    int indxmax = clamp((int) ceil((pos[0] + dx / 2.0) / dx), 0, gridsize_);
+    int indymax = clamp((int) ceil((pos[1] + dx / 2.0) / dx), 0, gridsize_);
+    int indzmax = clamp((int) ceil((pos[2] + dx / 2.0) / dx), 0, gridsize_);
     
     for(int i = indxmin; i < indxmax; i++){
         for(int j = indymin; j < indymax; j++){
             for(int k = indzmin; k < indzmax; k++){
-                int ind = i + j * gridsize_ + k * gridsize_ * gridsize_;
+                int ind = clamp(i + j * gridsize_ + k * gridsize_ * gridsize_,
+                                0, gridsize_*gridsize_*gridsize_ - 1);
                 grids[ind] += value;
             }
         }
