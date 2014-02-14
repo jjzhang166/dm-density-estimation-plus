@@ -7,7 +7,7 @@
 using namespace std;
 
 #define clamp(a, amin, amax) ((a)>(amax)?(amax):((a) < (amin)? (amin):(a)))
-#define clampPeriod(a, per) ((a)>(per)?(a - per):((a) < (0)? (a + per):(a)))
+#define clampPeriod(a, per) ((a)>=(per)?(a - per):((a) < (0)? (a + per):(a)))
 
 
 CIC::CIC(double boxSize, int gridsize, bool isVelocityField){
@@ -70,8 +70,7 @@ void CIC::addToGridCells(double * grids, double * pos, double value){
                 int jx = clampPeriod(j, gridsize_);
                 int kx = clampPeriod(k, gridsize_);
                 
-                int ind = clamp(ix + jx * gridsize_ + kx * gridsize_ * gridsize_,
-                                0, gridsize_*gridsize_*gridsize_ - 1);
+                int ind = clampPeriod(ix + jx * gridsize_ + kx * gridsize_ * gridsize_, gridsize_*gridsize_*gridsize_);
                 
                 //printf("%d %d %d %d %d %d %d\n", i, ix, j, jx, k, kx, ind);
                 grids[ind] += value;
@@ -81,7 +80,9 @@ void CIC::addToGridCells(double * grids, double * pos, double value){
 }
 
 void CIC::render_particle(double * pos, double * vel, double mass){
-    double partrho = mass / (dx_ * dx_ * dx_);
+    // each particle's density is 1/8 of a cell
+    double partrho = mass / (dx_ * dx_ * dx_) / 8.0;
+    
     addToGridCells(densityField, pos, partrho);
     
     if(isVelocityField_){

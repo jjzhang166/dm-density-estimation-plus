@@ -77,7 +77,6 @@ void savefile(DtetraStream &streamer){
         printf("Output error!\n");
         exit(1);
     }
-    //printf("ok3\n");
     
     //triangleConverter.setOutput(typeCode);
     
