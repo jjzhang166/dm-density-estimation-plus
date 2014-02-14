@@ -5,7 +5,7 @@
 
 namespace std {
     %template(vectori) vector<int>;
-    %template(vectorl) vector<long int>;
+    #%template(vectorl) vector<long int>;
     %template(vectord) vector<double>;
     %template(vectorf) vector<float>;
     %template(vectori64) vector<int64_t>;
@@ -14,8 +14,8 @@ namespace std {
 };
 
 %inline %{
-    std::vector<long int> getInt64Array(int64_t * array, long int num){
-        std::vector<long int> a;
+    std::vector<long long int> getInt64Array(int64_t * array, long int num){
+        std::vector<long long int> a;
         for(int i = 0; i < num; i++){
             a.push_back(array[i]);
         }
