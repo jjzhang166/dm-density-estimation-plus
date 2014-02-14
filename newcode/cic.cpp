@@ -7,6 +7,8 @@
 using namespace std;
 
 #define clamp(a, amin, amax) ((a)>(amax)?(amax):((a) < (amin)? (amin):(a)))
+#define clampPeriod(a, per) ((a)>(per)?(a - per):((a) < (0)? (a + per):(a)))
+
 
 CIC::CIC(double boxSize, int gridsize, bool isVelocityField){
     boxSize_ = boxSize;
@@ -53,19 +55,25 @@ void CIC::clearGrid(){
 
 void CIC::addToGridCells(double * grids, double * pos, double value){
     double dx = dx_;
-    int indxmin = clamp((int) floor((pos[0] - dx / 2.0) / dx), 0, gridsize_);
-    int indymin = clamp((int) floor((pos[1] - dx / 2.0) / dx), 0, gridsize_);
-    int indzmin = clamp((int) floor((pos[2] - dx / 2.0) / dx), 0, gridsize_);
+    int indxmin = ((int) floor((pos[0] - dx / 2.0) / dx));
+    int indymin = ((int) floor((pos[1] - dx / 2.0) / dx));
+    int indzmin = ((int) floor((pos[2] - dx / 2.0) / dx));
     
-    int indxmax = clamp((int) ceil((pos[0] + dx / 2.0) / dx), 0, gridsize_);
-    int indymax = clamp((int) ceil((pos[1] + dx / 2.0) / dx), 0, gridsize_);
-    int indzmax = clamp((int) ceil((pos[2] + dx / 2.0) / dx), 0, gridsize_);
+    int indxmax = ((int) ceil((pos[0] + dx / 2.0) / dx));
+    int indymax = ((int) ceil((pos[1] + dx / 2.0) / dx));
+    int indzmax = ((int) ceil((pos[2] + dx / 2.0) / dx));
     
     for(int i = indxmin; i < indxmax; i++){
         for(int j = indymin; j < indymax; j++){
             for(int k = indzmin; k < indzmax; k++){
-                int ind = clamp(i + j * gridsize_ + k * gridsize_ * gridsize_,
+                int ix = clampPeriod(i, gridsize_);
+                int jx = clampPeriod(j, gridsize_);
+                int kx = clampPeriod(k, gridsize_);
+                
+                int ind = clamp(ix + jx * gridsize_ + kx * gridsize_ * gridsize_,
                                 0, gridsize_*gridsize_*gridsize_ - 1);
+                
+                //printf("%d %d %d %d %d %d %d\n", i, ix, j, jx, k, kx, ind);
                 grids[ind] += value;
             }
         }
@@ -127,7 +135,7 @@ double * CIC::getVelocityZField(){
     
     double * dens = cic.getDensityField();
     for(int i = 0; i < 1000; i++){
-        printf("%f\n", dens[i]);
+       printf("%f\n", dens[i]);
     }
     
 }*/

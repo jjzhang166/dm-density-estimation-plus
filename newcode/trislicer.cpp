@@ -119,9 +119,9 @@ void savefile(DtetraStream &streamer){
                     //output
                     int *f_inds = new int[triangleConverter.getTotalTriangles()];
                     int *planetris = triangleConverter.getNumTrisInPlanes();
-                    vector<int> trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
-                    vector<float> vertexData_ = triangleConverter.getVertex();
-                    vector<float> densityData_ = triangleConverter.getDensity();
+                    vector<int> &trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
+                    vector<float> &vertexData_ = triangleConverter.getVertex();
+                    vector<float> &densityData_ = triangleConverter.getDensity();
                     
                     twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
                     //currentTriIdPlane[0] = 0;
