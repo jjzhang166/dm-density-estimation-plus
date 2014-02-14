@@ -14,4 +14,5 @@ clean:
 	rm -fr cicpy.pyc
 	rm -fr _gadgetswigwrapper_module.cc
 	rm -fr GADGETPy.py
+	rm -fr *.pyc
 	rm -fr build	
