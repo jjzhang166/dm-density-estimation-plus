@@ -29,6 +29,14 @@ public:
     char other[256 - 4 - 4 - 8 - 4 - 8];
 };*/
 
+//type of the files
+const int VELX =  0x01;
+const int VELY =  0x02;
+const int VELZ =  0x04;
+const int POS  =  0x08;
+const int DENS =  0x10;
+
+
 class TriHeader{
 public:
     int32_t NumBlocks;      //how many blocks in this file
@@ -39,7 +47,9 @@ public:
 	double boxSize;         //what's the box size
     double startZ;          //what's the star Z coordinates
     double dz;              //what's the end Z coordinates
-    char other[256 - (4 * 3 + 8 * 5) ];
+    
+    int fileType;           //that is the file type
+    char other[256 - (4 * 3 + 8 * 5 + 4)];
 };
 
 class TriBlockHeader{

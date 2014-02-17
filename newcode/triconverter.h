@@ -16,12 +16,6 @@ using namespace std;
 class TriConverter{
 public:
     
-    static const int VELX;
-    static const int VELY;
-    static const int VELZ;
-    static const int DENS;
-    static const int POS;
-    
             TriConverter        ( int imagesize,
                                   float boxsize,
                                   int maxNumTriangles = 1024*1024

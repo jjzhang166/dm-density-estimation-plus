@@ -24,11 +24,13 @@ bool isRedShiftDist = false;
 Point redshiftAxis;
 int typeCode = 0x00;
 
+/*
 const int VELX =  0x01;
 const int VELY =  0x02;
 const int VELZ =  0x04;
 const int POS  =  0x08;
 const int DENS =  0x10;
+ */
 
 bool isPosition_ = true;
 bool isDensity_ = true;
@@ -179,18 +181,18 @@ int main(int argv, char * args[]){
                 ss >> imageSize;
             }else if(strcmp(args[k], "-pos") == 0){
                 k --;
-                typeCode = typeCode | TriConverter::POS;
+                typeCode = typeCode | POS;
             }else if(strcmp(args[k], "-dens") == 0){
-                typeCode = typeCode | TriConverter::DENS;
+                typeCode = typeCode | DENS;
                 k --;
             }else if(strcmp(args[k], "-velx") == 0){
-                typeCode = typeCode | TriConverter::VELX;
+                typeCode = typeCode | VELX;
                 k --;
             }else if(strcmp(args[k], "-vely") == 0){
-                typeCode = typeCode | TriConverter::VELY;
+                typeCode = typeCode | VELY;
                 k --;
             }else if(strcmp(args[k], "-velz") == 0){
-                typeCode = typeCode | TriConverter::VELZ;
+                typeCode = typeCode | VELZ;
                 k --;
             }else if(strcmp(args[k], "-redshift") == 0){
                 float r_x, r_y, r_z;

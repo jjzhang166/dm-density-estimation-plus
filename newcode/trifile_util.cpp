@@ -1,12 +1,13 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <cstdlib>
 #include "trifile_util.h"
 
 
 using namespace std;
 
-TrifileWriter::TrifileWriter(TriHeader header){
+TrifileWriter::TrifileWriter(TriHeader header, bool isVelocity){
     header_ = header;
     header_.NumBlocks = 0;
     header_.TotalTriangles = 0;
@@ -22,6 +23,18 @@ TrifileWriter::TrifileWriter(TriHeader header){
     
     numBlocks_ = 0;
     basename_ = "";
+    
+    isVelocity_ = isVelocity;
+    
+    
+    cBufferSize_ = 0;
+    
+    densSorted = NULL;
+    vertexSorted = NULL;
+    velxSorted = NULL;
+    velySorted = NULL;
+    velzSorted = NULL;
+    outputinds = NULL;
 }
 
 TrifileWriter::~TrifileWriter(){
@@ -30,17 +43,42 @@ TrifileWriter::~TrifileWriter(){
     delete[] numTrianglesPerPlane_;
     delete[] zCoorPlane_;
     delete[] numTrianglesPerPlaneCurrentBlock_;
+    
+    if(outputinds != NULL){
+        free(outputinds);
+    }
+    if(densSorted != NULL){
+        free(densSorted);
+    }
+    if(vertexSorted != NULL){
+        free(vertexSorted);
+    }
+    if(velxSorted != NULL){
+        free(velxSorted);
+    }
+    if(velySorted != NULL){
+        free(velySorted);
+    }
+    if(velzSorted != NULL){
+        free(velzSorted);
+    }
 }
 
 
 //open the file and prepare the file for writing
 void TrifileWriter::open(std::string basename){
     
-    
     string vertfn = basename + "."TRIFILESUFFIX"."VERTEXFILESUFFIX;
     string densfn = basename + "."TRIFILESUFFIX"."DENSITYFILESUFFIX;
+    string velxfn = basename + "."TRIFILESUFFIX"."VELXFILESUFFIX;
+    string velyfn = basename + "."TRIFILESUFFIX"."VELYFILESUFFIX;
+    string velzfn = basename + "."TRIFILESUFFIX"."VELZFILESUFFIX;
+    
     vertexFileStream_.open(vertfn.c_str(), ios::binary | ios::out);
     densityFileStream_.open(densfn.c_str(), ios::binary | ios::out);
+    
+
+    
     vertexFileStream_.write((char *) & header_, sizeof(header_));
     densityFileStream_.write((char *) & header_, sizeof(header_));
     
@@ -53,25 +91,62 @@ void TrifileWriter::open(std::string basename){
     densityFileStream_.write((char *) numTrianglesPerPlane_, sizeof(int) * header_.numOfZPlanes);
     densityFileStream_.write((char *) zCoorPlane_, sizeof(float) * header_.numOfZPlanes);
     
+    
+    if(isVelocity_){
+        
+        velxFileStream_.open(velxfn.c_str(), ios::binary | ios::out);
+        velyFileStream_.open(velyfn.c_str(), ios::binary | ios::out);
+        velzFileStream_.open(velzfn.c_str(), ios::binary | ios::out);
+        
+        velxFileStream_.write((char *) & header_, sizeof(header_));
+        velxFileStream_.write((char *) numTrianglesPerPlane_, sizeof(int) * header_.numOfZPlanes);
+        velxFileStream_.write((char *) zCoorPlane_, sizeof(float) * header_.numOfZPlanes);
+        
+        velyFileStream_.write((char *) & header_, sizeof(header_));
+        velyFileStream_.write((char *) numTrianglesPerPlane_, sizeof(int) * header_.numOfZPlanes);
+        velyFileStream_.write((char *) zCoorPlane_, sizeof(float) * header_.numOfZPlanes);
+        
+        velzFileStream_.write((char *) & header_, sizeof(header_));
+        velzFileStream_.write((char *) numTrianglesPerPlane_, sizeof(int) * header_.numOfZPlanes);
+        velzFileStream_.write((char *) zCoorPlane_, sizeof(float) * header_.numOfZPlanes);
+    }
+    
 }
 
 bool TrifileWriter::isOpen(){
-    return vertexFileStream_.is_open() && densityFileStream_.is_open();
+    if(! isVelocity_)
+        return vertexFileStream_.is_open() && densityFileStream_.is_open();
+    else{
+        return vertexFileStream_.is_open() && densityFileStream_.is_open()
+        && velxFileStream_.is_open() && velyFileStream_.is_open()
+        && velzFileStream_.is_open();
+    }
 }
 
 bool TrifileWriter::good(){
-    return vertexFileStream_.good() && vertexFileStream_.good();
+    if(! isVelocity_)
+        return vertexFileStream_.good() && vertexFileStream_.good();
+    else{
+        return vertexFileStream_.good() && densityFileStream_.good()
+        && velxFileStream_.good() && velyFileStream_.good()
+        && velzFileStream_.good();
+    }
 }
 
+// deprecated
 void TrifileWriter::write(int * trianglesPerPlane,
                           vector<int> & trianglePlaneIds_,
                           vector<float> & vertexData_,
                           vector<float> & densityData_){
+    write(trianglesPerPlane,
+          & trianglePlaneIds_,
+          & vertexData_,
+          & densityData_);
     
-    memset(numTrianglesPerPlaneCurrentBlock_, 0, sizeof(int) * header_.numOfZPlanes);
+    /*memset(numTrianglesPerPlaneCurrentBlock_, 0, sizeof(int) * header_.numOfZPlanes);
     header_.NumBlocks ++;
     
-    int * outputinds = new int[trianglePlaneIds_.size()];
+    outputinds = new int[trianglePlaneIds_.size()];
     int numOfTrisCurrentPlane = trianglesPerPlane[0];
     numTrianglesPerPlane_[0] += trianglesPerPlane[0];
     numTrianglesPerPlaneCurrentBlock_[0] = 0;
@@ -100,18 +175,164 @@ void TrifileWriter::write(int * trianglesPerPlane,
     for(unsigned int m = 0; m < trianglePlaneIds_.size(); m++){
         vertexFileStream_.write((char *) (vertexData_.data() + outputinds[m] * 6), sizeof(float) * 6);
         densityFileStream_.write((char *) (densityData_.data() + outputinds[m]), sizeof(float));
-        /*if(trianglePlaneIds_[outputinds[m]] == 0){
-            printf("Vert: %d %f %f %f %f %f %f\n", m, vertexData_[outputinds[m] * 6 + 0],
-               vertexData_[outputinds[m] * 6 + 1],
-               vertexData_[outputinds[m] * 6 + 2],
-               vertexData_[outputinds[m] * 6 + 3],
-               vertexData_[outputinds[m] * 6 + 4],
-               vertexData_[outputinds[m] * 6 + 5]);
-            printf("Dens: %e\n", densityData_[outputinds[m]]);
-        }*/
+    }
+    
+    delete[] outputinds;*/
+    
+}
+
+
+
+void TrifileWriter::write(int * trianglesPerPlane,
+                          std::vector<int> * trianglePlaneIds_,
+                          std::vector<float> * vertexData_,
+                          std::vector<float> * densityData_){
+    
+    //printf("Ok1\n");
+    setTrisPerPlane(trianglesPerPlane, *trianglePlaneIds_);
+    //printf("Ok2\n");
+    
+    //float * densSorted = new float[densityData_->size()];
+    //float * vertexSorted = new float[vertexData_->size()];
+    if(cBufferSize_ < trianglePlaneIds_->size()){
+        densSorted = (float *) realloc(densSorted, sizeof(float) * densityData_->size());
+        vertexSorted = (float *) realloc(vertexSorted, sizeof(float) * vertexData_->size());
+        
+        cBufferSize_ = trianglePlaneIds_->size();
+    }
+    
+    
+    for(unsigned int m = 0; m < trianglePlaneIds_->size(); m++){
+        //vertexFileStream_.write((char *) (vertexData_.data() + outputinds[m] * 6), sizeof(float) * 6);
+        //densityFileStream_.write((char *) (densityData_.data() + outputinds[m]), sizeof(float));
+        densSorted[m] = (*densityData_)[outputinds[m]];
+        vertexSorted[m * 6 + 0] =(*vertexData_)[outputinds[m] * 6 + 0];
+        vertexSorted[m * 6 + 1] =(*vertexData_)[outputinds[m] * 6 + 1];
+        vertexSorted[m * 6 + 2] =(*vertexData_)[outputinds[m] * 6 + 2];
+        vertexSorted[m * 6 + 3] =(*vertexData_)[outputinds[m] * 6 + 3];
+        vertexSorted[m * 6 + 4] =(*vertexData_)[outputinds[m] * 6 + 4];
+        vertexSorted[m * 6 + 5] =(*vertexData_)[outputinds[m] * 6 + 5];
+    }
+    //printf("Ok3\n");
+    
+    vertexFileStream_.write((char *) (vertexSorted), sizeof(float)  * vertexData_->size());
+    densityFileStream_.write((char *) (densSorted), sizeof(float) * densityData_->size());
+    //printf("Ok4\n");
+    
+    delete[] densSorted;
+    delete[] vertexSorted;
+    delete[] outputinds;
+    
+}
+
+
+
+void TrifileWriter::write(int * trianglesPerPlane,
+                          std::vector<int> * trianglePlaneIds_,
+                          std::vector<float> * vertexData_,
+                          std::vector<float> * densityData_,
+                          std::vector<float> * velXData_,
+                          std::vector<float> * velYData_,
+                          std::vector<float> * velZData_){
+    
+    setTrisPerPlane(trianglesPerPlane, *trianglePlaneIds_);
+    //float * densSorted = new float[densityData_->size()];
+    //float * vertexSorted = new float[vertexData_->size()];
+    //float * velxSorted = new float[velXData_->size()];
+    //float * velySorted = new float[velYData_->size()];
+    //float * velzSorted = new float[velZData_->size()];
+    
+    if(cBufferSize_ < trianglePlaneIds_->size()){
+        densSorted = (float *) realloc(densSorted, sizeof(float) * densityData_->size());
+        vertexSorted = (float *) realloc(vertexSorted, sizeof(float) * vertexData_->size());
+        
+        velxSorted = (float *) realloc(velxSorted, sizeof(float) * velXData_->size());
+        velySorted = (float *) realloc(velySorted, sizeof(float) * velYData_->size());
+        velzSorted = (float *) realloc(velzSorted, sizeof(float) * velZData_->size());
+        
+        cBufferSize_ = trianglePlaneIds_->size();
+    }
+    
+    
+    for(unsigned int m = 0; m < trianglePlaneIds_->size(); m++){
+        //vertexFileStream_.write((char *) (vertexData_.data() + outputinds[m] * 6), sizeof(float) * 6);
+        //densityFileStream_.write((char *) (densityData_.data() + outputinds[m]), sizeof(float));
+        densSorted[m] = (*densityData_)[outputinds[m]];
+        vertexSorted[m * 6 + 0] =(*vertexData_)[outputinds[m] * 6 + 0];
+        vertexSorted[m * 6 + 1] =(*vertexData_)[outputinds[m] * 6 + 1];
+        vertexSorted[m * 6 + 2] =(*vertexData_)[outputinds[m] * 6 + 2];
+        vertexSorted[m * 6 + 3] =(*vertexData_)[outputinds[m] * 6 + 3];
+        vertexSorted[m * 6 + 4] =(*vertexData_)[outputinds[m] * 6 + 4];
+        vertexSorted[m * 6 + 5] =(*vertexData_)[outputinds[m] * 6 + 5];
+        
+        velxSorted[m * 3 + 0] =(*velXData_)[outputinds[m] * 3 + 0];
+        velxSorted[m * 3 + 1] =(*velXData_)[outputinds[m] * 3 + 1];
+        velxSorted[m * 3 + 2] =(*velXData_)[outputinds[m] * 3 + 2];
+        
+        velySorted[m * 3 + 0] =(*velYData_)[outputinds[m] * 3 + 0];
+        velySorted[m * 3 + 1] =(*velYData_)[outputinds[m] * 3 + 1];
+        velySorted[m * 3 + 2] =(*velYData_)[outputinds[m] * 3 + 2];
+        
+        velzSorted[m * 3 + 0] =(*velZData_)[outputinds[m] * 3 + 0];
+        velzSorted[m * 3 + 1] =(*velZData_)[outputinds[m] * 3 + 1];
+        velzSorted[m * 3 + 2] =(*velZData_)[outputinds[m] * 3 + 2];
+    }
+    vertexFileStream_.write((char *) (vertexSorted), sizeof(float) * vertexData_->size());
+    densityFileStream_.write((char *) (densSorted), sizeof(float) * densityData_->size());
+    velxFileStream_.write((char *) (velxSorted), sizeof(float) * velXData_->size());
+    velyFileStream_.write((char *) (velySorted), sizeof(float) * velYData_->size());
+    velzFileStream_.write((char *) (velzSorted), sizeof(float) * velZData_->size());
+    
+    delete[] densSorted;
+    delete[] vertexSorted;
+    delete[] velxSorted;
+    delete[] velySorted;
+    delete[] velzSorted;
+    delete[] outputinds;
+    
+}
+
+//use only ones before
+void TrifileWriter::setTrisPerPlane(int * trianglesPerPlane,
+                     std::vector<int> & trianglePlaneIds_){
+    memset(numTrianglesPerPlaneCurrentBlock_, 0, sizeof(int) * header_.numOfZPlanes);
+    header_.NumBlocks ++;
+    
+    // use for sorting the triangles for each plane
+    //outputinds = new int[trianglePlaneIds_.size()];
+    if(cBufferSize_ < trianglePlaneIds_.size()){
+        outputinds = (int *) realloc(outputinds, sizeof(float) * trianglePlaneIds_.size());
+    }
+    
+    
+    // the number of triangles in this plane
+    int numOfTrisCurrentPlane = trianglesPerPlane[0];
+    
+    // add the number of triangles in current block to the total block
+    numTrianglesPerPlane_[0] += trianglesPerPlane[0];
+    
+    // clear the first bit of this plane counter
+    numTrianglesPerPlaneCurrentBlock_[0] = 0;
+    
+    // loop over each plane, add corresponding numbers
+    for(int m = 1; m < header_.numOfZPlanes; m++){
+        numTrianglesPerPlaneCurrentBlock_[m] = numTrianglesPerPlaneCurrentBlock_[m-1] + trianglesPerPlane[m-1];
+        numOfTrisCurrentPlane += trianglesPerPlane[m];
+        numTrianglesPerPlane_[m] += trianglesPerPlane[m];
+    }
+    
+    // add the number of triangles to the total number of triangles in the whole file
+    header_.TotalTriangles += numOfTrisCurrentPlane;
+    
+    
+    for(unsigned int m = 0; m < trianglePlaneIds_.size(); m++){
+        outputinds[numTrianglesPerPlaneCurrentBlock_[trianglePlaneIds_[m]]] = m;
+        numTrianglesPerPlaneCurrentBlock_[trianglePlaneIds_[m]] ++;
     }
     
 }
+
+
 
 void TrifileWriter::close(){
     //printf("%d %d\n", header_.NumBlocks, header_.numOfZPlanes);
@@ -119,8 +340,14 @@ void TrifileWriter::close(){
     vertexFileStream_.seekp(0, ios_base::beg);
     densityFileStream_.seekp(0, ios_base::beg);
     
+    
+    header_.fileType = POS;
     vertexFileStream_.write((char *) & header_, sizeof(header_));
+    
+    header_.fileType = DENS;
     densityFileStream_.write((char *) & header_, sizeof(header_));
+    
+
     
     /*printf("ok, %d %d %d %d %d %d\n", sizeof(TriHeader), header_.numOfZPlanes, numTrianglesPerPlane_[0], numTrianglesPerPlane_[1], numTrianglesPerPlane_[2], numTrianglesPerPlane_[3]);
     */
@@ -137,6 +364,33 @@ void TrifileWriter::close(){
     
     vertexFileStream_.close();
     densityFileStream_.close();
+    
+    
+    
+    
+    if(isVelocity_){
+        header_.fileType = VELX;
+        velxFileStream_.seekp(0, ios_base::beg);
+        velxFileStream_.write((char *) & header_, sizeof(header_));
+        velxFileStream_.write((char *) numTrianglesPerPlane_,
+                                sizeof(int) * header_.numOfZPlanes);
+        velxFileStream_.close();
+        
+        header_.fileType = VELY;
+        velyFileStream_.seekp(0, ios_base::beg);
+        velyFileStream_.write((char *) & header_, sizeof(header_));
+        velyFileStream_.write((char *) numTrianglesPerPlane_,
+                              sizeof(int) * header_.numOfZPlanes);
+        velyFileStream_.close();
+        
+        
+        header_.fileType = VELZ;
+        velzFileStream_.seekp(0, ios_base::beg);
+        velzFileStream_.write((char *) & header_, sizeof(header_));
+        velzFileStream_.write((char *) numTrianglesPerPlane_,
+                              sizeof(int) * header_.numOfZPlanes);
+        velzFileStream_.close();
+    }
 }
 
 

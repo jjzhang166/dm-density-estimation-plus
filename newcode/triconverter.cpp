@@ -20,11 +20,6 @@
 
 using namespace std;
 
-const int TriConverter::VELX =  0x01;
-const int TriConverter::VELY =  0x02;
-const int TriConverter::VELZ =  0x04;
-const int TriConverter::POS  =  0x08;
-const int TriConverter::DENS =  0x10;
 
 
 TriConverter::TriConverter(int imagesize,
