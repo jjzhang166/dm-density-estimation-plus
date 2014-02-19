@@ -626,12 +626,14 @@ void TrifileReader::loadPlane(int plane){
         
         if(isVelocity_){
             velxFileStream_.seekg(velpos, ios_base::beg);
-            velxFileStream_.seekg(velpos, ios_base::beg);
+            velyFileStream_.seekg(velpos, ios_base::beg);
             velzFileStream_.seekg(velpos, ios_base::beg);
             
             velxFileStream_.read((char *) & headvx, sizeof(headvx));
             velxFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
                                    sizeof(int) * header_.numOfZPlanes);
+            
+            //printf("VX: %d\n", headvx.TotalTriangles);
             if(head0.TotalTriangles != headvx.TotalTriangles){
                 fprintf(stderr, "Input Velx File Incorrect!\n");
                 exit(1);
@@ -641,6 +643,7 @@ void TrifileReader::loadPlane(int plane){
             velyFileStream_.read((char *) & headvy, sizeof(headvy));
             velyFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
                                  sizeof(int) * header_.numOfZPlanes);
+            //printf("VY: %d\n", headvy.TotalTriangles);
             if(head0.TotalTriangles != headvy.TotalTriangles){
                 fprintf(stderr, "Input Vely File Incorrect!\n");
                 exit(1);
@@ -650,6 +653,7 @@ void TrifileReader::loadPlane(int plane){
             velzFileStream_.read((char *) & headvz, sizeof(headvz));
             velzFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
                                  sizeof(int) * header_.numOfZPlanes);
+            //printf("VZ: %d\n", headvz.TotalTriangles);
             if(head0.TotalTriangles != headvz.TotalTriangles){
                 fprintf(stderr, "Input Velz File Incorrect!\n");
                 exit(1);
@@ -751,7 +755,7 @@ float * TrifileReader::getVelocityY(){
 }
 
 float * TrifileReader::getVelocityZ(){
-    return velYData_;
+    return velZData_;
 }
 
 

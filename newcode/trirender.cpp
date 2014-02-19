@@ -187,6 +187,9 @@ void TriDenRender::rendDensity(float * vertexdata,
     
     if(isClear){
         memset(density_, 0, imagesize_ * imagesize_ * sizeof(float));
+        memset(velocityx_, 0, imagesize_ * imagesize_ * sizeof(float));
+        memset(velocityy_, 0, imagesize_ * imagesize_ * sizeof(float));
+        memset(velocityz_, 0, imagesize_ * imagesize_ * sizeof(float));
     }
     
     int newColorSize = NumTriangles * 3 * maxNumRenderComp;
@@ -247,6 +250,22 @@ void TriDenRender::rend(int NumTriangles, float * vertexdata){
                     //GL_RGBA,
                     GL_RED,
                     GL_FLOAT, density_);
+    
+    
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
+                    //GL_RGBA,
+                    GL_GREEN,
+                    GL_FLOAT, velocityx_);
+    
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
+                    //GL_RGBA,
+                    GL_BLUE,
+                    GL_FLOAT, velocityy_);
+    
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagesize_, imagesize_,
+                    //GL_RGBA,
+                    GL_ALPHA,
+                    GL_FLOAT, velocityz_);
     
     fbuffer->unbindTex();
     

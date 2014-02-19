@@ -36,9 +36,9 @@ void printUsage(string pname){
            pname.c_str(),
            "-df <basename>",
            "-dens <outputdensfile>",
-           "-velx (TODO) <outputvelxfile>",
-           "-vely (TODO) <outputvelyfile>",
-           "-velz (TODO) <outputvelzfile>",
+           "-velx <outputvelxfile>",
+           "-vely <outputvelyfile>",
+           "-velz <outputvelzfile>",
            "-vdisp (TODO) <velocity dispersion>",
            "-imsize <imagesize>"
            );

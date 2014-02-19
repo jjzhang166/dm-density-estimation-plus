@@ -170,6 +170,7 @@ void TriConverter::process(Tetrahedron & tetra){
                 velXData_.push_back(cutter.getTriangle(j).val2.x * dens);
                 velXData_.push_back(cutter.getTriangle(j).val3.x * dens);
                 
+                //test
                 velYData_.push_back(cutter.getTriangle(j).val1.y * dens);
                 velYData_.push_back(cutter.getTriangle(j).val2.y * dens);
                 velYData_.push_back(cutter.getTriangle(j).val3.y * dens);

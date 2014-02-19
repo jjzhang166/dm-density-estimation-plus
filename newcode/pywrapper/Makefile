@@ -4,6 +4,7 @@ all: cicpy
 cicpy:
 	 swig -python -c++ -o _cicswigwrapper_module.cc cicswig.i
 	 swig -python -c++ -o _gadgetswigwrapper_module.cc GADGETSwig.i
+	 swig -python -c++ -o _ltfeswigwrapper_module.cc ltfeswig.i
 	 python setup.py build_ext --inplace
 
 clean:
@@ -15,4 +16,6 @@ clean:
 	rm -fr _gadgetswigwrapper_module.cc
 	rm -fr GADGETPy.py
 	rm -fr *.pyc
+	rm -fr _ltfeswigwrapper_module.cc
+	rm -fr ltfepy.py
 	rm -fr build	

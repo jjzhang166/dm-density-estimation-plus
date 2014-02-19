@@ -1,4 +1,6 @@
 This folder contains the python wrapper for the GADGET reader and CIC estimator.
+02/19/2014 A LTFE density reader included
+
 To build:
     make
 

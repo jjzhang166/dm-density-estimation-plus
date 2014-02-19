@@ -130,8 +130,8 @@ void savefile(DtetraStream &streamer){
                     vector<float> &vertexData_ = triangleConverter.getVertex();
                     vector<float> &densityData_ = triangleConverter.getDensity();
                     vector<float> &velxData_ = triangleConverter.getVelocityX();
-                    vector<float> &velyData_ = triangleConverter.getVelocityX();
-                    vector<float> &velzData_ = triangleConverter.getVelocityX();
+                    vector<float> &velyData_ = triangleConverter.getVelocityY();
+                    vector<float> &velzData_ = triangleConverter.getVelocityZ();
                     
                     //printf("try\n");
                     if(!isVelocity){
@@ -172,8 +172,8 @@ void savefile(DtetraStream &streamer){
         vector<float> densityData_ = triangleConverter.getDensity();
         
         vector<float> &velxData_ = triangleConverter.getVelocityX();
-        vector<float> &velyData_ = triangleConverter.getVelocityX();
-        vector<float> &velzData_ = triangleConverter.getVelocityX();
+        vector<float> &velyData_ = triangleConverter.getVelocityY();
+        vector<float> &velzData_ = triangleConverter.getVelocityZ();
         
         if(!isVelocity){
             twriter.write(planetris,
@@ -226,6 +226,7 @@ int main(int argv, char * args[]){
                 ss >> imageSize;
             }else if(strcmp(args[k], "-vel") == 0){
                 isVelocity = true;
+                k -= 1;
             }else if(strcmp(args[k], "-redshift") == 0){
                 float r_x, r_y, r_z;
                 stringstream s0;
