@@ -86,6 +86,8 @@ private:
     float * velzSorted;
     
     int cBufferSize_;
+    
+    int64_t numOfTrisCurrentPlane_;
 };
 
 
@@ -130,6 +132,7 @@ private:
     float * zCoorPlane_;
     int numBlocks_;
     bool isVelocity_;
+
     
     //std::vector<float> vertexData_;
     //std::vector<float> densityData_;
