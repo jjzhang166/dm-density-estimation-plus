@@ -156,7 +156,7 @@ int main(int argv, char * args[]){
         
         reader.loadPlane(plane);
         //printf("ok2.5\n");
-        render.rendDensity(reader.getTriangles(plane), reader.getDensity(plane), reader.getNumTriangles(plane));
+        render.rendDensity(reader.getTriangles(), reader.getDensity(), reader.getNumTriangles(plane));
         
         numtris += reader.getNumTriangles(plane);
         

@@ -19,7 +19,7 @@ using namespace std;
 string inputbase = "";
 string outputbase = "";
 int parttype = 1;
-int imageSize = 1024;
+int imageSize = 512;
 bool isRedShiftDist = false;
 Point redshiftAxis;
 int typeCode = 0x00;
@@ -99,15 +99,16 @@ void savefile(DtetraStream &streamer){
     //int *currentTriIdPlane = new int[imagesize];
     //memset(currentTriIdPlane, 0, sizeof(int) * imagesize);
     
-    ProcessBar bar(numfiles, 0);
+    ProcessBar bar(numfiles * 100, 0);
     bar.start();
     for(int l = 0; l < numfiles; l++){
-        bar.setvalue(l);
         streamer.loadBlock(l);
         int numindtetra = streamer.getNumTetras();
         IndTetrahedronManager & im = streamer.getCurrentIndtetraManeger();
         for(int i = 0; i < numindtetra; i ++){
             streamer.getIndTetra(indtetra, i);
+            
+            bar.setvalue(l * 100 + i * 100 / numindtetra);
             
             int nt = im.getNumPeriodical(indtetra);
             Tetrahedron * ts = im.getPeroidTetras(indtetra);

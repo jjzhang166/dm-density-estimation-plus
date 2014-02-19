@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
+#include <cstdint>
 #include "trifile_util.h"
 
 
@@ -147,7 +148,7 @@ void TrifileWriter::write(int * trianglesPerPlane,
     header_.NumBlocks ++;
     
     outputinds = new int[trianglePlaneIds_.size()];
-    int numOfTrisCurrentPlane = trianglesPerPlane[0];
+    int64_t numOfTrisCurrentPlane = trianglesPerPlane[0];
     numTrianglesPerPlane_[0] += trianglesPerPlane[0];
     numTrianglesPerPlaneCurrentBlock_[0] = 0;
     for(int m = 1; m < header_.numOfZPlanes; m++){
@@ -177,7 +178,8 @@ void TrifileWriter::write(int * trianglesPerPlane,
         densityFileStream_.write((char *) (densityData_.data() + outputinds[m]), sizeof(float));
     }
     
-    delete[] outputinds;*/
+    delete[] outputinds;
+    outputinds = NULL;*/
     
 }
 
@@ -188,6 +190,7 @@ void TrifileWriter::write(int * trianglesPerPlane,
                           std::vector<float> * vertexData_,
                           std::vector<float> * densityData_){
     
+    
     //printf("Ok1\n");
     setTrisPerPlane(trianglesPerPlane, *trianglePlaneIds_);
     //printf("Ok2\n");
@@ -195,8 +198,8 @@ void TrifileWriter::write(int * trianglesPerPlane,
     //float * densSorted = new float[densityData_->size()];
     //float * vertexSorted = new float[vertexData_->size()];
     if(cBufferSize_ < trianglePlaneIds_->size()){
-        densSorted = (float *) realloc(densSorted, sizeof(float) * densityData_->size());
-        vertexSorted = (float *) realloc(vertexSorted, sizeof(float) * vertexData_->size());
+        densSorted = (float *) realloc(densSorted, sizeof(float) * (densityData_->size()));
+        vertexSorted = (float *) realloc(vertexSorted, sizeof(float) * (vertexData_->size()));
         
         cBufferSize_ = trianglePlaneIds_->size();
     }
@@ -215,13 +218,13 @@ void TrifileWriter::write(int * trianglesPerPlane,
     }
     //printf("Ok3\n");
     
-    vertexFileStream_.write((char *) (vertexSorted), sizeof(float)  * vertexData_->size());
-    densityFileStream_.write((char *) (densSorted), sizeof(float) * densityData_->size());
+    vertexFileStream_.write((char *) (vertexSorted), sizeof(float)  * (vertexData_->size()));
+    densityFileStream_.write((char *) (densSorted), sizeof(float) * (densityData_->size()));
     //printf("Ok4\n");
     
-    delete[] densSorted;
-    delete[] vertexSorted;
-    delete[] outputinds;
+    //delete[] densSorted;
+    //delete[] vertexSorted;
+    //delete[] outputinds;
     
 }
 
@@ -243,12 +246,12 @@ void TrifileWriter::write(int * trianglesPerPlane,
     //float * velzSorted = new float[velZData_->size()];
     
     if(cBufferSize_ < trianglePlaneIds_->size()){
-        densSorted = (float *) realloc(densSorted, sizeof(float) * densityData_->size());
-        vertexSorted = (float *) realloc(vertexSorted, sizeof(float) * vertexData_->size());
+        densSorted = (float *) realloc(densSorted, sizeof(float) * (densityData_->size()));
+        vertexSorted = (float *) realloc(vertexSorted, sizeof(float) * (vertexData_->size()));
         
-        velxSorted = (float *) realloc(velxSorted, sizeof(float) * velXData_->size());
-        velySorted = (float *) realloc(velySorted, sizeof(float) * velYData_->size());
-        velzSorted = (float *) realloc(velzSorted, sizeof(float) * velZData_->size());
+        velxSorted = (float *) realloc(velxSorted, sizeof(float) * (velXData_->size()));
+        velySorted = (float *) realloc(velySorted, sizeof(float) * (velYData_->size()));
+        velzSorted = (float *) realloc(velzSorted, sizeof(float) * (velZData_->size()));
         
         cBufferSize_ = trianglePlaneIds_->size();
     }
@@ -277,18 +280,18 @@ void TrifileWriter::write(int * trianglesPerPlane,
         velzSorted[m * 3 + 1] =(*velZData_)[outputinds[m] * 3 + 1];
         velzSorted[m * 3 + 2] =(*velZData_)[outputinds[m] * 3 + 2];
     }
-    vertexFileStream_.write((char *) (vertexSorted), sizeof(float) * vertexData_->size());
-    densityFileStream_.write((char *) (densSorted), sizeof(float) * densityData_->size());
-    velxFileStream_.write((char *) (velxSorted), sizeof(float) * velXData_->size());
-    velyFileStream_.write((char *) (velySorted), sizeof(float) * velYData_->size());
-    velzFileStream_.write((char *) (velzSorted), sizeof(float) * velZData_->size());
+    vertexFileStream_.write((char *) (vertexSorted), sizeof(float) * (vertexData_->size()));
+    densityFileStream_.write((char *) (densSorted), sizeof(float) * (densityData_->size()));
+    velxFileStream_.write((char *) (velxSorted), sizeof(float) * (velXData_->size()));
+    velyFileStream_.write((char *) (velySorted), sizeof(float) * (velYData_->size()));
+    velzFileStream_.write((char *) (velzSorted), sizeof(float) * (velZData_->size()));
     
-    delete[] densSorted;
-    delete[] vertexSorted;
-    delete[] velxSorted;
-    delete[] velySorted;
-    delete[] velzSorted;
-    delete[] outputinds;
+    //delete[] densSorted;
+    //delete[] vertexSorted;
+    //delete[] velxSorted;
+    //delete[] velySorted;
+    //delete[] velzSorted;
+    //delete[] outputinds;
     
 }
 
@@ -306,7 +309,7 @@ void TrifileWriter::setTrisPerPlane(int * trianglesPerPlane,
     
     
     // the number of triangles in this plane
-    int numOfTrisCurrentPlane = trianglesPerPlane[0];
+    int64_t numOfTrisCurrentPlane = trianglesPerPlane[0];
     
     // add the number of triangles in current block to the total block
     numTrianglesPerPlane_[0] += trianglesPerPlane[0];
@@ -397,22 +400,59 @@ void TrifileWriter::close(){
 
 
 
+
+
+
+
 ///////////reader///////////////////
-TrifileReader::TrifileReader(std::string basename){
+TrifileReader::TrifileReader(std::string basename, bool isVelocity){
     basename_ = basename;
+    isVelocity_ = isVelocity;
+    
     string vertfn = basename + "."TRIFILESUFFIX"."VERTEXFILESUFFIX;
     string densfn = basename + "."TRIFILESUFFIX"."DENSITYFILESUFFIX;
+    string velxfn = basename + "."TRIFILESUFFIX"."VELXFILESUFFIX;
+    string velyfn = basename + "."TRIFILESUFFIX"."VELYFILESUFFIX;
+    string velzfn = basename + "."TRIFILESUFFIX"."VELZFILESUFFIX;
+    
     vertexFileStream_.open(vertfn.c_str(), ios::binary | ios::in);
     densityFileStream_.open(densfn.c_str(), ios::binary | ios::in);
+    TriHeader header0_, headervx, headervy, headervz;
     vertexFileStream_.read((char *)&header_, sizeof(header_));
-    
-    TriHeader header0_;
     densityFileStream_.read((char *) &header0_, sizeof(header0_));
     
     if((header0_.NumBlocks != header_.NumBlocks) || (header_.NumBlocks == 0)){
         fprintf(stderr, "Input File Incorrect!\n");
         exit(1);
     }
+    
+    if(isVelocity){
+        velxFileStream_.open(velxfn.c_str(), ios::binary | ios::in);
+        velyFileStream_.open(velyfn.c_str(), ios::binary | ios::in);
+        velzFileStream_.open(velzfn.c_str(), ios::binary | ios::in);
+     
+        velxFileStream_.read((char *) &headervx, sizeof(headervx));
+        if((headervx.NumBlocks != header_.NumBlocks)){
+            fprintf(stderr, "Input Velocity X File Incorrect!\n");
+            exit(1);
+        }
+        
+        velyFileStream_.read((char *) &headervy, sizeof(headervy));
+        if((headervy.NumBlocks != header_.NumBlocks)){
+            fprintf(stderr, "Input Velocity Y File Incorrect!\n");
+            exit(1);
+        }
+        
+        
+        velzFileStream_.read((char *) &headervz, sizeof(headervz));
+        if((headervz.NumBlocks != header_.NumBlocks)){
+            fprintf(stderr, "Input Velocity Z File Incorrect!\n");
+            exit(1);
+        }
+    }
+    
+    
+
     
     //printf("%d %d\n", header_.NumBlocks, header_.numOfZPlanes);
     numTrianglesPerPlane_ = new int[header_.numOfZPlanes];
@@ -432,8 +472,6 @@ TrifileReader::TrifileReader(std::string basename){
         exit(1);
     }
     
-
-    
     if(densityFileStream_.good()){
         densityFileStream_.read((char *) numTrianglesPerPlane_, sizeof(int) * header_.numOfZPlanes);
         densityFileStream_.read((char *) zCoorPlane_, sizeof(float) * header_.numOfZPlanes);
@@ -441,6 +479,8 @@ TrifileReader::TrifileReader(std::string basename){
         fprintf(stderr, "Input File Incorrect: %s!\n", vertfn.c_str());
         exit(1);
     }
+    
+    
     
     //printf("ok, %d %d %d %d %d \n", sizeof(TriHeader), numTrianglesPerPlane_[0], numTrianglesPerPlane_[1], numTrianglesPerPlane_[2], numTrianglesPerPlane_[3]);
     //test
@@ -450,11 +490,14 @@ TrifileReader::TrifileReader(std::string basename){
     
     int maxNumTris = *std::max_element(numTrianglesPerPlane_, numTrianglesPerPlane_+header_.numOfZPlanes);
     
-    
-
-    
     vertexData_ = new float[maxNumTris * 6];
     densityData_ = new float[maxNumTris];
+    
+    if(isVelocity_){
+        velXData_ = new float[maxNumTris * 3];
+        velYData_ = new float[maxNumTris * 3];
+        velZData_ = new float[maxNumTris * 3];
+    }
     
     //test
     //exit(0);
@@ -464,11 +507,24 @@ TrifileReader::TrifileReader(std::string basename){
 void TrifileReader::close(){
     vertexFileStream_.close();
     densityFileStream_.close();
+    if(isVelocity_){
+        velxFileStream_.close();
+        velyFileStream_.close();
+        velzFileStream_.close();
+    }
+    
 }
 
 
 bool TrifileReader::isOpen(){
-    return vertexFileStream_.is_open() && densityFileStream_.is_open();
+    if(! isVelocity_){
+        return vertexFileStream_.is_open() && densityFileStream_.is_open();
+    }
+    else{
+        return vertexFileStream_.is_open() && densityFileStream_.is_open()
+        && velxFileStream_.is_open() && velyFileStream_.is_open()
+        && velzFileStream_.is_open();
+    }
 }
 
 float TrifileReader::getZcoor(int plane){
@@ -481,19 +537,30 @@ float TrifileReader::getNumTriangles(int plane){
 void TrifileReader::loadPlane(int plane){
     //printf("Ok: %d\n", plane);
     
-    int densitypos = 0 + sizeof(header_) + sizeof(int) * header_.numOfZPlanes
+    int64_t densitypos = 0 + sizeof(header_) + sizeof(int) * (int64_t) header_.numOfZPlanes
         + sizeof(float) * header_.numOfZPlanes;
-    int vertexpos = 0 + sizeof(header_) + sizeof(int) * header_.numOfZPlanes
+    int64_t vertexpos = 0 + sizeof(header_) + sizeof(int) * (int64_t) header_.numOfZPlanes
+        + sizeof(float) * header_.numOfZPlanes;
+    
+    int64_t velpos = 0 + sizeof(header_) + sizeof(int) * (int64_t) header_.numOfZPlanes
         + sizeof(float) * header_.numOfZPlanes;
     
     vertexFileStream_.clear();
     densityFileStream_.clear();
-    int dataposDens = 0;
-    int dataposVert = 0;
+    if(isVelocity_){
+        velxFileStream_.clear();
+        velyFileStream_.clear();
+        velzFileStream_.clear();
+    }
+    
+    int64_t dataposDens = 0;
+    int64_t dataposVert = 0;
+    int64_t dataposVel = 0;
     
     TriBlockHeader head0, head1;
+    TriBlockHeader headvx, headvy, headvz;
     
-    //printf("Ok Blocks: %d %d %d \n", header_.NumBlocks, densitypos, vertexpos);
+    printf("Ok Blocks: %d %d %d \n", header_.NumBlocks, densitypos, vertexpos);
     for(int i = 0; i < header_.NumBlocks; i++){
         //printf("Ok n: %d\n", i);
         vertexFileStream_.seekg(vertexpos, ios_base::beg);
@@ -502,10 +569,56 @@ void TrifileReader::loadPlane(int plane){
         vertexFileStream_.read((char *) & head0, sizeof(head0));
         densityFileStream_.read((char *) & head1, sizeof(head1));
         
-        //printf("Ok : %d %d\n", head0.TotalTriangles, head1.TotalTriangles);
+        printf("Ok : %d %d\n", head0.TotalTriangles, head1.TotalTriangles);
         if(head0.TotalTriangles != head1.TotalTriangles){
             fprintf(stderr, "Input File Incorrect!\n");
             exit(1);
+        }
+        
+        
+        densityFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
+                                sizeof(int) * header_.numOfZPlanes);
+        vertexFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
+                               sizeof(int) * header_.numOfZPlanes);
+        
+        
+        
+        
+        densitypos = densityFileStream_.tellg();
+        vertexpos = vertexFileStream_.tellg();
+        
+        if(isVelocity_){
+            velxFileStream_.seekg(velpos, ios_base::beg);
+            velxFileStream_.seekg(velpos, ios_base::beg);
+            velzFileStream_.seekg(velpos, ios_base::beg);
+            
+            velxFileStream_.read((char *) & headvx, sizeof(headvx));
+            velxFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
+                                   sizeof(int) * header_.numOfZPlanes);
+            if(head0.TotalTriangles != headvx.TotalTriangles){
+                fprintf(stderr, "Input Velx File Incorrect!\n");
+                exit(1);
+            }
+            
+            
+            velyFileStream_.read((char *) & headvy, sizeof(headvy));
+            velyFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
+                                 sizeof(int) * header_.numOfZPlanes);
+            if(head0.TotalTriangles != headvy.TotalTriangles){
+                fprintf(stderr, "Input Vely File Incorrect!\n");
+                exit(1);
+            }
+            
+            
+            velzFileStream_.read((char *) & headvz, sizeof(headvz));
+            velzFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
+                                 sizeof(int) * header_.numOfZPlanes);
+            if(head0.TotalTriangles != headvz.TotalTriangles){
+                fprintf(stderr, "Input Velz File Incorrect!\n");
+                exit(1);
+            }
+            
+            velpos = velxFileStream_.tellg();
         }
         
         
@@ -513,11 +626,7 @@ void TrifileReader::loadPlane(int plane){
         //densitypos += sizeof(int) * header_.numOfZPlanes;
         //vertexpos += sizeof(int) * header_.numOfZPlanes;
         
-        densityFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
-                                sizeof(int) * header_.numOfZPlanes);
-        vertexFileStream_.read((char *) numTrianglesPerPlaneCurrent_,
-                                sizeof(int) * header_.numOfZPlanes);
-        
+
         //test
         /*for(int ll = 0; ll < header_.numOfZPlanes; ll++){
             printf("CCCC %d\n", numTrianglesPerPlaneCurrent_[ll]);
@@ -527,16 +636,16 @@ void TrifileReader::loadPlane(int plane){
         //vertexFileStream_.seekg(vertexpos, ios_base::beg);
         //densityFileStream_.seekg(densitypos, ios_base::beg);
         
+
         
+        int64_t densitypos0 = densitypos;
+        int64_t vertexpos0 = vertexpos;
+        int64_t velpos0 = velpos;
         
-        densitypos = densityFileStream_.tellg();
-        vertexpos = vertexFileStream_.tellg();
-        
-        int densitypos0 = densitypos;
-        int vertexpos0 = vertexpos;
         for(int j = 0; j < plane; j++){
             densitypos += numTrianglesPerPlaneCurrent_[j] * sizeof(float);
             vertexpos += numTrianglesPerPlaneCurrent_[j] * sizeof(float) * 6;
+            velpos += numTrianglesPerPlaneCurrent_[j] * sizeof(float) * 3;
         }
         
         vertexFileStream_.seekg(vertexpos, ios_base::beg);
@@ -544,9 +653,24 @@ void TrifileReader::loadPlane(int plane){
         vertexFileStream_.read((char *) (vertexData_+dataposVert), sizeof(float) * numTrianglesPerPlaneCurrent_[plane] * 6);
 
         densityFileStream_.read((char *) (densityData_+dataposDens), sizeof(float) * numTrianglesPerPlaneCurrent_[plane]);
+        
+        if(isVelocity_){
+            velxFileStream_.seekg(velpos, ios_base::beg);
+            velyFileStream_.seekg(velpos, ios_base::beg);
+            velzFileStream_.seekg(velpos, ios_base::beg);
+            velxFileStream_.read((char *) (velXData_+dataposVel),
+                                 sizeof(float) * numTrianglesPerPlaneCurrent_[plane] * 3);
+            velyFileStream_.read((char *) (velYData_+dataposVel),
+                                 sizeof(float) * numTrianglesPerPlaneCurrent_[plane] * 3);
+            velzFileStream_.read((char *) (velZData_+dataposVel),
+                                 sizeof(float) * numTrianglesPerPlaneCurrent_[plane] * 3);
+            
+        }
 
         densitypos = densitypos0 + sizeof(float) * head0.TotalTriangles;
         vertexpos = vertexpos0 + sizeof(float) * head1.TotalTriangles * 6;
+        velpos = velpos0 + sizeof(float) * headvx.TotalTriangles * 3;
+        
         //printf("Ok end: %d\n", i);
         
         //test
@@ -566,18 +690,33 @@ void TrifileReader::loadPlane(int plane){
         
         dataposVert += numTrianglesPerPlaneCurrent_[plane] * 6;
         dataposDens += numTrianglesPerPlaneCurrent_[plane];
+        dataposVel += numTrianglesPerPlaneCurrent_[plane] * 3;
 
     }
     
     
 }
-float * TrifileReader::getDensity(int plane){
+float * TrifileReader::getDensity(){
     return densityData_;
 }
 
-float * TrifileReader::getTriangles(int plane){
+float * TrifileReader::getTriangles(){
     return vertexData_;
 }
+
+
+float * TrifileReader::getVelocityX(){
+    return velXData_;
+}
+
+float * TrifileReader::getVelocityY(){
+    return velYData_;
+}
+
+float * TrifileReader::getVelocityZ(){
+    return velYData_;
+}
+
 
 TrifileReader::~TrifileReader(){
     delete[] numTrianglesPerPlane_;
@@ -585,6 +724,12 @@ TrifileReader::~TrifileReader(){
     delete[] zCoorPlane_;
     delete[] vertexData_;
     delete[] densityData_;
+    
+    if(isVelocity_){
+        delete[] velXData_;
+        delete[] velYData_;
+        delete[] velZData_;
+    }
 }
 
 

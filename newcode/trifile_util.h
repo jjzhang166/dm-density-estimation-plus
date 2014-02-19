@@ -92,7 +92,7 @@ private:
 // TODO
 class TrifileReader{
 public:
-    TrifileReader(std::string basename);
+    TrifileReader(std::string basename, bool isVelocity = false);
     ~TrifileReader();
     
     TriHeader getHeader(){
@@ -106,14 +106,19 @@ public:
     float getNumTriangles(int plane);
     
     void loadPlane(int plane);
-    float * getTriangles(int plane);
-    float * getDensity(int plane);
+    float * getTriangles();
+    float * getDensity();
+    float * getVelocityX();
+    float * getVelocityY();
+    float * getVelocityZ();
+    
     
 private:
 
     
     TriHeader header_;
     std::string basename_;
+    
     std::fstream vertexFileStream_;
     std::fstream densityFileStream_;
     std::fstream velxFileStream_;
@@ -130,5 +135,9 @@ private:
     //std::vector<float> densityData_;
     float * vertexData_;
     float * densityData_;
+    float * velXData_;
+    float * velYData_;
+    float * velZData_;
+    
 };
 #endif
