@@ -18,28 +18,28 @@ using namespace std;
 string prefix = "";
 string base_name = "";
 int numOfFiles = 0;
-string outputfilename[4];
 
 string outputdensfile = "";
 string outputvelxfile = "";
 string outputvelyfile = "";
 string outputvelzfile = "";
 
-int imageSize = 128;
-
-int fileFloats[] = {1, 3, 3, 3};  //dens, velx, vely, velz
-int floatOfVerts[4];
-string compSuffix[4];
-string componentFiles[4];
+int imageSize = 256;
+bool isVelocity = false;
+bool isDensity =false;
+bool isVelx = false;
+bool isVely = false;
+bool isVelz = false;
 
 void printUsage(string pname){
-    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
+    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
            pname.c_str(),
            "-df <basename>",
            "-dens <outputdensfile>",
            "-velx (TODO) <outputvelxfile>",
            "-vely (TODO) <outputvelyfile>",
            "-velz (TODO) <outputvelzfile>",
+           "-vdisp (TODO) <velocity dispersion>",
            "-imsize <imagesize>"
            );
 }
@@ -58,27 +58,22 @@ int main(int argv, char * args[]){
                 base_name = args[k + 1];
             }else if(strcmp(args[k], "-dens") == 0){
                 outputdensfile = args[k+1];
-                outputfilename[numOfOutputs] = outputdensfile;
-                floatOfVerts[numOfOutputs] = fileFloats[0];
-                compSuffix[numOfOutputs] = DENFILESUFFIX;
+                isDensity = true;
                 numOfOutputs ++;
             }else if(strcmp(args[k], "-velx") == 0){
                 outputvelxfile = args[k+1];
-                outputfilename[numOfOutputs] = outputvelxfile;
-                floatOfVerts[numOfOutputs] = fileFloats[1];
-                compSuffix[numOfOutputs] = VELXFILESUFFIX;
+                isVelocity = true;
+                isVelx = true;
                 numOfOutputs ++;
             }else if(strcmp(args[k], "-vely") == 0){
                 outputvelyfile = args[k+1];
-                outputfilename[numOfOutputs] = outputvelyfile;
-                floatOfVerts[numOfOutputs] = fileFloats[2];
-                compSuffix[numOfOutputs] = VELYFILESUFFIX;
+                isVelocity = true;
+                isVely = true;
                 numOfOutputs ++;
             }else if(strcmp(args[k], "-velz") == 0){
                 outputvelzfile = args[k+1];
-                outputfilename[numOfOutputs] = outputvelzfile;
-                floatOfVerts[numOfOutputs] = fileFloats[3];
-                compSuffix[numOfOutputs] = VELZFILESUFFIX;
+                isVelocity = true;
+                isVelz = true;
                 numOfOutputs ++;
             }else if(strcmp(args[k], "-imsize") == 0){
                 ss << args[k + 1];
@@ -94,7 +89,7 @@ int main(int argv, char * args[]){
 
 
     
-    TrifileReader reader(base_name);
+    TrifileReader reader(base_name, isVelocity);
     //printf("OK\n");
     
     if(reader.getHeader().numOfZPlanes < imageSize){
@@ -118,17 +113,52 @@ int main(int argv, char * args[]){
 
     
     
-    if(numOfOutputs != 1 || (compSuffix[0] != DENFILESUFFIX)){
-        printf("Only support density output!\n");
+    fstream outputDensStream_, outputVelXStream_,
+        outputVelYStream_, outputVelZStream_;
+    
+    bool isL1File = false;
+    
+    if(isDensity){
+        outputDensStream_.open(outputdensfile.c_str(), ios::out | ios::binary);
+        if(!outputDensStream_.good()){
+            fprintf(stderr, "Output Density File Error: %s !\n", outputdensfile.c_str());
+            exit(1);
+        }
+        isL1File = true;
+    }
+    
+    if(isVelx){
+        outputVelXStream_.open(outputvelxfile.c_str(), ios::out | ios::binary);
+        if(!outputVelXStream_.good()){
+            fprintf(stderr, "Output Velocity X File Error: %s !\n", outputvelxfile.c_str());
+            exit(1);
+        }
+        isL1File = true;
+    }
+    
+    if(isVely){
+        outputVelYStream_.open(outputvelyfile.c_str(), ios::out | ios::binary);
+        if(!outputVelYStream_.good()){
+            fprintf(stderr, "Output Velocity Y File Error: %s !\n", outputvelyfile.c_str());
+            exit(1);
+        }
+        isL1File = true;
+    }
+    
+    if(isVelz){
+        outputVelZStream_.open(outputvelzfile.c_str(), ios::out | ios::binary);
+        if(!outputVelZStream_.good()){
+            fprintf(stderr, "Output Velocity Z File Error: %s !\n", outputvelzfile.c_str());
+            exit(1);
+        }
+        isL1File = true;
+    }
+    
+    if(! isL1File){
+        fprintf(stderr, "No output file!\n");
         exit(1);
     }
     
-    fstream outputStream_;
-    outputStream_.open(outputfilename[0].c_str(), ios::out | ios::binary);
-    if(!outputStream_.good()){
-        fprintf(stderr, "OutputFile Error: %s !\n", outputfilename[0].c_str());
-        exit(1);
-    }
     
     LTFEHeader lheader;
     lheader.xyGridSize = imageSize;
@@ -139,8 +169,19 @@ int main(int argv, char * args[]){
     
     //test
     //printf("Header %d\n", sizeof(lheader));
+    if(isDensity){
+        outputDensStream_.write((char *) &lheader, sizeof(LTFEHeader));
+    }
+    if(isVelx){
+        outputVelXStream_.write((char *) &lheader, sizeof(LTFEHeader));
+    }
+    if(isVely){
+        outputVelYStream_.write((char *) &lheader, sizeof(LTFEHeader));
+    }
+    if(isVelz){
+        outputVelZStream_.write((char *) &lheader, sizeof(LTFEHeader));
+    }
     
-    outputStream_.write((char *) &lheader, sizeof(LTFEHeader));
     
     
     ProcessBar bar(imageSize, 0);
@@ -156,14 +197,53 @@ int main(int argv, char * args[]){
         
         reader.loadPlane(plane);
         //printf("ok2.5\n");
-        render.rendDensity(reader.getTriangles(), reader.getDensity(), reader.getNumTriangles(plane));
+        
+        if(!isVelocity){
+            render.rendDensity(reader.getTriangles(),
+                               reader.getDensity(),
+                               reader.getNumTriangles(plane));
+        }else{
+            render.rendDensity(reader.getTriangles(),
+                               reader.getDensity(),
+                               reader.getVelocityX(),
+                               reader.getVelocityY(),
+                               reader.getVelocityZ(),
+                               reader.getNumTriangles(plane));
+        }
         
         numtris += reader.getNumTriangles(plane);
         
-        outputStream_.write((char *) render.getDensity(), sizeof(float) * imageSize * imageSize);
+        
+        if(isDensity){
+            outputDensStream_.write((char *) render.getDensity(), sizeof(float) * imageSize * imageSize);
+        }
+        if(isVelx){
+            outputVelXStream_.write((char *) render.getVelocityX(), sizeof(float) * imageSize * imageSize);
+        }
+        if(isVely){
+            outputVelYStream_.write((char *) render.getVelocityY(), sizeof(float) * imageSize * imageSize);
+        }
+        if(isVelz){
+            outputVelZStream_.write((char *) render.getVelocityZ(), sizeof(float) * imageSize * imageSize);
+        }
+        
+        //outputStream_.write((char *) render.getDensity(), sizeof(float) * imageSize * imageSize);
     }
     
-    outputStream_.close();
+    
+    if(isDensity){
+        outputDensStream_.close();
+    }
+    if(isVelx){
+        outputVelXStream_.close();
+    }
+    if(isVely){
+        outputVelYStream_.close();
+    }
+    if(isVelz){
+        outputVelZStream_.close();
+    }
+    //outputStream_.close();
 
     bar.end();
     //render.close();

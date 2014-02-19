@@ -105,6 +105,9 @@ TriDenRender::TriDenRender(int imagesize,
     
     boxsize_ = boxSize;
     density_ = new float[imagesize * imagesize];
+    velocityx_ = new float[imagesize * imagesize];
+    velocityy_ = new float[imagesize * imagesize];
+    velocityz_ = new float[imagesize * imagesize];
     
     currentAllocedColorSize = imagesize * imagesize * 6;
     colorData = (float *) malloc(currentAllocedColorSize * sizeof(float));
@@ -120,6 +123,9 @@ TriDenRender::~TriDenRender(){
     //delete[] outputStream_;
     //delete[] result_;
     delete[] density_;
+    delete[] velocityx_;
+    delete[] velocityy_;
+    delete[] velocityz_;
     free(colorData);
     
     //test
@@ -164,6 +170,59 @@ void TriDenRender::rendDensity(float * vertexdata,
         }
         
     }
+
+    rend(NumTriangles, vertexdata);
+}
+
+
+
+void TriDenRender::rendDensity(float * vertexdata,
+                               float * densitydata,
+                               float * velxdata,
+                               float * velydata,
+                               float * velzdata,
+                               int NumTriangles,
+                               bool isClear
+                               ){
+    
+    if(isClear){
+        memset(density_, 0, imagesize_ * imagesize_ * sizeof(float));
+    }
+    
+    int newColorSize = NumTriangles * 3 * maxNumRenderComp;
+    if(currentAllocedColorSize < newColorSize){
+        currentAllocedColorSize = newColorSize * 2;
+        colorData = (float *) realloc(colorData, currentAllocedColorSize * sizeof(float));//new float[NumTriangles * 3 * maxNumRenderComp];
+        //printf("ok\n");
+    }
+    
+    
+    //printf("ok2.5.2 -- %d\n", NumTriangles);
+    for(int i = 0; i < NumTriangles; i++){
+
+        colorData[i * maxNumRenderComp * 3 + 0 + 0] = densitydata[i];
+        colorData[i * maxNumRenderComp * 3 + 0 + 1] = velxdata[i * 3 + 0];
+        colorData[i * maxNumRenderComp * 3 + 0 + 2] = velydata[i * 3 + 0];
+        colorData[i * maxNumRenderComp * 3 + 0 + 3] = velzdata[i * 3 + 0];
+        
+        colorData[i * maxNumRenderComp * 3 + 4 + 0] = densitydata[i];
+        colorData[i * maxNumRenderComp * 3 + 4 + 1] = velxdata[i * 3 + 1];
+        colorData[i * maxNumRenderComp * 3 + 4 + 2] = velydata[i * 3 + 1];
+        colorData[i * maxNumRenderComp * 3 + 4 + 3] = velzdata[i * 3 + 1];
+        
+        colorData[i * maxNumRenderComp * 3 + 8 + 0] = densitydata[i];
+        colorData[i * maxNumRenderComp * 3 + 8 + 1] = velxdata[i * 3 + 2];
+        colorData[i * maxNumRenderComp * 3 + 8 + 2] = velydata[i * 3 + 2];
+        colorData[i * maxNumRenderComp * 3 + 8 + 3] = velzdata[i * 3 + 2];
+        
+    }
+
+    
+    rend(NumTriangles, vertexdata);
+}
+
+void TriDenRender::rend(int NumTriangles, float * vertexdata){
+    
     
     //copy the data
     fbuffer->bindTex();
@@ -213,7 +272,7 @@ void TriDenRender::rendDensity(float * vertexdata,
     glVertexPointer(2, GL_FLOAT, 0,
                     vertexdata);
     glColorPointer(4, GL_FLOAT, 0,
-                    colorData);
+                   colorData);
     
     glDrawArrays(GL_TRIANGLES, 0,
                  NumTriangles * 3);
@@ -231,15 +290,51 @@ void TriDenRender::rendDensity(float * vertexdata,
                   GL_RED,
                   GL_FLOAT,
                   density_);
+    
+    glGetTexImage(GL_TEXTURE_2D,
+                  0,
+                  //GL_RGBA,
+                  GL_GREEN,
+                  GL_FLOAT,
+                  velocityx_);
+    
+    glGetTexImage(GL_TEXTURE_2D,
+                  0,
+                  //GL_RGBA,
+                  GL_BLUE,
+                  GL_FLOAT,
+                  velocityy_);
+    
+    glGetTexImage(GL_TEXTURE_2D,
+                  0,
+                  //GL_RGBA,
+                  GL_ALPHA,
+                  GL_FLOAT,
+                  velocityz_);
     fbuffer->unbindTex();
     
     //printf("ok2.5.2.3\n");
     
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-    
 }
+
+
+
+
 
 float * TriDenRender::getDensity(){
     return density_;
+}
+
+float * TriDenRender::getVelocityX(){
+    return velocityx_;
+}
+
+float * TriDenRender::getVelocityY(){
+    return velocityy_;
+}
+
+float * TriDenRender::getVelocityZ(){
+    return velocityz_;
 }

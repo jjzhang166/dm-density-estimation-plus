@@ -32,24 +32,21 @@ const int POS  =  0x08;
 const int DENS =  0x10;
  */
 
-bool isPosition_ = true;
-bool isDensity_ = true;
-bool isVelX_ = false;
-bool isVelY_ = false;
-bool isVelZ_ = false;
+//bool isPosition_ = true;
+//bool isDensity_ = true;
+//bool isVelX_ = false;
+//bool isVelY_ = false;
+//bool isVelZ_ = false;
+
+bool isVelocity = false;
 
 void printUsage(string pname){
-    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n"
-            " %s\n %s\n %s\n %s\n %s\n",
+    printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
            pname.c_str(),
            "-df <Data Basename>",
            "-of <Output Basename>",
            "-imsize <imagesize>",
-           "-pos    output position data",
-           "-dens   output density data",
-           "-velx   (TODO) output density weighted velocity",
-           "-vely   (TODO) output density weighted velocity",
-           "-velz   (TODO) output density weighted velocity",
+           "-vel output velocity",
            "-parttype  <particle type>, default: 1",
            "-redshift <x> <y> <z>, the reshift shift distortion axis" 
            );
@@ -63,8 +60,15 @@ void savefile(DtetraStream &streamer){
     }
     
     
+    //printf("IsVelocity %d\n", isVelocity);
+    
     TriConverter triangleConverter(imageSize,
-                                   streamer.getHeader().boxSize);
+                                   streamer.getHeader().boxSize,
+                                   1024*1024 * 8,
+                                   isVelocity);
+    
+    
+
     
     TriHeader theader;
     theader.ImageSize = imageSize;
@@ -73,7 +77,7 @@ void savefile(DtetraStream &streamer){
     theader.dz = streamer.getHeader().boxSize / (double) imageSize;
     theader.numOfZPlanes = imageSize;
     
-    TrifileWriter twriter(theader);
+    TrifileWriter twriter(theader, isVelocity);
     twriter.open(outputbase);
     if(!twriter.good()){
         printf("Output error!\n");
@@ -121,11 +125,30 @@ void savefile(DtetraStream &streamer){
                     //output
                     int *f_inds = new int[triangleConverter.getTotalTriangles()];
                     int *planetris = triangleConverter.getNumTrisInPlanes();
+                    
                     vector<int> &trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
                     vector<float> &vertexData_ = triangleConverter.getVertex();
                     vector<float> &densityData_ = triangleConverter.getDensity();
+                    vector<float> &velxData_ = triangleConverter.getVelocityX();
+                    vector<float> &velyData_ = triangleConverter.getVelocityX();
+                    vector<float> &velzData_ = triangleConverter.getVelocityX();
                     
-                    twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
+                    //printf("try\n");
+                    if(!isVelocity){
+                        twriter.write(planetris,
+                                      &trianglePlaneIds_,
+                                      &vertexData_,
+                                      &densityData_);
+                    }else{
+                        twriter.write(planetris,
+                                      &trianglePlaneIds_,
+                                      &vertexData_,
+                                      &densityData_,
+                                      &velxData_,
+                                      &velyData_,
+                                      &velzData_);
+                    }
+                    //printf("ok\n");
                     //currentTriIdPlane[0] = 0;
                     
                     triangleConverter.reset();
@@ -148,7 +171,28 @@ void savefile(DtetraStream &streamer){
         vector<float> vertexData_ = triangleConverter.getVertex();
         vector<float> densityData_ = triangleConverter.getDensity();
         
-        twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
+        vector<float> &velxData_ = triangleConverter.getVelocityX();
+        vector<float> &velyData_ = triangleConverter.getVelocityX();
+        vector<float> &velzData_ = triangleConverter.getVelocityX();
+        
+        if(!isVelocity){
+            twriter.write(planetris,
+                          &trianglePlaneIds_,
+                          &vertexData_,
+                          &densityData_);
+        }else{
+            twriter.write(planetris,
+                          &trianglePlaneIds_,
+                          &vertexData_,
+                          &densityData_,
+                          &velxData_,
+                          &velyData_,
+                          &velzData_);
+        }
+        
+        //twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
+        
+        
         triangleConverter.reset();
         delete[] f_inds;
     }
@@ -180,21 +224,8 @@ int main(int argv, char * args[]){
             }else if(strcmp(args[k], "-imsize") == 0){
                 ss << args[k + 1];
                 ss >> imageSize;
-            }else if(strcmp(args[k], "-pos") == 0){
-                k --;
-                typeCode = typeCode | POS;
-            }else if(strcmp(args[k], "-dens") == 0){
-                typeCode = typeCode | DENS;
-                k --;
-            }else if(strcmp(args[k], "-velx") == 0){
-                typeCode = typeCode | VELX;
-                k --;
-            }else if(strcmp(args[k], "-vely") == 0){
-                typeCode = typeCode | VELY;
-                k --;
-            }else if(strcmp(args[k], "-velz") == 0){
-                typeCode = typeCode | VELZ;
-                k --;
+            }else if(strcmp(args[k], "-vel") == 0){
+                isVelocity = true;
             }else if(strcmp(args[k], "-redshift") == 0){
                 float r_x, r_y, r_z;
                 stringstream s0;

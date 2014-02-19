@@ -15,14 +15,6 @@
 class TriDenRender{
 public:
     
-    /*TriDenRender         (
-                            int imagesize,
-                            REAL boxSize,
-                            string * outputfiles,
-                            int numOfOutputs
-                           );*/
-    
-    
     TriDenRender            (
                             int imagesize,
                             REAL boxSize
@@ -34,14 +26,8 @@ public:
     
     ~TriDenRender          ();
     
-    //bool good();
     
-    //must contains numOfOutputs's outputs
-    //floatPerVerts contains 1 or 3
-    /*void    rend        (string vertexfile,
-                         string * componentFiles,
-                         int * floatPerTriangle
-                         );*/
+
     
     void rendDensity    (float * vertexdata,
                          float * densitydata,
@@ -49,19 +35,26 @@ public:
                          bool isClear = true
                          );
     
-    float * getDensity();
+    // render the velocity filed
+    // TODO
+    void rendDensity    (float * vertexdata,
+                         float * densitydata,
+                         float * velxdata,
+                         float * velydata,
+                         float * velzdata,
+                         int numtriangles,
+                         bool isClear = true
+                         );
     
-    //void close();
+    float * getDensity();
+    float * getVelocityX();
+    float * getVelocityY();
+    float * getVelocityZ();
     
 private:
     //int numOfOutputs_;
     
     void init();
-    
-    /*void setOutputFile(
-                       string * outputfiles,
-                       int numOfOutputs
-                       );*/
     
     int     imagesize_;
     REAL    boxsize_;
@@ -70,7 +63,14 @@ private:
     
     
     float * density_;
+    float * velocityx_;
+    float * velocityy_;
+    float * velocityz_;
+    
     float * colorData;
+    
+    
+    void rend(int NumTriangles, float * vertexdata);
     //the four component of the output color
     //fstream * outputStream_;
 

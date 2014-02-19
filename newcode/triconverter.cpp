@@ -24,11 +24,10 @@ using namespace std;
 
 TriConverter::TriConverter(int imagesize,
                            float boxsize,
-                            int maxNumTriangles
+                            int maxNumTriangles,
+                           bool isVelocity
                            ){
     
-    
-    //printf("%s %s\n", prefix.c_str(), outputbasename.c_str());
     imagesize_ = imagesize;
     boxsize_ = boxsize;
     dz_ = boxsize_ / imagesize_;
@@ -38,10 +37,20 @@ TriConverter::TriConverter(int imagesize,
     maxNumTriangles_ = maxNumTriangles;
     currentTriNum_ = 0;
     
+    isVelocity_ = isVelocity;
+    //printf("IsVelocity Cao %d\n", isVelocity);
     
     trianglePlaneIds_.reserve(maxNumTriangles_ + 100);
     vertexData_.reserve((maxNumTriangles_ + 100) * 6);  //every triangle has 3 vertexs, each vertex has 2 data point
     densityData_.reserve(maxNumTriangles_ + 100);       //each triangle has a single density
+    
+    if(isVelocity_){
+        velXData_.reserve((maxNumTriangles_ + 100) * 3);
+        velYData_.reserve((maxNumTriangles_ + 100) * 3);
+        velZData_.reserve((maxNumTriangles_ + 100) * 3);
+    }
+    
+    
     totalTriangles_ = 0;
     
     for(int i = 0; i < imagesize_; i ++){
@@ -56,30 +65,64 @@ TriConverter::~TriConverter(){
 
 
 
-
+//return a vector of the triangle ids
 vector<int> & TriConverter::getTrianglePlaneIds(){
     return trianglePlaneIds_;
-}//return a vector of the triangle ids
+}
+
+//get a float array of the vertexes
 vector<float> & TriConverter::getVertex(){
     return vertexData_;
-}//get a float array of the vertexes
+}
+
+//get a float vector of densities
 vector<float> & TriConverter::getDensity(){
     return densityData_;
-}//get a float vector of densities
+}
+
+
+vector<float> & TriConverter::getVelocityX(){
+    return velXData_;
+}
+
+vector<float> & TriConverter::getVelocityY(){
+    return velYData_;
+}
+
+vector<float> & TriConverter::getVelocityZ(){
+    return velZData_;
+}
+
+//get a array of number of triangles in each plane
 int * TriConverter::getNumTrisInPlanes(){
     return numTrianglePlanes;
-}//get a array of number of triangles in each plane
+}
+
+//whether the numoftris reach maximum
 bool TriConverter::isReachMax(){
     return (currentTriNum_ >= maxNumTriangles_);
-}//whether the numoftris reach maximum
+}
+
+
+
+//clear memories
 void TriConverter::reset(){
     currentTriNum_ = 0;
     trianglePlaneIds_.clear();
     vertexData_.clear();
     densityData_.clear();
+    
+    if(isVelocity_){
+        velXData_.clear();
+        velYData_.clear();
+        velZData_.clear();
+    }
+    
     memset(numTrianglePlanes, 0, sizeof(int) * imagesize_);
     totalTriangles_ = 0;
-}                          //clear memories
+}
+
+
 int TriConverter::getTotalTriangles(){
     return totalTriangles_;
 }
@@ -120,6 +163,22 @@ void TriConverter::process(Tetrahedron & tetra){
                 dens = 0.0;
             }
             densityData_.push_back(dens);
+            //printf("st000\n");
+            if(isVelocity_){
+                //printf("st\n");
+                velXData_.push_back(cutter.getTriangle(j).val1.x * dens);
+                velXData_.push_back(cutter.getTriangle(j).val2.x * dens);
+                velXData_.push_back(cutter.getTriangle(j).val3.x * dens);
+                
+                velYData_.push_back(cutter.getTriangle(j).val1.y * dens);
+                velYData_.push_back(cutter.getTriangle(j).val2.y * dens);
+                velYData_.push_back(cutter.getTriangle(j).val3.y * dens);
+                
+                velZData_.push_back(cutter.getTriangle(j).val1.z * dens);
+                velZData_.push_back(cutter.getTriangle(j).val2.z * dens);
+                velZData_.push_back(cutter.getTriangle(j).val3.z * dens);
+            }
+            
             numTrianglePlanes[i] ++;
             currentTriNum_ ++;
             totalTriangles_ ++;

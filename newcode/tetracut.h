@@ -8,6 +8,8 @@
 class IsoCutter{
 public:
     IsoCutter();
+    
+    //set the value of each point of the tetrahedra
     void setTetrahedron(Tetrahedron *tetra);
     void setValues(const REAL v1, const REAL v2, const REAL v3, const REAL v4);
     

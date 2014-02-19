@@ -1,3 +1,13 @@
+/*TriConverter:
+ Author: Lin Yang
+ 
+ Convert a tetrahedron to triangles.
+ Process a list of Tetrahedrons, and store the triangles into the memory.
+ 
+ Copyright reserved.
+ */
+
+
 #ifndef __TRICONVERTER__
 #define __TRICONVERTER__
 #include <vector>
@@ -8,7 +18,6 @@
 #include "tetracut.h"
 #include "tetrahedron.h"
 #include "triangle.h"
-//#include "triheader.h"
 
 using namespace std;
 //render the tetrahedrons into triangle file
@@ -16,61 +25,42 @@ using namespace std;
 class TriConverter{
 public:
     
-            TriConverter        ( int imagesize,
-                                  float boxsize,
-                                  int maxNumTriangles = 1024*1024
-                                  //string outputbase,
-                                  //int outputBufferSize = 1024*1024
-                                );
+    TriConverter( int imagesize,
+                 float boxsize,
+                 int maxNumTriangles = 1024*1024,
+                 bool isVelocity = false
+                 );
     
-            ~TriConverter        ();
+    ~TriConverter();
     
     //void    setOutput           (int ouputCode); //connected by "|"
     
-    void    process             (Tetrahedron & tetra);
-    void    process             (Tetrahedron * tetras, int numTetras);
+    void process(Tetrahedron & tetra);
+    void process(Tetrahedron * tetras, int numTetras);
+    
     vector<int> & getTrianglePlaneIds();      //return a vector of the triangle ids
+    
     vector<float> & getVertex();              //get a float array of the vertexes
     vector<float> & getDensity();             //get a float vector of densities
+    vector<float> & getVelocityX();
+    vector<float> & getVelocityY();
+    vector<float> & getVelocityZ();
+    
     int * getNumTrisInPlanes();               //get a array of number of triangles in each plane
     bool isReachMax();                        //whether the numoftris reach maximum
-    void    reset();                          //clear memories
+    void reset();                             //clear memories
     int getTotalTriangles();
-    //void    finish              ();
-                                            //the limit of render
-                                            //types of this render
 
 private:
-    
-    /*void writeToFile(int type,
-                     int planeId,
-                     ios_base::openmode mode,
-                     const char* s,
-                     streamsize n,
-                     bool isHeader = false
-                     );*/
-    
-    /*string outputBaseName_;
-    string prefix_;
-    
-    int outputBufferSize_;
-    
-    float * vertexbuffer_;
-    float * densbuffer_;
-    float * velXbuffer_;
-    float * velYbuffer_;
-    float * velZbuffer_;
-    //float * velocitybuffer_;
-    int * vertexIds_;
-    int * totalTriangles_;*/
-    
-    //fstream * outputStreams_;
-    
-    //void    outputPlane(int i);
+
     
     vector<int> trianglePlaneIds_;
     vector<float> vertexData_;
     vector<float> densityData_;
+    
+    vector<float> velXData_;
+    vector<float> velYData_;
+    vector<float> velZData_;
     
     int * numTrianglePlanes;
     int maxNumTriangles_;
@@ -85,12 +75,7 @@ private:
     
     IsoZCutter cutter;
     
-    
-    //bool isVelX_;
-    //bool isVelY_;
-    //bool isVelZ_;
-    //bool isPosition_;
-    //bool isDensity_;
+    bool isVelocity_;
 };
 
 #endif

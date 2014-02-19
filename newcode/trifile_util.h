@@ -15,12 +15,6 @@
 #endif
 
 
-#define TRIFILESUFFIX "tri"
-#define VERTEXFILESUFFIX "vert"
-#define DENSITYFILESUFFIX "dens"
-#define VELXFILESUFFIX "velx"
-#define VELYFILESUFFIX "velx"
-#define VELZFILESUFFIX "vely"
 
 class TrifileWriter{
 public:

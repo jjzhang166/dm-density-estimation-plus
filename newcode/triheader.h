@@ -2,11 +2,13 @@
 #define __TRIHEADER__
 #include <stdint.h>
 
+#define TRIFILESUFFIX "tri"
+#define VERTEXFILESUFFIX "vert"
+#define DENSITYFILESUFFIX "dens"
+#define DENFILESUFFIX DENSITYFILESUFFIX
 #define VELXFILESUFFIX "velx"
 #define VELYFILESUFFIX "vely"
 #define VELZFILESUFFIX "velz"
-#define DENFILESUFFIX "den"
-#define TRIFILESUFFIX "tri"
 
 /*******FILE STRUCTURE**********
     <TriHeader>                                     [256 bytes]

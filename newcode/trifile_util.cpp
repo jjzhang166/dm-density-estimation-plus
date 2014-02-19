@@ -251,6 +251,11 @@ void TrifileWriter::write(int * trianglesPerPlane,
     //float * velySorted = new float[velYData_->size()];
     //float * velzSorted = new float[velZData_->size()];
     
+    
+    //printf("abb %d %d %d %d %d! \n",densityData_->size(),
+    //       vertexData_->size(), velXData_->size(),
+    //       velYData_->size(), velZData_->size());
+    
     TriBlockHeader blockHeader;
     blockHeader.TotalTriangles = numOfTrisCurrentPlane_;
     
@@ -282,6 +287,7 @@ void TrifileWriter::write(int * trianglesPerPlane,
     }
     
     
+
     for(unsigned int m = 0; m < trianglePlaneIds_->size(); m++){
         //vertexFileStream_.write((char *) (vertexData_.data() + outputinds[m] * 6), sizeof(float) * 6);
         //densityFileStream_.write((char *) (densityData_.data() + outputinds[m]), sizeof(float));
@@ -305,6 +311,7 @@ void TrifileWriter::write(int * trianglesPerPlane,
         velzSorted[m * 3 + 1] =(*velZData_)[outputinds[m] * 3 + 1];
         velzSorted[m * 3 + 2] =(*velZData_)[outputinds[m] * 3 + 2];
     }
+    //printf("abb1!\n");
     vertexFileStream_.write((char *) (vertexSorted), sizeof(float) * (vertexData_->size()));
     densityFileStream_.write((char *) (densSorted), sizeof(float) * (densityData_->size()));
     velxFileStream_.write((char *) (velxSorted), sizeof(float) * (velXData_->size()));
