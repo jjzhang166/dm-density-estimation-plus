@@ -1,0 +1,58 @@
+#!/bin/bash
+datafile=$1
+outputbase=$2
+
+#particle type and gridsize of the simulation
+parttype=1
+gridsize=256
+imagesize=256
+
+#LTFE executables
+FILEDIVIDER=./FileDivider
+SLICDER=./TriSlicer
+RENDER=./TriDensRender
+VIEWER=./DensViewer
+
+#some setups
+DIV_N_SLICE_PER_B=64
+
+
+#running
+#devide the file into pieces
+echo Dividing Files
+${FILEDIVIDER} $datafile ${DIV_N_SLICE_PER_B} ${parttype} ${outputdir}${outputbase}
+
+echo
+echo Slicing tetrahedron into triangles
+#slice the tetrahedron into triangles
+${SLICDER} -df ${outputdir}${outputbase} \
+            -of ${outputdir}${outputbase} \
+            -imsize $imagesize\
+            -vel
+
+echo
+echo Rendering density and velocity field
+#render the triangles into densities and velocity fields  (\sum rho_i v_i)
+${RENDER} -df ${outputdir}${outputbase} \
+                -dens ${outputdir}${outputbase}.ltfedens \
+                -velx ${outputdir}${outputbase}.vfieldx \
+                -vely ${outputdir}${outputbase}.vfieldy \
+                -velz ${outputdir}${outputbase}.vfieldz \
+                -imsize ${imagesize}
+
+echo
+echo Rendering velocity dispersion
+#render the triangles into velocity dispersion (\sum rho_i v_i^2)
+${RENDER} -df ${outputdir}${outputbase} \
+                -velx ${outputdir}${outputbase}.vfieldx \
+                -vely ${outputdir}${outputbase}.vfieldy \
+                -velz ${outputdir}${outputbase}.vfieldz \
+                -imsize ${imagesize}
+
+echo 
+echo Finished
+#show the density:
+${VIEWER} ${outputdir}${outputbase}.ltfedens
+
+
+
