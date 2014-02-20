@@ -96,8 +96,8 @@ void CIC::render_particle(double * pos, double * vel, double mass){
             addToGridCells(velocityZField, pos, partrho * vel[2]);
         }else{
             addToGridCells(velocityXField, pos, partrho * vel[0] * vel[0]);
-            addToGridCells(velocityYField, pos, partrho * vel[1] * vel[0]);
-            addToGridCells(velocityZField, pos, partrho * vel[2] * vel[0]);
+            addToGridCells(velocityYField, pos, partrho * vel[1] * vel[1]);
+            addToGridCells(velocityZField, pos, partrho * vel[2] * vel[2]);
         }
     }
 }
