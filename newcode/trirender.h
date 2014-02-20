@@ -36,13 +36,14 @@ public:
                          );
     
     // render the velocity filed
-    // TODO
+    // isDisp: measure the velocity dispersion: \sum(rho_i * |v_i|^2)
     void rendDensity    (float * vertexdata,
                          float * densitydata,
                          float * velxdata,
                          float * velydata,
                          float * velzdata,
                          int numtriangles,
+                         bool isDisp = false,
                          bool isClear = true
                          );
     

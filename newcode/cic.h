@@ -3,7 +3,11 @@
 
 class CIC{
 public:
-    CIC(double boxSize, int gridsize, bool isVelocityField = false);
+    // for isVelocityField = true, calculate velocity field (\sum rho_i * v_i)
+    // for isVelocityField = true and isVdisp = true, calculate (\sum rho_i * v_i^2)
+    CIC(double boxSize, int gridsize,
+        bool isVelocityField = false,
+        bool isVdisp =false);
     ~CIC();
     
     // render a single particle into the mesh
@@ -24,6 +28,7 @@ private:
     double dx_;
     int gridsize_;
     bool isVelocityField_;
+    bool isVdisp_;
     double * densityField;
     double * velocityXField;
     double * velocityYField;

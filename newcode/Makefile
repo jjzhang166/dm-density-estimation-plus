@@ -11,12 +11,14 @@ SOURCESFILES= filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 tetrahedron.cpp indtetrahedron.cpp \
 			 dtetrastream.cpp trislicer.cpp\
 			 triangle.cpp tetracut.cpp triconverter.cpp \
-			 viewfun.cpp trifile_util.cpp
+			 viewfun.cpp trifile_util.cpp cic.cpp \
+			 cicdens.cpp
 
 CPPOBJS= filedivider.o gadgetreader.o read_utils.o io_utils.o\
 		processbar.o tetrahedron.o tetrahedron.o\
 		dtetrastream.o trislicer.o triangle.o tetracut.o\
-		triconverter.o viewfun.o trifile_util.o
+		triconverter.o viewfun.o trifile_util.o\
+		cic.o cicdens.o
 
 GLSOURCESFILES=  trirender.cpp buffers.cpp tridens.cpp\
 				 densviewer.cpp test.cpp 
@@ -28,6 +30,7 @@ FILEDIVIER=FileDivider
 TRISLICER=TriSlicer
 TRIRENS=TriDensRender
 DENSVIEWER=DensViewer
+CICDens=CICDens
 
 
 FILEDIVIEROBJS= filedivider.o io_utils.o \
@@ -44,20 +47,15 @@ RENDEROBJS=  tridens.o io_utils.o \
 			triconverter.o tetracut.o triangle.o trifile_util.o\
 			buffers.o trirender.o 
 
-CICOBJS= cic.o
+CICOBJS= cic.o cicdens.o gadgetreader.o read_utils.o processbar.o
 CICSRC= cic.cpp
 
 VIEWEROBJS= densviewer.o viewfun.o 
 
 all: cic $(FILEDIVIER)  $(TRISLICER) $(TRIRENS) $(DENSVIEWER) 
 
-cicpy: $(CICOBJS)
-	 swig -python -c++ -o _cicswigwrapper_module.cc cicswig.i
-	 swig -python -c++ -o _gadgetswigwrapper_module.cc GADGETSwig.i
-	 python setup.py build_ext --inplace
-
-$(CICOBJS), cic: $(CICSRC)
-	$(CC) -c $(CICSRC)
+$(CICDens), cic: $(CICOBJS)
+	$(CC) -o CICdens $(CICOBJS)
 
 $(FILEDIVIER) divider: $(FILEDIVIEROBJS)
 	$(CC) -o $(FILEDIVIER) $(FILEDIVIEROBJS)

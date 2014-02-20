@@ -182,6 +182,7 @@ void TriDenRender::rendDensity(float * vertexdata,
                                float * velydata,
                                float * velzdata,
                                int NumTriangles,
+                               bool isDisp,
                                bool isClear
                                ){
     
@@ -204,19 +205,36 @@ void TriDenRender::rendDensity(float * vertexdata,
     for(int i = 0; i < NumTriangles; i++){
 
         colorData[i * maxNumRenderComp * 3 + 0 + 0] = densitydata[i];
-        colorData[i * maxNumRenderComp * 3 + 0 + 1] = velxdata[i * 3 + 0];
-        colorData[i * maxNumRenderComp * 3 + 0 + 2] = velydata[i * 3 + 0];
-        colorData[i * maxNumRenderComp * 3 + 0 + 3] = velzdata[i * 3 + 0];
-        
         colorData[i * maxNumRenderComp * 3 + 4 + 0] = densitydata[i];
-        colorData[i * maxNumRenderComp * 3 + 4 + 1] = velxdata[i * 3 + 1];
-        colorData[i * maxNumRenderComp * 3 + 4 + 2] = velydata[i * 3 + 1];
-        colorData[i * maxNumRenderComp * 3 + 4 + 3] = velzdata[i * 3 + 1];
-        
         colorData[i * maxNumRenderComp * 3 + 8 + 0] = densitydata[i];
-        colorData[i * maxNumRenderComp * 3 + 8 + 1] = velxdata[i * 3 + 2];
-        colorData[i * maxNumRenderComp * 3 + 8 + 2] = velydata[i * 3 + 2];
-        colorData[i * maxNumRenderComp * 3 + 8 + 3] = velzdata[i * 3 + 2];
+        
+        if(!isDisp){
+            // velocity field: \sum rho_i v_i
+            colorData[i * maxNumRenderComp * 3 + 0 + 1] = velxdata[i * 3 + 0];
+            colorData[i * maxNumRenderComp * 3 + 0 + 2] = velydata[i * 3 + 0];
+            colorData[i * maxNumRenderComp * 3 + 0 + 3] = velzdata[i * 3 + 0];
+            
+            colorData[i * maxNumRenderComp * 3 + 4 + 1] = velxdata[i * 3 + 1];
+            colorData[i * maxNumRenderComp * 3 + 4 + 2] = velydata[i * 3 + 1];
+            colorData[i * maxNumRenderComp * 3 + 4 + 3] = velzdata[i * 3 + 1];
+            
+            colorData[i * maxNumRenderComp * 3 + 8 + 1] = velxdata[i * 3 + 2];
+            colorData[i * maxNumRenderComp * 3 + 8 + 2] = velydata[i * 3 + 2];
+            colorData[i * maxNumRenderComp * 3 + 8 + 3] = velzdata[i * 3 + 2];
+        }else{
+            //velocity dispersion: \sum rho_i v_i^2
+            colorData[i * maxNumRenderComp * 3 + 0 + 1] = velxdata[i * 3 + 0] * velxdata[i * 3 + 0] / densitydata[i];
+            colorData[i * maxNumRenderComp * 3 + 0 + 2] = velydata[i * 3 + 0] * velydata[i * 3 + 0] / densitydata[i];
+            colorData[i * maxNumRenderComp * 3 + 0 + 3] = velzdata[i * 3 + 0] * velzdata[i * 3 + 0] / densitydata[i];
+            
+            colorData[i * maxNumRenderComp * 3 + 4 + 1] = velxdata[i * 3 + 1] * velxdata[i * 3 + 1] / densitydata[i];
+            colorData[i * maxNumRenderComp * 3 + 4 + 2] = velydata[i * 3 + 1] * velydata[i * 3 + 1] / densitydata[i];
+            colorData[i * maxNumRenderComp * 3 + 4 + 3] = velzdata[i * 3 + 1] * velzdata[i * 3 + 1] / densitydata[i];
+            
+            colorData[i * maxNumRenderComp * 3 + 8 + 1] = velxdata[i * 3 + 2] * velxdata[i * 3 + 2] / densitydata[i];
+            colorData[i * maxNumRenderComp * 3 + 8 + 2] = velydata[i * 3 + 2] * velydata[i * 3 + 2] / densitydata[i];
+            colorData[i * maxNumRenderComp * 3 + 8 + 3] = velzdata[i * 3 + 2] * velzdata[i * 3 + 2] / densitydata[i];
+        }
         
     }
 

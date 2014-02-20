@@ -30,6 +30,7 @@ bool isDensity =false;
 bool isVelx = false;
 bool isVely = false;
 bool isVelz = false;
+bool isVelDisp = false;
 
 void printUsage(string pname){
     printf("Usage: %s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n",
@@ -39,7 +40,7 @@ void printUsage(string pname){
            "-velx <outputvelxfile>",
            "-vely <outputvelyfile>",
            "-velz <outputvelzfile>",
-           "-vdisp (TODO) <velocity dispersion>",
+           "-vdisp to measure the velocity^2 of velocity field",
            "-imsize <imagesize>"
            );
 }
@@ -78,6 +79,9 @@ int main(int argv, char * args[]){
             }else if(strcmp(args[k], "-imsize") == 0){
                 ss << args[k + 1];
                 ss >> imageSize;
+            }else if(strcmp(args[k], "-vdisp") == 0){
+                isVelDisp = true;
+                k --;
             }else{
                 printUsage(args[0]);
                 exit(1);
@@ -208,7 +212,8 @@ int main(int argv, char * args[]){
                                reader.getVelocityX(),
                                reader.getVelocityY(),
                                reader.getVelocityZ(),
-                               reader.getNumTriangles(plane));
+                               reader.getNumTriangles(plane),
+                               isVelDisp);
         }
         
         numtris += reader.getNumTriangles(plane);

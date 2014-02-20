@@ -10,10 +10,14 @@ using namespace std;
 #define clampPeriod(a, per) ((a)>=(per)?(a - per):((a) < (0)? (a + per):(a)))
 
 
-CIC::CIC(double boxSize, int gridsize, bool isVelocityField){
+CIC::CIC(double boxSize, int gridsize,
+         bool isVelocityField,
+         bool isVdisp){
     boxSize_ = boxSize;
     gridsize_ = gridsize;
     isVelocityField_ = isVelocityField;
+    isVdisp_ = isVdisp;
+    
     dx_ = boxSize_ / ((double) gridsize_);
     densityField = new double[gridsize * gridsize * gridsize];
     velocityXField = NULL;
@@ -86,9 +90,15 @@ void CIC::render_particle(double * pos, double * vel, double mass){
     addToGridCells(densityField, pos, partrho);
     
     if(isVelocityField_){
-        addToGridCells(velocityXField, pos, partrho * vel[0]);
-        addToGridCells(velocityYField, pos, partrho * vel[1]);
-        addToGridCells(velocityZField, pos, partrho * vel[2]);
+        if(!isVdisp_){
+            addToGridCells(velocityXField, pos, partrho * vel[0]);
+            addToGridCells(velocityYField, pos, partrho * vel[1]);
+            addToGridCells(velocityZField, pos, partrho * vel[2]);
+        }else{
+            addToGridCells(velocityXField, pos, partrho * vel[0] * vel[0]);
+            addToGridCells(velocityYField, pos, partrho * vel[1] * vel[0]);
+            addToGridCells(velocityZField, pos, partrho * vel[2] * vel[0]);
+        }
     }
 }
 
