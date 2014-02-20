@@ -3,7 +3,7 @@ LFLAG= -framework Carbon -framework OpenGL -framework GLUT
 #LFLAG=-lGL -lglut -lGLEW
 #LFLAG= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
 #IFLAG= -I./
-IFLAG= -I /usr/include/GL/ -I./ -I ~/Tools/glew/include/
+IFLAG= -I /usr/include/GL/ -I./ #-I ~/Tools/glew/include/
 
 SOURCESFILES= filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 GadgetReader/read_utils.c io_utils.cpp\
