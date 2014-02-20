@@ -1,4 +1,5 @@
 #include <fstream>
+#include <cstdlib>
 #include <stdint.h>
 #include <vector>
 #include "ltfeheader.h"
