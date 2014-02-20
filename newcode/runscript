@@ -44,9 +44,9 @@ echo
 echo Rendering velocity dispersion
 #render the triangles into velocity dispersion (\sum rho_i v_i^2)
 ${RENDER} -df ${outputdir}${outputbase} \
-                -velx ${outputdir}${outputbase}.vfieldx \
-                -vely ${outputdir}${outputbase}.vfieldy \
-                -velz ${outputdir}${outputbase}.vfieldz \
+                -velx ${outputdir}${outputbase}.vdispx \
+                -vely ${outputdir}${outputbase}.vdipsy \
+                -velz ${outputdir}${outputbase}.vdipsz \
                 -imsize ${imagesize}
 
 echo 
