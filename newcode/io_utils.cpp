@@ -28,11 +28,11 @@ void writeToDividerFile(string outputBaseName_,
     //printf("%d\n", i);
     
     if(type == INDEXTYPE){
-        filename = outputBaseName_ + "."INDEXSUFFIX"." + ss.str();
+        filename = outputBaseName_ + "." INDEXSUFFIX "." + ss.str();
     }else if(type == POSTYPE){
-        filename = outputBaseName_ + "."POSSUFFIX"." + ss.str();
+        filename = outputBaseName_ + "." POSSUFFIX "." + ss.str();
     }else if(type == VELTYPE){
-        filename = outputBaseName_ + "."VELSUFFIX"." + ss.str();
+        filename = outputBaseName_ + "." VELSUFFIX "." + ss.str();
     }else{
         return;
     }
@@ -58,7 +58,7 @@ divide_header readDividerFileHeader(std::string basename, int i){
     fstream infileStream;
     stringstream ss;
     ss << i;
-    string firstfile = basename + "."INDEXSUFFIX"." + ss.str();
+    string firstfile = basename + "." INDEXSUFFIX "." + ss.str();
     infileStream.open(firstfile.c_str(), ios::in | ios::binary);
     divide_header header;
     if(!infileStream.good()){
@@ -84,7 +84,7 @@ int64_t readDividerFileInds(std::string basename, int i, void * inds){
     fstream infileStream;
     stringstream ss;
     ss << i;
-    string filename = basename + "."INDEXSUFFIX"." + ss.str();
+    string filename = basename + "." INDEXSUFFIX "." + ss.str();
     
     infileStream.open(filename.c_str(), ios::in | ios::binary);
     divide_header header;
@@ -103,7 +103,7 @@ int64_t readDividerFilePos(std::string basename, int i, void * pos){
     fstream infileStream;
     stringstream ss;
     ss << i;
-    string filename = basename + "."POSSUFFIX"." + ss.str();
+    string filename = basename + "." POSSUFFIX "." + ss.str();
     
     infileStream.open(filename.c_str(), ios::in | ios::binary);
     divide_header header;
@@ -122,7 +122,7 @@ int64_t readDividerFileVel(std::string basename, int i, void * vel){
     fstream infileStream;
     stringstream ss;
     ss << i;
-    string filename = basename + "."VELSUFFIX"." + ss.str();
+    string filename = basename + "." VELSUFFIX "." + ss.str();
     
     infileStream.open(filename.c_str(), ios::in | ios::binary);
     divide_header header;

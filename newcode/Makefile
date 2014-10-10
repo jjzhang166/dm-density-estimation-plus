@@ -1,4 +1,5 @@
 #CC=g++
+#CC=g++ -std=c++11
 CC=g++ -std=c++0x
 #LFLAG= -framework Carbon -framework OpenGL -framework GLUT
 LFLAG=-lGL -lglut -lGLEW
@@ -106,6 +107,7 @@ clean:
 	rm -fr $(TRISLICER)
 	rm -fr $(TRIRENS)
 	rm -fr $(DENSVIEWER)
+	rm -fr $(CICDens)
 	rm -fr readtest
 	rm -fr _cicswigwrapper_module.cc
 	rm -fr _cicswigwrapper.so

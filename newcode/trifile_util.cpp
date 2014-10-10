@@ -69,11 +69,11 @@ TrifileWriter::~TrifileWriter(){
 //open the file and prepare the file for writing
 void TrifileWriter::open(std::string basename){
     
-    string vertfn = basename + "."TRIFILESUFFIX"."VERTEXFILESUFFIX;
-    string densfn = basename + "."TRIFILESUFFIX"."DENSITYFILESUFFIX;
-    string velxfn = basename + "."TRIFILESUFFIX"."VELXFILESUFFIX;
-    string velyfn = basename + "."TRIFILESUFFIX"."VELYFILESUFFIX;
-    string velzfn = basename + "."TRIFILESUFFIX"."VELZFILESUFFIX;
+    string vertfn = basename + "." TRIFILESUFFIX "." VERTEXFILESUFFIX;
+    string densfn = basename + "." TRIFILESUFFIX "." DENSITYFILESUFFIX;
+    string velxfn = basename + "." TRIFILESUFFIX "." VELXFILESUFFIX;
+    string velyfn = basename + "." TRIFILESUFFIX "." VELYFILESUFFIX;
+    string velzfn = basename + "." TRIFILESUFFIX "." VELZFILESUFFIX;
     
     vertexFileStream_.open(vertfn.c_str(), ios::binary | ios::out);
     densityFileStream_.open(densfn.c_str(), ios::binary | ios::out);
@@ -434,11 +434,11 @@ TrifileReader::TrifileReader(std::string basename, bool isVelocity){
     basename_ = basename;
     isVelocity_ = isVelocity;
     
-    string vertfn = basename + "."TRIFILESUFFIX"."VERTEXFILESUFFIX;
-    string densfn = basename + "."TRIFILESUFFIX"."DENSITYFILESUFFIX;
-    string velxfn = basename + "."TRIFILESUFFIX"."VELXFILESUFFIX;
-    string velyfn = basename + "."TRIFILESUFFIX"."VELYFILESUFFIX;
-    string velzfn = basename + "."TRIFILESUFFIX"."VELZFILESUFFIX;
+    string vertfn = basename + "." TRIFILESUFFIX "." VERTEXFILESUFFIX;
+    string densfn = basename + "." TRIFILESUFFIX "." DENSITYFILESUFFIX;
+    string velxfn = basename + "." TRIFILESUFFIX "." VELXFILESUFFIX;
+    string velyfn = basename + "." TRIFILESUFFIX "." VELYFILESUFFIX;
+    string velzfn = basename + "." TRIFILESUFFIX "." VELZFILESUFFIX;
     
     vertexFileStream_.open(vertfn.c_str(), ios::binary | ios::in);
     densityFileStream_.open(densfn.c_str(), ios::binary | ios::in);
