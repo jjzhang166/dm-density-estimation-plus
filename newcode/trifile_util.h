@@ -79,7 +79,7 @@ private:
     float * velySorted;
     float * velzSorted;
     
-    int cBufferSize_;
+    unsigned int cBufferSize_;
     
     int64_t numOfTrisCurrentPlane_;
 };

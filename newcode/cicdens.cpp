@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-
+#include <cinttypes>
 
 #include "GadgetReader/gadgetreader.hpp"
 #include "GadgetReader/gadgetheader.h"
@@ -136,7 +136,7 @@ int main(int argv, char * args[]){
         gridSize = ceil(pow(nparts, 1.0 / 3.0));
     }
     
-    fprintf(stderr, "Num of Particles: %lld\n", nparts);
+    fprintf(stderr, "Num of Particles: %" PRId64 "\n", nparts);
     fprintf(stderr, "BoxSize: %f\n", snap.GetHeader().BoxSize);
     fprintf(stderr, "Num Files: %d\n", snap.GetNumFiles());
     fprintf(stderr, "Grid Size: %d\n", gridSize);
@@ -155,7 +155,7 @@ int main(int argv, char * args[]){
         vector<float> tempvel = snap.GetBlock("VEL ", BUFFERSIZE, cts, ignorecode);
         cts += temppos.size() / 3;
         bar.setvalue(cts);
-        for(int i = 0; i < temppos.size() / 3; i++){
+        for(unsigned int i = 0; i < temppos.size() / 3; i++){
             double pos[3],vel[3];
             
             pos[0] = temppos[i * 3 + 0];
