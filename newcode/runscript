@@ -24,7 +24,7 @@ ${FILEDIVIDER} $datafile ${DIV_N_SLICE_PER_B} ${parttype} ${outputdir}${outputba
 
 echo
 echo Slicing tetrahedron into triangles
-slice the tetrahedron into triangles
+#slice the tetrahedron into triangles
 ${SLICDER} -df ${outputdir}${outputbase} \
             -of ${outputdir}${outputbase} \
             -imsize $imagesize\
