@@ -1,6 +1,22 @@
 #!/bin/bash
 datafile=$1
 outputbase=$2
+runstep=$3
+
+if [ -z $runstep ] 
+then
+    echo "Usage: <datafile> <outputbase> <runstep>"
+    echo "runstep: 0 --run all scripts from begining"
+    echo "runstep: 1 --run from the 1st step"
+    echo "runstep: 2 --run from the 2nd step"
+    echo "runstep: 3 --run from the 3rd step"
+    echo "runstep: 4 --run from the 4th step"
+    echo "runstep: -1 --run only the 1st step"
+    echo "runstep: -2 --run from the 2nd step"
+    echo "runstep: -3 --run from the 3rd step"
+    echo "runstep: -4 --run from the 4th step"
+    exit 0
+fi
 
 #particle type and gridsize of the simulation
 parttype=1
@@ -17,42 +33,83 @@ VIEWER=./DensViewer
 DIV_N_SLICE_PER_B=64
 
 
-#running
-#devide the file into pieces
-echo Dividing Files
-${FILEDIVIDER} $datafile ${DIV_N_SLICE_PER_B} ${parttype} ${outputdir}${outputbase}
+function divide(){
+    #running
+    #divide the file into pieces
+    echo Dividing Files
+    ${FILEDIVIDER} $datafile ${DIV_N_SLICE_PER_B} ${parttype} ${outputdir}${outputbase}
+}
 
-echo
-echo Slicing tetrahedron into triangles
-#slice the tetrahedron into triangles
-${SLICDER} -df ${outputdir}${outputbase} \
+function slice(){
+    echo
+    echo Slicing tetrahedron into triangles
+    #slice the tetrahedron into triangles
+    ${SLICDER} -df ${outputdir}${outputbase} \
             -of ${outputdir}${outputbase} \
             -imsize $imagesize\
             -vel
+}
 
-echo
-echo Rendering density and velocity field
-#render the triangles into densities and velocity fields  (\sum rho_i v_i)
-${RENDER} -df ${outputdir}${outputbase} \
+function render(){
+    
+    echo
+    echo Rendering density and velocity field
+    #render the triangles into densities and velocity fields  (\sum rho_i v_i)
+    ${RENDER} -df ${outputdir}${outputbase} \
                 -dens ${outputdir}${outputbase}.ltfedens \
                 -velx ${outputdir}${outputbase}.vfieldx \
                 -vely ${outputdir}${outputbase}.vfieldy \
                 -velz ${outputdir}${outputbase}.vfieldz \
                 -imsize ${imagesize}
 
-echo
-echo Rendering velocity dispersion
-#render the triangles into velocity dispersion (\sum rho_i v_i^2)
-${RENDER} -df ${outputdir}${outputbase} \
+    echo
+    echo Rendering velocity dispersion
+    #render the triangles into velocity dispersion (\sum rho_i v_i^2)
+    ${RENDER} -df ${outputdir}${outputbase} \
                 -velx ${outputdir}${outputbase}.vdispx \
                 -vely ${outputdir}${outputbase}.vdipsy \
                 -velz ${outputdir}${outputbase}.vdipsz \
                 -imsize ${imagesize}
-
-echo 
-echo Finished
-#show the density:
-${VIEWER} ${outputdir}${outputbase}.ltfedens
+}
 
 
+function view(){
+    echo 
+    echo Finished
+    #show the density:
+    ${VIEWER} ${outputdir}${outputbase}.ltfedens
 
+}
+
+case $runstep in
+    [0-1])
+        divide
+        slice
+        render
+        view
+        ;;
+    2)
+        slice
+        render
+        view
+        ;;
+    3)
+        render
+        view
+        ;;
+    4) 
+        view
+        ;;
+    -1)
+        divide
+        ;;
+    -2)
+        slice
+        ;;
+    -3)
+        render
+        ;;
+    -4)
+        view
+        ;;
+esac
