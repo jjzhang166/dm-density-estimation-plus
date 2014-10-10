@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <cinttypes>
 
 #include "tetrahedron.h"
 #include "dtetrastream.h"
@@ -199,7 +200,7 @@ void savefile(DtetraStream &streamer){
     
     //numTetras = 0;
     bar.end();
-    printf("Finished.\nIn total %lld tetrahedrons output.\n", tetra_count);
+    printf("Finished.\nIn total %" PRIu64 " tetrahedrons output.\n", tetra_count);
 }
 
 
