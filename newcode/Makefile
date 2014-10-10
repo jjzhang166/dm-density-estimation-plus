@@ -1,6 +1,6 @@
 #CC=g++
-CC=g++ -std=c++11
-#CC=g++ -std=c++0x
+#CC=g++ -std=c++11
+CC=g++ -std=c++0x
 #LFLAG= -framework Carbon -framework OpenGL -framework GLUT
 LFLAG=-lGL -lglut -lGLEW
 #LFLAG= -lGL -lglut /home/lyang/Tools/glew/lib/libGLEW.a
