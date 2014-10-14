@@ -2,11 +2,20 @@ The new code is made up of three parts:
 1 FileDivider,
 	divide the huge data set into small blocks, each block could be converted to tetrahedron individually.
 	output: filename.ind.n, filename.pos.n, filename.vel.n
+    output format: 256 header + data
+        header: filenumber(int32), totalfiles(int32),
+            gridsize(int32), numslices(int32), startind(int64)
+            boxsize(float64) 
+        each file contains gridsize*gridsize*(numz+1) data, 
+        where numz = gridsize / numslices    
 
 2 TetraSlicer,
 	slice the the dataset into triangle slices
-	output: filename.tri.pos.n filename.tri.vel.n
+	output: filename.tri.pos.n filename.tri.vel[xyz].n
 
-3 Render
+3 TriDensRender
 	render the tetra slicer files into density blocks
 	output: filename.dens filename.velx filename.vely filename.velz
+
+Also provide a CIC scheme density estimator:
+1 CICDens.cpp cic.cpp cic.h
