@@ -366,6 +366,7 @@ Triangle3d& IsoCutter::getTrangle(int i){
 
 IsoZCutter::IsoZCutter(){
     tetra_ = NULL;
+    this->slabThickness = 0.0;
 }
 
 void IsoZCutter::setTetrahedron(Tetrahedron *tetra){
@@ -456,7 +457,9 @@ void IsoZCutter::sortVertex(){
 
 
 int IsoZCutter::cut(REAL isoz){
-    
+    occupyFraction[0] = 1.0;
+    occupyFraction[1] = 1.0;
+
     if((isoz < val[0]) || (isoz > val[3])){
         return 0;
     }else if((isoz <= val[1]) && (isoz >= val[0])){
@@ -474,6 +477,13 @@ int IsoZCutter::cut(REAL isoz){
             triangles_[0].val2 = tetra_->velocity2;
             triangles_[0].val3 = tetra_->velocity3;
             
+            REAL A = triangles_[0].getArea(); 
+            REAL vol = 0.0;
+            if(v14.z < slabThickness){
+                vol = abs(v14.z * A);
+            }else{
+                        
+            }
             return 1;
         }else if(v14.z == 0.0){
             num_tris_ = 0;
@@ -601,6 +611,25 @@ int IsoZCutter::cut(REAL isoz){
     }
 }
 
+
+
+
+
+REAL IsoZCutter::getFraction(int i){
+    if(i < 2){
+        return occupyFraction[i];
+    }
+    return 0;
+}
+
+void IsoZCutter::setThickness(REAL thickness){
+    this->slabThickness = thickness;
+}
+
+
 Triangle3d& IsoZCutter::getTriangle(int i){
+    if(i > 1){
+        i = 1;
+    }
     return triangles_[i];
 }
