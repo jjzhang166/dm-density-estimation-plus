@@ -1,7 +1,20 @@
+/**********************************************************
+ * Definition of point2d and triangle classes 
+ *
+ * Author: Lin F. Yang
+ *
+ * Date: Feb 2014
+ *
+ * These functions are defined in-line to be used in CUDA
+ **********************************************************/
+
 #ifndef __TRIANGLE__
 #define __TRIANGLE__
 #include "tetrahedron.h"
 
+
+/* The Point2d class are the points on a plane, used to 
+ * represent 2d triangles */
 class Point2d{
 public:
     REAL x;

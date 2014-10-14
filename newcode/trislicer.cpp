@@ -1,3 +1,9 @@
+/******************************************************
+ * Slice the data block file into slices of triangles.
+ * Author: Lin F. Yang
+ * Date: Feb 2014
+ ******************************************************/
+
 #include <cstdlib>
 #include <fstream>
 #include <cstring>
@@ -25,19 +31,6 @@ bool isRedShiftDist = false;
 Point redshiftAxis;
 int typeCode = 0x00;
 
-/*
-const int VELX =  0x01;
-const int VELY =  0x02;
-const int VELZ =  0x04;
-const int POS  =  0x08;
-const int DENS =  0x10;
- */
-
-//bool isPosition_ = true;
-//bool isDensity_ = true;
-//bool isVelX_ = false;
-//bool isVelY_ = false;
-//bool isVelZ_ = false;
 
 bool isVelocity = false;
 
@@ -54,15 +47,15 @@ void printUsage(string pname){
 }
 
 
-
+/**Convert triangles by reading tetrahedra data from the streamer */
 void savefile(DtetraStream &streamer){
+    /* Set the redshift distortion */
     if(isRedShiftDist){
         streamer.setRedShitDistortion(redshiftAxis);
     }
     
     
-    //printf("IsVelocity %d\n", isVelocity);
-    
+    /* Setup the triangle converter */
     TriConverter triangleConverter(imageSize,
                                    streamer.getHeader().boxSize,
                                    1024*1024 * 8,
@@ -70,7 +63,7 @@ void savefile(DtetraStream &streamer){
     
     
 
-    
+    /* Triangle file header */ 
     TriHeader theader;
     theader.ImageSize = imageSize;
     theader.boxSize = streamer.getHeader().boxSize;
@@ -78,6 +71,7 @@ void savefile(DtetraStream &streamer){
     theader.dz = streamer.getHeader().boxSize / (double) imageSize;
     theader.numOfZPlanes = imageSize;
     
+    /* Triangle file writer */
     TrifileWriter twriter(theader, isVelocity);
     twriter.open(outputbase);
     if(!twriter.good()){
@@ -85,56 +79,86 @@ void savefile(DtetraStream &streamer){
         exit(1);
     }
     
-    //triangleConverter.setOutput(typeCode);
-    
-    
-    //int datagridsize = streamer.getHeader().gridsize;
-     
-    //int numTetras = 0;
 
     uint64_t tetra_count = 0;
     
 
-    
+     
     int count_ind = 0;
     int numfiles = streamer.getHeader().totalfiles;
     IndTetrahedron indtetra;
     
     
-    //int *currentTriIdPlane = new int[imagesize];
-    //memset(currentTriIdPlane, 0, sizeof(int) * imagesize);
-    
+    /* Progress bar */ 
     ProcessBar bar(numfiles * 100, 0);
     bar.start();
+   
+
+    /***********DEBUG****************/
+    double density_mean_tetraheron = 0.0;
+    /********************************/
+
+
+    /* Start converting tetrahedra to triangles */
     for(int l = 0; l < numfiles; l++){
         streamer.loadBlock(l);
         int numindtetra = streamer.getNumTetras();
+
+        /* Using the object of index tetrahedra */
         IndTetrahedronManager & im = streamer.getCurrentIndtetraManeger();
         for(int i = 0; i < numindtetra; i ++){
-            streamer.getIndTetra(indtetra, i);
+
             
+            /* Get the i-th index tetrahera by reference */
+            streamer.getIndTetra(indtetra, i);
+
+
+            /* Update the progress bar */
             bar.setvalue(l * 100 + i * 100 / numindtetra);
             
+            /* Deal with the peoridical condition */
             int nt = im.getNumPeriodical(indtetra);
             Tetrahedron * ts = im.getPeroidTetras(indtetra);
+            
+            /* Counts the number of index tetrahedra */
             count_ind ++;
+
+            /************DEBUG************/
+            density_mean_tetraheron += 1.0 / ts[0].volume / 6.0;
+            /*****************************/
+            
             for(int k = 0; k < nt; k++){
+
+                /* Convert the tetrahedra to be a list of triangles*/
+                /* These triangles are saving the memory buffer*/
                 triangleConverter.process(ts[k]);
-                
-                //printf("Is Max: %d\n", triangleConverter.isReachMax());
+               
+                /* If memory buffer is full, then need save all the triangles
+                 * into the hard drive, and clean the memory buffer.*/
                 if(triangleConverter.isReachMax()){
-                    //output
-                    int *f_inds = new int[triangleConverter.getTotalTriangles()];
-                    int *planetris = triangleConverter.getNumTrisInPlanes();
                     
+
+                    //int *f_inds = new int[triangleConverter.getTotalTriangles()];
+
+                    /* Output the counts of triangles in each plane. */
+                    int *planetris = triangleConverter.getNumTrisInPlanes();
+                   
+                    /* Each triangle's plane id */
                     vector<int> &trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
+                    
+                    /* Vertex data of the triangle list */
                     vector<float> &vertexData_ = triangleConverter.getVertex();
+                    
+                    /* The density data of the triangle list */
                     vector<float> &densityData_ = triangleConverter.getDensity();
+                    
+                    /* These are the velocity field of these triangles */
                     vector<float> &velxData_ = triangleConverter.getVelocityX();
                     vector<float> &velyData_ = triangleConverter.getVelocityY();
                     vector<float> &velzData_ = triangleConverter.getVelocityZ();
                     
-                    //printf("try\n");
+                    
+                    /* write the data into memory */
                     if(!isVelocity){
                         twriter.write(planetris,
                                       &trianglePlaneIds_,
@@ -149,11 +173,9 @@ void savefile(DtetraStream &streamer){
                                       &velyData_,
                                       &velzData_);
                     }
-                    //printf("ok\n");
-                    //currentTriIdPlane[0] = 0;
                     
                     triangleConverter.reset();
-                    delete[] f_inds;
+                    //delete[] f_inds;
                 }
                 
                 
@@ -164,9 +186,9 @@ void savefile(DtetraStream &streamer){
     }
     
     
-    //output the final triangles
+    /* Output the final portion triangles */
     if(triangleConverter.getTotalTriangles() > 0){
-        int *f_inds = new int[triangleConverter.getTotalTriangles()];
+        //int *f_inds = new int[triangleConverter.getTotalTriangles()];
         int *planetris = triangleConverter.getNumTrisInPlanes();
         vector<int> trianglePlaneIds_ = triangleConverter.getTrianglePlaneIds();
         vector<float> vertexData_ = triangleConverter.getVertex();
@@ -191,22 +213,24 @@ void savefile(DtetraStream &streamer){
                           &velzData_);
         }
         
-        //twriter.write(planetris, trianglePlaneIds_, vertexData_, densityData_);
-        
         
         triangleConverter.reset();
-        delete[] f_inds;
+        //delete[] f_inds;
     }
     
-    //numTetras = 0;
+    
+    /* End the progress bar */
     bar.end();
     printf("Finished.\nIn total %" PRIu64 " tetrahedrons output.\n", tetra_count);
+
+
+    /**************DEBUG*************/
+    printf("#tetras=%d, Average density of tetrahedra is %e.\n", count_ind, density_mean_tetraheron/count_ind);
+    /********************************/
 }
 
 
 int main(int argv, char * args[]){
-
-    
     int k = 1;
     if(argv == 1){
         printUsage(args[0]);
@@ -261,6 +285,7 @@ int main(int argv, char * args[]){
         }
     }
     
+    /* Data stream of tetrahedra */
     DtetraStream streamer(inputbase);
 
     savefile(streamer);

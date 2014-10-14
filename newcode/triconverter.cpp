@@ -1,18 +1,19 @@
+/************************************************************
+ * Convert a tetraheron into a list of triangles.
+ * Author: Lin F. Yang
+ * Date: Feb. 2014
+ * **********************************************************/
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-//#include <stdlib>
 #include <cmath>
 #include <sstream>
 
-
 #include "types.h"
-
 #include "tetracut.h"
-
 #include "triheader.h"
-
 #include "triconverter.h"
 
 #define NUM_FLOATS_VERTEX 6
@@ -24,7 +25,7 @@ using namespace std;
 
 TriConverter::TriConverter(int imagesize,
                            float boxsize,
-                            int maxNumTriangles,
+                           int maxNumTriangles,
                            bool isVelocity
                            ){
     
@@ -38,7 +39,6 @@ TriConverter::TriConverter(int imagesize,
     currentTriNum_ = 0;
     
     isVelocity_ = isVelocity;
-    //printf("IsVelocity Cao %d\n", isVelocity);
     
     trianglePlaneIds_.reserve(maxNumTriangles_ + 100);
     vertexData_.reserve((maxNumTriangles_ + 100) * 6);  //every triangle has 3 vertexs, each vertex has 2 data point
@@ -163,14 +163,11 @@ void TriConverter::process(Tetrahedron & tetra){
                 dens = 0.0;
             }
             densityData_.push_back(dens);
-            //printf("st000\n");
             if(isVelocity_){
-                //printf("st\n");
                 velXData_.push_back(cutter.getTriangle(j).val1.x * dens);
                 velXData_.push_back(cutter.getTriangle(j).val2.x * dens);
                 velXData_.push_back(cutter.getTriangle(j).val3.x * dens);
                 
-                //test
                 velYData_.push_back(cutter.getTriangle(j).val1.y * dens);
                 velYData_.push_back(cutter.getTriangle(j).val2.y * dens);
                 velYData_.push_back(cutter.getTriangle(j).val3.y * dens);

@@ -68,8 +68,8 @@ plt.imshow(velZArray[:,:,30])
 plt.show()
 
 #Example for reading LTFE data:
-from LTFELoad import *
-reader = LTFEReader('/Users/lyang/Documents/Projects/dm-density-estimation-plus/newcode/test/try.dens');
+import ltfepy
+reader = ltfepy.LTFEReader('/Users/lyang/Documents/Projects/dm-density-estimation-plus/newcode/test/try.dens');
 header = reader.header;
 data = reader.data
 plt.imshow(data[:,:,10])

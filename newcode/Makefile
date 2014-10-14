@@ -17,7 +17,7 @@ SOURCESFILES= filedivider.cpp GadgetReader/gadgetreader.cpp \
 			 cicdens.cpp
 
 CPPOBJS= filedivider.o gadgetreader.o read_utils.o io_utils.o\
-		processbar.o tetrahedron.o tetrahedron.o\
+		processbar.o tetrahedron.o\
 		dtetrastream.o trislicer.o triangle.o tetracut.o\
 		triconverter.o viewfun.o trifile_util.o\
 		cic.o cicdens.o
