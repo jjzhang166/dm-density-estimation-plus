@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cmath>
 #include "tetracut.h"
 
 using namespace std;
@@ -366,7 +367,7 @@ Triangle3d& IsoCutter::getTrangle(int i){
 
 IsoZCutter::IsoZCutter(){
     tetra_ = NULL;
-    this->slabThickness = 0.0;
+    this->slabThickness_ = 0.0;
 }
 
 void IsoZCutter::setTetrahedron(Tetrahedron *tetra){
@@ -457,8 +458,8 @@ void IsoZCutter::sortVertex(){
 
 
 int IsoZCutter::cut(REAL isoz){
-    occupyFraction[0] = 1.0;
-    occupyFraction[1] = 1.0;
+    triangleThickness_[0] = slabThickness_;
+    triangleThickness_[1] = slabThickness_;
 
     if((isoz < val[0]) || (isoz > val[3])){
         return 0;
@@ -477,12 +478,10 @@ int IsoZCutter::cut(REAL isoz){
             triangles_[0].val2 = tetra_->velocity2;
             triangles_[0].val3 = tetra_->velocity3;
             
-            REAL A = triangles_[0].getArea(); 
-            REAL vol = 0.0;
-            if(v14.z < slabThickness){
-                vol = abs(v14.z * A);
-            }else{
-                        
+            //REAL A = triangles_[0].getArea(); 
+            //REAL vol = 0.0;
+            if(v14.z < slabThickness_){
+                triangleThickness_[0] = abs(v14.z);
             }
             return 1;
         }else if(v14.z == 0.0){
@@ -503,11 +502,21 @@ int IsoZCutter::cut(REAL isoz){
             triangles_[0].val3 = tetra_->velocity1 +
                                 (tetra_->velocity4 - tetra_->velocity1)
                                 * (isoz - val[0]) / v14.z;
+
+            if(val[3] - isoz < slabThickness_){
+                //TODO
+            }else if(val[2] - isoz < slabThickness_){
+                //TODO
+
+            }else if(val[1] - isoz < slabThickness_){
+                // (v_t - S*h1/3)/(S/3)
+                // where h1 = abs(val[0] - isoz)
+            }
+
             return 1;
         }
 
     }else if((isoz < val[2]) && (isoz > val[1])){
-        //printf("Ok\n");
         if(v13.z >0 && v23.z > 0 && v24.z >0 && v14.z > 0){
             num_tris_ = 2;
             //13
@@ -615,15 +624,15 @@ int IsoZCutter::cut(REAL isoz){
 
 
 
-REAL IsoZCutter::getFraction(int i){
+REAL IsoZCutter::getTriangleThickness(int i){
     if(i < 2){
-        return occupyFraction[i];
+        return triangleThickness_[i];
     }
     return 0;
 }
 
 void IsoZCutter::setThickness(REAL thickness){
-    this->slabThickness = thickness;
+    this->slabThickness_ = thickness;
 }
 
 

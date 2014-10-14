@@ -85,15 +85,17 @@ public:
     //this thickness is used to calucate the portion to occupy the slab
     //the portion is calcuted as (Volume intersecting the slab) /(A*t)
     //where A is the area of the triangle. If t->0, then the value is 1.
-    //The fraction is returned by getFraction()
+    //This class does not calculate the fraction but do return the height
+    //of the triangle instead. The fraction will be calculated in the use
+    //case of this cutter.
     void setThickness(REAL thickness); 
-    REAL getFraction(int i);
+    REAL getTriangleThickness(int i);
 
 private:
-    REAL slabThickness;
+    REAL slabThickness_;
     Tetrahedron *tetra_;
     Triangle3d triangles_[2];
-    REAL ocuppyFraction[2];
+    REAL triangleThickness_[2];
     Point v12, v13, v14, v23, v24, v34;
     int num_tris_;
     REAL val[4];
