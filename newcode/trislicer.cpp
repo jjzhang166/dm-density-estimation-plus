@@ -92,7 +92,13 @@ void savefile(DtetraStream &streamer){
     /* Progress bar */ 
     ProcessBar bar(numfiles * 100, 0);
     bar.start();
-    
+   
+
+    /***********DEBUG****************/
+    double density_mean_tetraheron = 0.0;
+    /********************************/
+
+
     /* Start converting tetrahedra to triangles */
     for(int l = 0; l < numfiles; l++){
         streamer.loadBlock(l);
@@ -116,6 +122,10 @@ void savefile(DtetraStream &streamer){
             
             /* Counts the number of index tetrahedra */
             count_ind ++;
+
+            /************DEBUG************/
+            density_mean_tetraheron += 1.0 / ts[0].volume / 6.0;
+            /*****************************/
             
             for(int k = 0; k < nt; k++){
 
@@ -212,6 +222,11 @@ void savefile(DtetraStream &streamer){
     /* End the progress bar */
     bar.end();
     printf("Finished.\nIn total %" PRIu64 " tetrahedrons output.\n", tetra_count);
+
+
+    /**************DEBUG*************/
+    printf("#tetras=%d, Average density of tetrahedra is %e.\n", count_ind, density_mean_tetraheron/count_ind);
+    /********************************/
 }
 
 

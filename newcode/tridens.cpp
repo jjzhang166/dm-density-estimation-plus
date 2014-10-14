@@ -1,3 +1,11 @@
+/****************************************************************
+ * This file contains the main function of rendering the triangle
+ * slices of tetrahedra tessellation into density cube grid.
+ *
+ * Author: Lin F. Yang
+ * Date: Feb. 2014
+ ****************************************************************/
+
 #include <fstream>
 #include <cstdlib>
 #include <string>
@@ -54,7 +62,6 @@ int main(int argv, char * args[]){
     }else{
         while(k < argv){
             stringstream ss;
-            //printf("%s\n", args[k]);
             if(strcmp(args[k], "-df") == 0){
                 base_name = args[k + 1];
             }else if(strcmp(args[k], "-dens") == 0){
@@ -94,7 +101,6 @@ int main(int argv, char * args[]){
 
     
     TrifileReader reader(base_name, isVelocity);
-    //printf("OK\n");
     
     if(reader.getHeader().numOfZPlanes < imageSize){
         fprintf(stderr, "Num of zplanes in files less than imagesize.\n");
@@ -104,7 +110,8 @@ int main(int argv, char * args[]){
         fprintf(stderr, "Image size is not a divisor of numOfFilesß.\n");
         exit(1);
     }
-    
+   
+    /* Initialize the render */
     TriDenRender render(imageSize,
                         reader.getHeader().boxSize
                         );
@@ -116,12 +123,14 @@ int main(int argv, char * args[]){
     }
 
     
-    
+    /* Output file streams */
     fstream outputDensStream_, outputVelXStream_,
         outputVelYStream_, outputVelZStream_;
     
     bool isL1File = false;
-    
+   
+
+    /* Open the ouput streams */
     if(isDensity){
         outputDensStream_.open(outputdensfile.c_str(), ios::out | ios::binary);
         if(!outputDensStream_.good()){
@@ -164,6 +173,7 @@ int main(int argv, char * args[]){
     }
     
     
+    /* LTFE output header */
     LTFEHeader lheader;
     lheader.xyGridSize = imageSize;
     lheader.zGridSize = imageSize;
@@ -171,8 +181,6 @@ int main(int argv, char * args[]){
     lheader.startZ = 0;
     lheader.dz = reader.getHeader().boxSize / imageSize;
     
-    //test
-    //printf("Header %d\n", sizeof(lheader));
     if(isDensity){
         outputDensStream_.write((char *) &lheader, sizeof(LTFEHeader));
     }
@@ -191,17 +199,20 @@ int main(int argv, char * args[]){
     ProcessBar bar(imageSize, 0);
     bar.start();
     
-    //int tcount = imageSize / 20;
     int numtris = 0;
+
+    /* Render the triangles, a plane a time */
     for(int i = 0; i < imageSize; i++){
         bar.setvalue(i);
-        //int fileno = i * numOfFiles / imageSize;
-        
-        int plane = reader.getHeader().numOfZPlanes / imageSize * i;
-        
+       
+        /* Calculate the actual plane id in the triangle file */
+        int plane = reader.getHeader().numOfZPlanes * i / imageSize;
+       
+        /* Load the triangles into memory */
         reader.loadPlane(plane);
-        //printf("ok2.5\n");
         
+        
+        /* Render the density */
         if(!isVelocity){
             render.rendDensity(reader.getTriangles(),
                                reader.getDensity(),
@@ -232,7 +243,6 @@ int main(int argv, char * args[]){
             outputVelZStream_.write((char *) render.getVelocityZ(), sizeof(float) * imageSize * imageSize);
         }
         
-        //outputStream_.write((char *) render.getDensity(), sizeof(float) * imageSize * imageSize);
     }
     
     

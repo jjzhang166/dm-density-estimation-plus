@@ -1,9 +1,18 @@
+/*******************************************************
+ * This file defines the related procedroes for dealing
+ * with the peoridical conditions of index-tetrahedra
+ *
+ * Author: Lin F. Yang
+ * Date: Feb 2014
+ * *****************************************************/
+
+
 #include <cmath>
 #include "tetrahedron.h"
 
 using namespace std;
 
-
+/* Splite a peorical tetrahedra on the X-direction*/
 void splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
     static Point * vertexs[4];
     static Point * velocity[4];
@@ -49,7 +58,7 @@ void splitTetraX(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
 }
 
 
-
+/* Splite the tetrahedra on y-direction */
 void splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
     static Point * vertexs[4];
     static Point * velocity[4];
@@ -94,7 +103,7 @@ void splitTetraY(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
 	tetra1.computeMaxMin();
 }
 
-
+/* Splite the tetrahedra on z-direction */
 void splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
     static Point * vertexs[4];
 	static Point * temp_;
@@ -145,7 +154,7 @@ void splitTetraZ(Tetrahedron & tetra, Tetrahedron & tetra1, REAL boxsize){
 
 
 
-
+/* This the constrcutor for the index tetrahedron manager */
 CUDA_CALLABLE_MEMBER IndTetrahedronManager::IndTetrahedronManager(
                                                                   Point * parray,
                                                                   REAL box,
@@ -161,16 +170,20 @@ CUDA_CALLABLE_MEMBER IndTetrahedronManager::IndTetrahedronManager(
 CUDA_CALLABLE_MEMBER void IndTetrahedronManager::setIsVelocity(bool isVelocity){
     isVelocity_ = isVelocity;
 }
+
 CUDA_CALLABLE_MEMBER void IndTetrahedronManager::setPosArray(Point * parray){
     positionArray = parray;
 }
+
 CUDA_CALLABLE_MEMBER void IndTetrahedronManager::setVelArray(Point * varray){
     velocityArray = varray;
 }
+
 CUDA_CALLABLE_MEMBER void IndTetrahedronManager::setBoxSize(REAL box){
     box_ = box;
 }
 
+/* Test whether a point is in a index tetrahedra */
 CUDA_CALLABLE_MEMBER bool IndTetrahedronManager::isInTetra(const IndTetrahedron &tetra_, const Point &p) const{
     
     Tetrahedron t;
@@ -183,8 +196,15 @@ CUDA_CALLABLE_MEMBER bool IndTetrahedronManager::isInTetra(const IndTetrahedron 
     return t.isInTetra(p);
 }
 
+
+/* Return the homogenous coordinates for index tetrahedra */
 CUDA_CALLABLE_MEMBER bool IndTetrahedronManager::isInTetra(const IndTetrahedron &tetra_,
-                                                           Point &p, double &d0, double &d1, double &d2, double &d3, double &d4) const{
+                                                           Point &p, 
+                                                           double &d0, 
+                                                           double &d1, 
+                                                           double &d2, 
+                                                           double &d3, 
+                                                           double &d4) const{
     Tetrahedron t;
     
     t.v1 = positionArray[tetra_.ind1];
@@ -198,20 +218,26 @@ CUDA_CALLABLE_MEMBER bool IndTetrahedronManager::isInTetra(const IndTetrahedron 
 CUDA_CALLABLE_MEMBER Point& IndTetrahedronManager::posa(const IndTetrahedron &tetra_) const{
     return positionArray[tetra_.ind1];
 }
+
 CUDA_CALLABLE_MEMBER Point& IndTetrahedronManager::posb(const IndTetrahedron &tetra_) const{
     return positionArray[tetra_.ind2];
 }
+
 CUDA_CALLABLE_MEMBER Point& IndTetrahedronManager::posc(const IndTetrahedron &tetra_) const{
     return positionArray[tetra_.ind3];
 }
+
+
 CUDA_CALLABLE_MEMBER Point& IndTetrahedronManager::posd(const IndTetrahedron &tetra_) const{
     return positionArray[tetra_.ind4];
 }
 
 
+/* Velocity of the four points */
 CUDA_CALLABLE_MEMBER Point& IndTetrahedronManager::vela(const IndTetrahedron &tetra_) const{
     return velocityArray[tetra_.ind1];
 }
+
 CUDA_CALLABLE_MEMBER Point& IndTetrahedronManager::velb(const IndTetrahedron &tetra_) const{
     return velocityArray[tetra_.ind2];
 }
@@ -229,6 +255,7 @@ CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::minx(const IndTetrahedron &tetr
     Point &v4 = positionArray[tetra_.ind4];
     return fmin(fmin(fmin(v1.x, v2.x), v3.x), v4.x);
 }
+
 CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::miny(const IndTetrahedron &tetra_) const{
     Point &v1 = positionArray[tetra_.ind1];
     Point &v2 = positionArray[tetra_.ind2];
@@ -236,6 +263,7 @@ CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::miny(const IndTetrahedron &tetr
     Point &v4 = positionArray[tetra_.ind4];
     return fmin(fmin(fmin(v1.y, v2.y), v3.y), v4.y);
 }
+
 CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::minz(const IndTetrahedron &tetra_) const{
     Point &v1 = positionArray[tetra_.ind1];
     Point &v2 = positionArray[tetra_.ind2];
@@ -243,6 +271,7 @@ CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::minz(const IndTetrahedron &tetr
     Point &v4 = positionArray[tetra_.ind4];
     return fmin(fmin(fmin(v1.z, v2.z), v3.z), v4.z);
 }
+
 CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::maxx(const IndTetrahedron &tetra_) const{
     Point &v1 = positionArray[tetra_.ind1];
     Point &v2 = positionArray[tetra_.ind2];
@@ -250,6 +279,7 @@ CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::maxx(const IndTetrahedron &tetr
     Point &v4 = positionArray[tetra_.ind4];
     return fmax(fmax(fmax(v1.x, v2.x), v3.x), v4.x);
 }
+
 CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::maxy(const IndTetrahedron &tetra_) const{
     Point &v1 = positionArray[tetra_.ind1];
     Point &v2 = positionArray[tetra_.ind2];
@@ -257,6 +287,7 @@ CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::maxy(const IndTetrahedron &tetr
     Point &v4 = positionArray[tetra_.ind4];
     return fmax(fmax(fmax(v1.y, v2.y), v3.y), v4.y);
 }
+
 CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::maxz(const IndTetrahedron &tetra_) const{
     Point &v1 = positionArray[tetra_.ind1];
     Point &v2 = positionArray[tetra_.ind2];
@@ -265,7 +296,8 @@ CUDA_CALLABLE_MEMBER REAL IndTetrahedronManager::maxz(const IndTetrahedron &tetr
     return fmax(fmax(fmax(v1.z, v2.z), v3.z), v4.z);
 }
 
-
+/* Compute how many peoridical tetrahedras are there.
+ * Calling this function will computes the peoridical tetrahedra at the same time*/
 CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrahedron &t){
     Tetrahedron &tetra_ = tetras_p[0];
 	tetra_.v1 = positionArray[t.ind1];
@@ -280,20 +312,17 @@ CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrah
 	    tetra_.velocity4 = velocityArray[t.ind4];
     }
     
-    //printf("%d %d %d %d %f\n", t.ind1, t.ind2, t.ind3, t.ind4, box_);
     tetra_.computeVolume();
     
     //periodical correction:
     int tetra_num = 1;
-    
-    //test
-    //return tetra_num;
     
     int temp_num = 0;
     if(tetra_.maxx() - tetra_.minx() > box_ / 2.0){
         splitTetraX(tetra_, tetras_p[1], box_);
         tetra_num ++;
     }
+
     temp_num = 0;
     for(int i = 0; i < tetra_num; i++){
         Tetrahedron &t = tetras_p[i];
@@ -302,6 +331,7 @@ CUDA_CALLABLE_MEMBER int IndTetrahedronManager::getNumPeriodical(const IndTetrah
             temp_num ++;
         }
     }
+
     tetra_num += temp_num;
     temp_num = 0;
     for(int i = 0; i < tetra_num; i++){
