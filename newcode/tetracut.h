@@ -1,3 +1,21 @@
+/*****************************************************************
+ * tetracut.h: the definition of class IsoCutter, a class to cut 
+ * the tetrahedron to triangles.
+ * 
+ * The general class is the first IsoCutter.
+ * For specific use in the code, use IsoZCutter.
+ *
+ * Author: Lin Yang
+ * Date: Feb 2014
+ * Changes:
+ * Oct/14/2014: 
+ *   Add the a slab cut, to calculate the portion that this tetra-
+ *   hedra occupies the slab region. This value is used to calc 
+ *   the actual density in the final cube cell and avoid overflow
+ *   if any the tetraheron is too small.
+ *****************************************************************/
+
+
 #ifndef __TETRACUT__H
 #define __TETRACUT__H
 #include "types.h"
@@ -15,7 +33,7 @@ public:
     
     //return how many triangles are there after this cutting 
     int cut(REAL isovalue);
-    
+
     //cut the tetrahedron with value interpolated to the value of the triangle
     int cut(REAL isovalue, REAL val1, REAL val2, REAL val3, REAL val4);
     int cut(REAL isovalue, Point &val1, Point &val2, Point &val3, Point &val4);
@@ -33,7 +51,7 @@ public:
     bool iso_cut_line(REAL _isoval, Point &p1, Point &p2, REAL v1, REAL v2, Point &val1, Point &val2, Point &retp, Point &retv);
     
     
-private:
+private:   
     Tetrahedron *tetra_;
     REAL v1_, v2_, v3_, v4_;
     Triangle3d t1_, t2_;
@@ -61,10 +79,21 @@ public:
     
     //get the i-th triangles after the cut
     Triangle3d& getTriangle(int i);
-    
+
+
+    //cut the triangle with a thickness of the slice
+    //this thickness is used to calucate the portion to occupy the slab
+    //the portion is calcuted as (Volume intersecting the slab) /(A*t)
+    //where A is the area of the triangle. If t->0, then the value is 1.
+    //The fraction is returned by getFraction()
+    void setThickness(REAL thickness); 
+    REAL getFraction(int i);
+
 private:
+    REAL slabThickness;
     Tetrahedron *tetra_;
     Triangle3d triangles_[2];
+    REAL ocuppyFraction[2];
     Point v12, v13, v14, v23, v24, v34;
     int num_tris_;
     REAL val[4];
