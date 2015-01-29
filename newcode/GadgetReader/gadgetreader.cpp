@@ -17,6 +17,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//Swap the endianness of the header correctly.
+//doubles need endian swapping differently to ints.
+void header_endian_swap(gadget_header * header)
+{
+    //Pointer to start of header
+    void * ptr = (void *) &(header->npart[0]);
+    //npart.
+    ptr = multi_endian_swap((uint32_t *)ptr, 6);
+    //mass array, redshift and time.
+    ptr = multi_endian_swap64((uint64_t *)ptr, 8);
+    //Various flags
+    ptr = multi_endian_swap((uint32_t *)ptr, 10);
+    //cosmology
+    ptr = multi_endian_swap64((uint64_t *)ptr, 4);
+    //Remaining material
+    ptr = multi_endian_swap((uint32_t *)ptr, (sizeof(gadget_header)-11*4-12*8)/4);
+}
+
+
 /** \file 
  * GadgetReader library method file*/
 namespace GadgetReader{
@@ -51,8 +70,6 @@ namespace GadgetReader{
         fclose(fd);
         //Read the first file
         GSnapFile first_map(first_file, debug,BlockNames);
-        if(first_map.GetNumBlocks() == 0)
-                return;
         //Set the global variables. 
         base_filename=first_file;
         //Take the ".0" from the end if needed.
@@ -60,18 +77,18 @@ namespace GadgetReader{
                 std::string::iterator it=base_filename.end();
                 base_filename.erase(it-2,it);
         }
-        files_expected=first_map.header.num_files;
-        if(files_expected < 1){
-                WARN("Implausible number of files supposedly in simulation set: %d\n",files_expected);
-                return;
-        }
-        if(!BlockNames && !first_map.format_2 )
-               WARN("WARNING: Reading Gadget-I file using pre-computed\nblock order, which may not correspond to the actual order of your file!\n");
         //Put the information from the first file in
         file_maps.push_back(first_map);
         //Add the particles for this file to the totals
         for(int j=0; j<N_TYPE; j++)
            npart[j]=file_maps[0].header.npart[j];
+        files_expected=first_map.header.num_files;
+        if(files_expected < 1 || files_expected > 999){
+                WARN("Implausible number of files supposedly in simulation set: %d\n",files_expected);
+                return;
+        }
+        if(!BlockNames && !first_map.format_2 )
+               WARN("WARNING: Reading Gadget-I file using pre-computed\nblock order, which may not correspond to the actual order of your file!\n");
         //Get the information for the other files.
         for(int i=1;i<files_expected;i++){
                 f_name c_name=base_filename;
@@ -160,7 +177,10 @@ namespace GadgetReader{
                                   WARN("Could not read HEAD in %s!\n",file);
                                   return;
                           }
-                          if(swap_endian) endian_swap(&record_size);
+                          if(swap_endian){
+                              endian_swap(&record_size);
+                              header_endian_swap(&header);
+                          }
                           if(record_size != sizeof(gadget_header)){
                                  WARN("Bad record size for HEAD in %s!\n",file);
                                  return;
@@ -380,7 +400,7 @@ namespace GadgetReader{
         //Find total number of particles needed
         for(unsigned int i=0; i<file_maps.size(); i++)
                 if(file_maps[i].blocks.count(BlockName)){
-                        if(type > 0 && type < N_TYPE)
+                        if(type >= 0 && type < N_TYPE)
                                 size+=file_maps[i].header.npart[type]*file_maps[i].blocks[BlockName].partlen;
                         else
                                 size+=file_maps[i].blocks[BlockName].length;
@@ -467,11 +487,23 @@ namespace GadgetReader{
                         WARN("Could not open file %d of %lu, continuing\n",i,file_maps.size());
                         continue;
                 }
+                //Check whether need to swap endianness
+                bool swap_endian = file_maps[i].GetFormat() & 2;
                 //Seek to first particle
                 if(fseek(fd,start_pos,SEEK_SET) == -1)
                         WARN("Failed to seek\n");
                 //Read the data!
                 read_data=fread(((char *)block)+npart_read*cur_block.partlen,cur_block.partlen,npart_file,fd);
+                if(swap_endian){
+                    //Swap the endianness of the data.
+                    //If we have 1 64-bit entry (say, particle ID) swap it 64-bit wise.
+                    //FIXME: This will fail for, eg, 3D 64-bit entries.
+                    //Otherwise, swap it 32-bit wise.
+                    if (cur_block.partlen == 8)
+                        multi_endian_swap64((uint64_t *)block+npart_read*cur_block.partlen,npart_file);
+                    else
+                        multi_endian_swap((uint32_t *)block+npart_read*cur_block.partlen,npart_file*cur_block.partlen/4);
+                }
                 //Don't die if we read the wrong amount of data; maybe we can find it in the next file.
                 if(read_data !=npart_file)
                         WARN("Only read %u particles of %u from file %d\n",read_data,npart_file,i);
